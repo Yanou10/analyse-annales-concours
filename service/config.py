@@ -17,19 +17,42 @@ RACINE_CODE = Path(os.environ.get("SERVICE_RACINE_CODE", "/app")).resolve()
 TRAVAIL = Path(os.environ.get("SERVICE_TRAVAIL", "/travail")).resolve()
 
 TACHES = TRAVAIL / "taches"
-JOURNAL_ETAGES = Path(os.environ.get("ETAGE0_JOURNAL", str(TRAVAIL / "journal" / "journal.jsonl")))
 
-#: Le référentiel vit dans le VOLUME, pas dans l'image. C'est de la matière
-#: produite, elle évolue à son rythme, et la reconstruire dans une image à
-#: chaque correction de notion n'a pas de sens. Conséquence directe : un volume
-#: non approvisionné donne un service qui démarre et ne peut rien étiqueter —
-#: `/sante` doit donc le dire, pas rendre « 0 notion » l'air de rien.
-REFERENTIEL = Path(os.environ.get(
-    "SERVICE_REFERENTIEL", str(TRAVAIL / "referentiel" / "genere" / "sections")))
-SONDES = Path(os.environ.get("SERVICE_SONDES", str(TRAVAIL / "referentiel" / "sondes.yaml")))
-#: `ETAGE0_SORTIE` est le dossier PARENT de `sections/` : c'est par lui que les
-#: étages 0 et 3 trouvent le référentiel.
-SORTIE_ETAGES = Path(os.environ.get("ETAGE0_SORTIE", str(REFERENTIEL.parent)))
+#: Espace de travail temporaire : un dossier par tâche, détruit à la fin QUOI
+#: QU'IL ARRIVE. Il est sur le volume et non dans /tmp, pour que le conteneur
+#: n'enfle pas et que le contenu soit inspectable pendant l'exécution.
+ESPACES = TRAVAIL / "espaces"
+
+#: Le journal reste LOCAL — c'est la reprise sur appels déjà payés, elle doit
+#: être rapide — mais segmenté par signature : deux campagnes menées sur des
+#: référentiels différents n'ont rien à partager, et les mélanger ferait
+#: réutiliser des étiquettes calculées contre un autre référentiel.
+JOURNAUX = TRAVAIL / "journal"
+
+
+def journal_de(signature: str) -> Path:
+    return JOURNAUX / f"{signature}.jsonl"
+
+
+# --------------------------------------------------------------------------- #
+# MinIO — l'entrée et la sortie du service
+# --------------------------------------------------------------------------- #
+MINIO_URL = os.environ.get("MINIO_URL", "minio:9000")
+MINIO_CLE = os.environ.get("MINIO_ACCESS_KEY") or os.environ.get("MINIO_ROOT_USER", "")
+MINIO_SECRET = os.environ.get("MINIO_SECRET_KEY") or os.environ.get("MINIO_ROOT_PASSWORD", "")
+MINIO_TLS = os.environ.get("MINIO_TLS", "0") not in ("0", "", "false", "False")
+
+SEAU_PROGRAMMES = os.environ.get("SERVICE_SEAU_PROGRAMMES", "programmes")
+SEAU_CORPUS = os.environ.get("SERVICE_SEAU_CORPUS", "corpus")
+SEAU_SORTIES = os.environ.get("SERVICE_SEAU_SORTIES", "sorties")
+
+#: Arborescence dans `sorties/`. Une seule définition, pour que le service et
+#: l'humain qui ouvre la console MinIO parlent des mêmes chemins.
+PREFIXE_REFERENTIELS = "referentiels"
+PREFIXE_CORPUS = "corpus"
+PREFIXE_ETIQUETTES = "etiquettes"
+PREFIXE_CONFRONTATIONS = "confrontations"
+PREFIXE_MESURES = "mesures"
 
 #: Une seule tâche lourde à la fois. L'étiquetage appelle l'API et se paie :
 #: deux passes concurrentes sur le même corpus doubleraient la facture sans
@@ -41,7 +64,32 @@ SORTIE_MAX = int(os.environ.get("SERVICE_SORTIE_MAX", 20_000))
 
 
 class CheminRefuse(ValueError):
-    """Chemin hors du volume de travail."""
+    """Chemin hors du volume, ou clé d'objet mal formée."""
+
+
+#: Une clé d'objet ne doit pas pouvoir remonter l'arborescence une fois
+#: transformée en chemin local : `../../etc/passwd` déposé comme nom d'objet
+#: écrirait hors de l'espace de travail au téléchargement.
+def valider_cle(cle: str) -> str:
+    if not cle or cle != cle.strip() or cle.startswith("/"):
+        raise CheminRefuse(f"clé d'objet mal formée : {cle!r}")
+    morceaux = [m for m in cle.split("/") if m]
+    if any(m in ("..", ".") for m in morceaux) or "\\" in cle:
+        raise CheminRefuse(f"clé d'objet refusée (remontée d'arborescence) : {cle!r}")
+    return "/".join(morceaux)
+
+
+#: Empreinte de référentiel : 16 caractères hexadécimaux, telle que la rend
+#: `/construire`. Tout le reste est refusé — une empreinte libre permettrait
+#: d'écrire n'importe où sous `sorties/referentiels/`.
+def valider_empreinte(empreinte: str) -> str:
+    normalisee = (empreinte or "").strip().lower()
+    if len(normalisee) != 16 or any(c not in "0123456789abcdef" for c in normalisee):
+        raise CheminRefuse(
+            f"empreinte de référentiel invalide : {empreinte!r} "
+            "(attendu : 16 caractères hexadécimaux)"
+        )
+    return normalisee
 
 
 def resoudre(chemin: str, doit_exister: bool = True) -> Path:
@@ -81,9 +129,12 @@ def environnement_etages() -> dict[str, str]:
     de l'orchestrateur.
     """
     env = dict(os.environ)
-    env.setdefault("ETAGE0_RACINE", str(RACINE_CODE))
-    env.setdefault("ETAGE0_JOURNAL", str(JOURNAL_ETAGES))
-    env.setdefault("ETAGE0_SORTIE", str(SORTIE_ETAGES))
+    env["ETAGE0_RACINE"] = str(RACINE_CODE)
+    # `ETAGE0_SORTIE` et `ETAGE0_JOURNAL` sont posés PAR TÂCHE, selon le
+    # référentiel et la signature : les laisser fuir depuis l'environnement du
+    # service ferait écrire deux campagnes dans le même journal.
+    env.pop("ETAGE0_SORTIE", None)
+    env.pop("ETAGE0_JOURNAL", None)
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUNBUFFERED"] = "1"
     return env

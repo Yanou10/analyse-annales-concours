@@ -8,17 +8,19 @@ ENV PYTHONUNBUFFERED=1 \
     SERVICE_RACINE_CODE=/app \
     SERVICE_TRAVAIL=/travail \
     ETAGE0_RACINE=/app \
-    ETAGE0_JOURNAL=/travail/journal/journal.jsonl \
     ETAGE0_PROGRAMME=/app/programme/spe777_annexe_1373646.md
+# ETAGE0_PROGRAMME ne sert plus qu'au calcul de signature de `/sante` :
+# `POST /construire` le remplace par le programme descendu de MinIO.
 
-# Le référentiel est de la MATIÈRE PRODUITE, pas du code : il vit dans le
-# volume. Le figer dans l'image obligerait à reconstruire à chaque notion
-# corrigée, et ferait diverger l'image de ce qu'on mesure réellement.
-# `ETAGE0_SORTIE` est le dossier parent de `sections/` : c'est par lui que les
-# étages 0 et 3 trouvent le référentiel.
-ENV SERVICE_REFERENTIEL=/travail/referentiel/genere/sections \
-    SERVICE_SONDES=/travail/referentiel/sondes.yaml \
-    ETAGE0_SORTIE=/travail/referentiel/genere
+# Le référentiel n'est NI dans l'image NI un préalable : c'est une donnée
+# d'entrée que `POST /construire` produit depuis un programme officiel,
+# rangée dans MinIO sous son empreinte. Plusieurs référentiels coexistent,
+# et `ETAGE0_SORTIE` est posé PAR TÂCHE — le figer ici ferait écrire deux
+# campagnes au même endroit.
+ENV MINIO_URL=minio:9000 \
+    SERVICE_SEAU_PROGRAMMES=programmes \
+    SERVICE_SEAU_CORPUS=corpus \
+    SERVICE_SEAU_SORTIES=sorties
 
 WORKDIR /app
 

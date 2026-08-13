@@ -1,21 +1,34 @@
-"""Exécution des commandes en tâche de fond, avec état persistant.
+"""Exécution en tâche de fond : préparer, exécuter, reverser, nettoyer.
 
-Deux décisions structurent ce fichier :
+Chaque tâche suit le même cycle, et le nettoyage est dans un `finally` :
 
-1. **L'état vit sur disque, pas en mémoire.** Un étiquetage dure des minutes et
+    espace = /travail/espaces/<tache>
+    try:
+        commande = plan.preparer(espace)   # descend les entrées de MinIO
+        code     = sous-processus(commande)
+        resultat = plan.reverser(espace)   # remonte les sorties, si code == 0
+    finally:
+        rm -rf espace
+
+Trois décisions structurent le fichier :
+
+1. **L'état vit sur disque**, pas en mémoire. Un étiquetage dure des minutes et
    coûte de l'argent ; si le service redémarre pendant, il faut pouvoir dire ce
    qui tournait. Au démarrage, toute tâche restée `en_cours` est reclassée
-   `interrompu` — plutôt que de laisser croire qu'elle avance encore.
-2. **Une seule tâche lourde à la fois.** L'étiquetage passe par une file à un
-   seul exécutant ; les commandes déterministes ont leur propre file. Sans
-   cela, deux passes concurrentes sur le même corpus paieraient deux fois les
-   mêmes appels — le journal des étages ne dédoublonne qu'après la réponse.
+   `interrompu`, plutôt que de laisser croire qu'elle avance encore.
+2. **Une seule tâche lourde à la fois** — étiquetage et construction du
+   référentiel appellent le modèle. Deux passes concurrentes sur le même corpus
+   paieraient deux fois les mêmes appels : le journal ne dédoublonne qu'APRÈS
+   la réponse.
+3. **Rien n'est reversé si la commande a échoué.** Une sortie partielle déposée
+   dans le seau se lirait comme un résultat.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import threading
 import time
@@ -24,7 +37,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from queue import Queue
-from typing import Any
+from typing import Any, Callable
 
 from . import config
 from .journalisation import alerter, echouer, tracer
@@ -35,11 +48,32 @@ EN_ATTENTE, EN_COURS, FINI, ECHEC, INTERROMPU = (
 
 
 @dataclass
-class Tache:
-    id: str
+class Execution:
+    """Ce que la préparation rend : la commande, et ce qu'il faut à son
+    environnement. `ETAGE0_SORTIE` et `ETAGE0_JOURNAL` en font partie — ils
+    dépendent du référentiel et de la signature, donc de la tâche."""
+
     commande: list[str]
+    env: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class Plan:
     endpoint: str
     lourde: bool
+    preparer: Callable[[Path], Execution]
+    reverser: Callable[[Path], dict[str, Any]]
+    contexte: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class Tache:
+    id: str
+    endpoint: str
+    lourde: bool
+    commande: list[str] = field(default_factory=list)
+    contexte: dict[str, Any] = field(default_factory=dict)
+    resultat: dict[str, Any] | None = None
     etat: str = EN_ATTENTE
     cree: float = field(default_factory=time.time)
     demarre: float | None = None
@@ -83,10 +117,11 @@ class Registre:
             except (json.JSONDecodeError, OSError):
                 continue  # écriture interrompue : on ignore plutôt que de casser
             brut.pop("duree_s", None)
-            tache = Tache(**brut)
+            try:
+                tache = Tache(**brut)
+            except TypeError:
+                continue  # tâche d'une version antérieure du service
             if tache.etat in (EN_COURS, EN_ATTENTE):
-                # Le service a redémarré pendant : le dire, plutôt que de
-                # laisser une tâche « en cours » qui n'avance plus.
                 tache.etat = INTERROMPU
                 tache.erreur = "service redémarré pendant l'exécution"
                 tache.fini = tache.fini or time.time()
@@ -104,8 +139,13 @@ class Registre:
         )
         os.replace(temporaire, cible)  # atomique : jamais de fichier à moitié écrit
 
-    def creer(self, commande: list[str], endpoint: str, lourde: bool) -> Tache:
-        tache = Tache(id=uuid.uuid4().hex[:16], commande=commande, endpoint=endpoint, lourde=lourde)
+    def creer(self, plan: Plan) -> Tache:
+        tache = Tache(
+            id=uuid.uuid4().hex[:16],
+            endpoint=plan.endpoint,
+            lourde=plan.lourde,
+            contexte=plan.contexte,
+        )
         with self._verrou:
             self._taches[tache.id] = tache
             self._ecrire(tache)
@@ -151,28 +191,28 @@ class Executeur:
 
     def __init__(self, registre: Registre) -> None:
         self.registre = registre
-        self._file_lourde: Queue[Tache] = Queue()
+        self._file_lourde: Queue[tuple[Tache, Plan]] = Queue()
         self._legeres = ThreadPoolExecutor(max_workers=2, thread_name_prefix="legere")
         self._ouvrier = threading.Thread(target=self._boucle_lourde, daemon=True, name="lourde")
         self._ouvrier.start()
         self._en_cours_lourde: str | None = None
 
-    # -- files ------------------------------------------------------------- #
-    def soumettre(self, tache: Tache) -> Tache:
-        tracer("tâche acceptée", tache=tache.id, endpoint=tache.endpoint,
-               lourde=tache.lourde, commande=tache.commande)
-        if tache.lourde:
-            self._file_lourde.put(tache)
+    def soumettre(self, plan: Plan) -> Tache:
+        tache = self.registre.creer(plan)
+        tracer("tâche acceptée", tache=tache.id, endpoint=plan.endpoint,
+               lourde=plan.lourde, contexte=plan.contexte)
+        if plan.lourde:
+            self._file_lourde.put((tache, plan))
         else:
-            self._legeres.submit(self._executer, tache)
+            self._legeres.submit(self._executer, tache, plan)
         return tache
 
     def _boucle_lourde(self) -> None:
         while True:
-            tache = self._file_lourde.get()
+            tache, plan = self._file_lourde.get()
             self._en_cours_lourde = tache.id
             try:
-                self._executer(tache)
+                self._executer(tache, plan)
             finally:
                 self._en_cours_lourde = None
                 self._file_lourde.task_done()
@@ -185,46 +225,74 @@ class Executeur:
     def lourde_en_cours(self) -> str | None:
         return self._en_cours_lourde
 
-    # -- exécution --------------------------------------------------------- #
-    def _executer(self, tache: Tache) -> None:
+    # ----------------------------------------------------------------------- #
+    def _executer(self, tache: Tache, plan: Plan) -> None:
+        espace = config.ESPACES / tache.id
         self.registre.majorer(tache, etat=EN_COURS, demarre=time.time())
-        tracer("tâche démarrée", tache=tache.id, commande=tache.commande)
         try:
-            acheve = subprocess.run(
-                tache.commande,
-                cwd=str(config.RACINE_CODE),
-                env=config.environnement_etages(),
-                capture_output=True,
-                text=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=config.DUREE_MAX,
-            )
-        except subprocess.TimeoutExpired:
-            self.registre.majorer(
-                tache, etat=ECHEC, fini=time.time(),
-                erreur=f"dépassement de {config.DUREE_MAX} s",
-            )
-            echouer("tâche expirée", tache=tache.id, duree_max=config.DUREE_MAX)
-            return
-        except (OSError, ValueError) as err:
-            self.registre.majorer(tache, etat=ECHEC, fini=time.time(), erreur=str(err))
-            echouer("tâche non lançable", tache=tache.id, erreur=str(err))
-            return
+            espace.mkdir(parents=True, exist_ok=True)
+            try:
+                execution = plan.preparer(espace)
+            except Exception as err:  # noqa: BLE001 — l'échec de préparation est une fin
+                self.registre.majorer(
+                    tache, etat=ECHEC, fini=time.time(),
+                    erreur=f"préparation : {type(err).__name__}: {err}",
+                )
+                echouer("préparation échouée", tache=tache.id, erreur=str(err))
+                return
+            self.registre.majorer(tache, commande=execution.commande)
+            tracer("tâche démarrée", tache=tache.id, commande=execution.commande)
 
-        sortie, coupe_o = _tronquer(acheve.stdout or "")
-        erreur, coupe_e = _tronquer(acheve.stderr or "")
-        self.registre.majorer(
-            tache,
-            etat=FINI if acheve.returncode == 0 else ECHEC,
-            fini=time.time(),
-            code_retour=acheve.returncode,
-            stdout=sortie,
-            stderr=erreur,
-            tronque=coupe_o or coupe_e,
-        )
-        tracer(
-            "tâche terminée", tache=tache.id, code_retour=acheve.returncode,
-            duree_s=round(tache.duree or 0, 2),
-            etat=FINI if acheve.returncode == 0 else ECHEC,
-        )
+            environnement = config.environnement_etages()
+            environnement.update(execution.env)
+            try:
+                acheve = subprocess.run(
+                    execution.commande,
+                    cwd=str(config.RACINE_CODE),
+                    env=environnement,
+                    capture_output=True, text=True,
+                    encoding="utf-8", errors="replace",
+                    timeout=config.DUREE_MAX,
+                )
+            except subprocess.TimeoutExpired:
+                self.registre.majorer(
+                    tache, etat=ECHEC, fini=time.time(),
+                    erreur=f"dépassement de {config.DUREE_MAX} s",
+                )
+                echouer("tâche expirée", tache=tache.id, duree_max=config.DUREE_MAX)
+                return
+            except (OSError, ValueError) as err:
+                self.registre.majorer(tache, etat=ECHEC, fini=time.time(), erreur=str(err))
+                echouer("tâche non lançable", tache=tache.id, erreur=str(err))
+                return
+
+            sortie, coupe_o = _tronquer(acheve.stdout or "")
+            erreur, coupe_e = _tronquer(acheve.stderr or "")
+            self.registre.majorer(
+                tache, code_retour=acheve.returncode, stdout=sortie, stderr=erreur,
+                tronque=coupe_o or coupe_e,
+            )
+            if acheve.returncode != 0:
+                # Rien n'est reversé : une sortie partielle dans le seau se
+                # lirait comme un résultat.
+                self.registre.majorer(tache, etat=ECHEC, fini=time.time())
+                echouer("commande en échec", tache=tache.id, code_retour=acheve.returncode)
+                return
+
+            try:
+                resultat = plan.reverser(espace)
+            except Exception as err:  # noqa: BLE001
+                self.registre.majorer(
+                    tache, etat=ECHEC, fini=time.time(),
+                    erreur=f"reversement : {type(err).__name__}: {err}",
+                )
+                echouer("reversement échoué", tache=tache.id, erreur=str(err))
+                return
+
+            self.registre.majorer(tache, etat=FINI, fini=time.time(), resultat=resultat)
+            tracer("tâche terminée", tache=tache.id, code_retour=0,
+                   duree_s=round(tache.duree or 0, 2), resultat=resultat)
+        finally:
+            # Le nettoyage est garanti : échec de préparation, commande en
+            # erreur, exception de reversement ou succès, l'espace disparaît.
+            shutil.rmtree(espace, ignore_errors=True)

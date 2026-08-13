@@ -30,20 +30,21 @@ services:
       ETAGE0_REFLEXION: ${ETAGE0_REFLEXION:-0}
       ETAGE0_EFFORT: ${ETAGE0_EFFORT:-high}
       ETAGE0_MAX_TOKENS: ${ETAGE0_MAX_TOKENS:-16000}
-      ETAGE0_JOURNAL: /travail/journal/journal.jsonl
-      ETAGE0_SORTIE: /travail/referentiel/genere
-      SERVICE_REFERENTIEL: /travail/referentiel/genere/sections
-      SERVICE_SONDES: /travail/referentiel/sondes.yaml
+      # MinIO porte l'entrée et la sortie. Le service n'attend aucun fichier
+      # déjà présent : il descend, exécute, remonte, nettoie.
+      MINIO_URL: ${MINIO_URL:-minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:?identifiants MinIO manquants}}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:?identifiants MinIO manquants}}
+      SERVICE_SEAU_PROGRAMMES: ${SERVICE_SEAU_PROGRAMMES:-programmes}
+      SERVICE_SEAU_CORPUS: ${SERVICE_SEAU_CORPUS:-corpus}
+      SERVICE_SEAU_SORTIES: ${SERVICE_SEAU_SORTIES:-sorties}
     volumes:
-      # Le volume porte TOUTE la matière : le référentiel, le corpus, les
-      # sorties, le journal des étages et l'état des tâches. Le référentiel
-      # n'est pas dans l'image — sans lui, le service démarre et `/sante`
-      # répond `referentiel_absent`.
-      #
-      #     docker compose cp referentiel annales-service:/travail/referentiel
-      #
-      # Le journal est la reprise sur appels déjà payés : le perdre coûte de
-      # l'argent.
+      # Le volume ne porte plus la matière — elle est dans MinIO — mais deux
+      # choses qui doivent rester locales et rapides :
+      #   - le JOURNAL des appels, segmenté par signature : c'est la reprise
+      #     sur appels déjà payés, le perdre coûte de l'argent ;
+      #   - l'ÉTAT des tâches, qui doit survivre à un redémarrage.
+      # Les espaces de travail y sont créés puis détruits à chaque tâche.
       - annales-travail:/travail
     networks:
       - interne
