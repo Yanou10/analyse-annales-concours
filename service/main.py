@@ -21,6 +21,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -60,6 +61,9 @@ MESURES_UNE_PASSE = (
     "exercice", "zero", "top", "croisement", "tout", "dashboard",
 )
 MESURES_DEUX_PASSES = ("dispersion", "comparer")
+
+#: Une section de programme officiel est numérotée hiérarchiquement.
+RE_SECTION_NUMEROTEE = re.compile(r"^\d+(\.\d+)*$")
 
 
 def commande(paquet: str, *arguments: str) -> list[str]:
@@ -305,6 +309,70 @@ def referentiels() -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # endpoints de travail
 # --------------------------------------------------------------------------- #
+def _ressemble_a_un_programme(cle: str) -> dict[str, Any]:
+    """Le document ressemble-t-il à un programme officiel ?
+
+    Vérifié AVANT le premier appel payant, parce qu'un sujet d'annales déposé
+    par erreur dans le seau des programmes a consommé des appels Opus pour
+    produire 32 notions inexploitables, toutes sections cibles vides.
+
+    Le contrôle porte sur les sections que la SEGMENTATION trouve — elle est
+    déterministe et gratuite. Il ne peut pas porter sur les `sections_cibles`
+    du profil : celles-ci sont thématiques (`preuve`, `langages`) quand la
+    segmentation rend la numérotation du programme (`1`, `3.2`, `4.3`), et le
+    passage de l'une à l'autre est justement ce que le modèle décide. C'est
+    donc le profil qui déclare combien de sections un vrai programme présente.
+    """
+    import tempfile
+
+    from etage0.config import Config
+    from etage0.segmentation import filtrer, grouper_par_section, segmenter
+
+    profil = Config.depuis_env().profil
+    attendues = profil.sections_programme_attendues
+    if not attendues:  # profil sans déclaration : on ne bloque pas à l'aveugle
+        return {"conforme": True, "controle": "non déclaré par le profil"}
+
+    with tempfile.TemporaryDirectory() as dossier:
+        chemin = stockage.descendre(
+            config.SEAU_PROGRAMMES, cle, Path(dossier) / "programme.md")
+        rapport = segmenter(chemin, profil.genres_ecartes)
+        rapport = filtrer(rapport, profil.titres_exclus, profil.prefixes_exclus)
+        groupes = grouper_par_section(rapport.unites)
+
+    trouvees = len(groupes)
+    minimum = int(attendues * profil.part_minimale_programme)
+    # Le compte seul ne suffit pas : quatre rapports d'annales dépassent 22
+    # sections. Ce qui les sépare est la FORME — un programme numérote ses
+    # sections hiérarchiquement, un rapport les titre.
+    numerotees = sum(1 for cle in groupes if RE_SECTION_NUMEROTEE.match(str(cle)))
+    part_numerotee = numerotees / trouvees if trouvees else 0.0
+    exigee = profil.part_numerotee_minimale
+    assez = trouvees >= minimum
+    assez_numerotees = part_numerotee >= exigee
+    return {
+        "conforme": assez and assez_numerotees,
+        "sections_trouvees": trouvees,
+        "sections_attendues": attendues,
+        "minimum_exige": minimum,
+        "sections_numerotees": numerotees,
+        "part_numerotee": round(part_numerotee, 3),
+        "part_numerotee_exigee": exigee,
+        "unites": len(rapport.unites),
+        "message": (
+            f"{trouvees} section(s) segmentée(s) (minimum {minimum}), dont "
+            f"{numerotees} numérotées ({part_numerotee:.0%}, minimum {exigee:.0%})"
+            + ("" if assez else " — trop peu de sections")
+            + ("" if assez_numerotees else
+               " — sections titrées et non numérotées : c'est la forme d'un "
+               "rapport, pas d'un programme")
+        ),
+        "remede": "ce document ressemble à un sujet d'annales : le déposer dans "
+                  f"le seau `{config.SEAU_CORPUS}`, pas dans "
+                  f"`{config.SEAU_PROGRAMMES}`",
+    }
+
+
 @application.get("/objets")
 def objets(seau: str, prefixe: str = "", limite: int = 500) -> dict[str, Any]:
     """Liste un seau, en lecture seule.
@@ -362,6 +430,10 @@ def construire(corps: Construction) -> dict[str, Any]:
         raise HTTPException(
             status_code=404,
             detail=f"programme introuvable : {config.SEAU_PROGRAMMES}/{cle}")
+
+    controle = _ressemble_a_un_programme(cle)
+    if not controle["conforme"]:
+        raise HTTPException(status_code=422, detail={"erreur": "pas_un_programme", **controle})
 
     def preparer(espace: Path) -> Execution:
         programme = stockage.descendre(

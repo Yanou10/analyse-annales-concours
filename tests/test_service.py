@@ -232,8 +232,13 @@ def test_construire_refuse_un_programme_absent(client):
 
 def test_construire_est_lourd_et_exige_la_cle(client):
     essai, factice, _, _ = client
+    programme = RACINE / "spe777_annexe_1373646.md"
+    if not programme.is_file():
+        pytest.skip("programme officiel absent")
     (factice.racine / "programmes").mkdir(parents=True, exist_ok=True)
-    (factice.racine / "programmes" / "p.md").write_text("# Programme\n", encoding="utf-8")
+    # Un vrai programme : depuis le garde-fou d'entrée, un fichier d'une ligne
+    # est refusé en 422 avant même d'atteindre la file.
+    shutil.copy(programme, factice.racine / "programmes" / "p.md")
     ancienne = os.environ.pop("ANTHROPIC_API_KEY", None)
     try:
         assert essai.post("/construire", json={"programme": "p.md"}).status_code == 503
@@ -438,3 +443,69 @@ def test_objets_refuse_un_prefixe_qui_remonte(client):
     essai, _, _, _ = client
     reponse = essai.get("/objets", params={"seau": "corpus", "prefixe": "../../etc"})
     assert reponse.status_code == 400
+
+
+# --------------------------------------------------------------------------- #
+# garde-fou d'entrée de /construire
+# --------------------------------------------------------------------------- #
+def test_un_sujet_d_annales_est_refuse_en_422_avant_tout_appel(client):
+    """Le motif : un sujet déposé par erreur dans `programmes` a consommé des
+    appels Opus pour produire 32 notions inexploitables. La segmentation est
+    déterministe et gratuite — elle doit trancher AVANT le premier appel."""
+    essai, factice, _, _ = client
+    sujet = RACINE / "2024_InfoA.md"
+    if not sujet.is_file():
+        pytest.skip("2024_InfoA.md absent")
+    (factice.racine / "programmes").mkdir(parents=True, exist_ok=True)
+    shutil.copy(sujet, factice.racine / "programmes" / "annales.md")
+    os.environ["ANTHROPIC_API_KEY"] = "factice"
+    try:
+        reponse = essai.post("/construire", json={"programme": "annales.md"})
+    finally:
+        del os.environ["ANTHROPIC_API_KEY"]
+    assert reponse.status_code == 422
+    detail = reponse.json()["detail"]
+    assert detail["erreur"] == "pas_un_programme"
+    assert detail["sections_trouvees"] < detail["minimum_exige"]
+    assert "corpus" in detail["remede"]
+    # Aucune tâche n'a été créée POUR CE DOCUMENT : le refus précède la mise en
+    # file, donc aucun appel payant n'a pu partir.
+    taches = essai.get("/taches?limite=200").json()["taches"]
+    assert not any((t.get("contexte") or {}).get("programme") == "annales.md"
+                   for t in taches)
+
+
+def test_un_vrai_programme_passe_le_garde_fou(client):
+    essai, factice, _, _ = client
+    programme = RACINE / "spe777_annexe_1373646.md"
+    if not programme.is_file():
+        pytest.skip("programme officiel absent")
+    shutil.copy(programme, factice.racine / "programmes" / "officiel.md")
+    os.environ["ANTHROPIC_API_KEY"] = "factice"
+    try:
+        reponse = essai.post("/construire", json={"programme": "officiel.md",
+                                                  "dry_run": True})
+    finally:
+        del os.environ["ANTHROPIC_API_KEY"]
+    assert reponse.status_code == 200, reponse.json()
+
+
+def test_un_gros_rapport_de_jury_est_refuse_malgre_son_nombre_de_sections(client):
+    """Quatre rapports d'annales dépassent le seuil de 22 sections (26, 36, 51,
+    53). Le compte seul les laisserait passer : c'est la FORME qui les sépare —
+    un programme numérote ses sections, un rapport les titre."""
+    essai, factice, _, _ = client
+    rapport = RACINE / "2022_InfoLCR-rapport.md"
+    if not rapport.is_file():
+        pytest.skip("2022_InfoLCR-rapport.md absent")
+    (factice.racine / "programmes").mkdir(parents=True, exist_ok=True)
+    shutil.copy(rapport, factice.racine / "programmes" / "gros-rapport.md")
+    os.environ["ANTHROPIC_API_KEY"] = "factice"
+    try:
+        reponse = essai.post("/construire", json={"programme": "gros-rapport.md"})
+    finally:
+        del os.environ["ANTHROPIC_API_KEY"]
+    assert reponse.status_code == 422
+    detail = reponse.json()["detail"]
+    assert detail["sections_trouvees"] >= detail["minimum_exige"], "le compte, lui, passe"
+    assert detail["part_numerotee"] < detail["part_numerotee_exigee"]

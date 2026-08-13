@@ -56,7 +56,7 @@ pour lire ce que le service voit déjà.
 | `GET` | `/sante` | — |
 | `GET` | `/referentiels` | — |
 | `GET` | `/objets?seau=…` | — |
-| `POST` | `/construire` | `etage0 construire` **lourde** |
+| `POST` | `/construire` | `etage0 construire` **lourde** — refuse en 422 ce qui n'est pas un programme |
 | `POST` | `/extraire` | `etage1 extraire` |
 | `POST` | `/confronter` | `etage0 confronter` |
 | `POST` | `/etiqueter` | `etage3 etiqueter` **lourde** |
@@ -134,6 +134,20 @@ qu'on croit encore vivante.
   local obtenu est vérifié après résolution — MinIO accepte parfaitement un
   objet nommé `../../etc/passwd`.
 - **Journalisation JSON sur stdout**, uvicorn compris : `docker logs … | jq`.
+- **`/construire` refuse en 422 ce qui n'est pas un programme**, avant le
+  premier appel payant. Deux critères, tous deux déclarés dans le profil : au
+  moins la moitié des sections attendues (22 sur 44), **et** au moins 40 % de
+  sections numérotées hiérarchiquement. Le compte seul ne suffit pas — quatre
+  rapports d'annales dépassent 22 sections (26, 36, 51, 53) ; c'est la forme
+  qui les sépare, un programme numérote ses sections quand un rapport les
+  titre. Mesuré : 64 % pour le programme officiel, 0 à 25 % pour les annales.
+- **Les renvois inventés sont repointés avant le contrôle qualité.** Le modèle
+  écrit `prouver_terminaison_variant` là où la notion s'appelle
+  `prouver_terminaison_par_variant` : l'appariement de l'étalon repointe
+  au-dessus de 0,70, et chaque repointage est journalisé dans le manifeste
+  comme une réparation. Au-dessous du seuil, rien n'est repointé et le renvoi
+  reste bloquant — un repointage douteux ferait dire à une notion qu'elle en
+  exclut une autre, à tort.
 
 ## Import en base — `POST /importer`
 

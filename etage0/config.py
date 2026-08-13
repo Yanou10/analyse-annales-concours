@@ -63,6 +63,28 @@ class Profil:
         return list(self.donnees.get("sections_cibles", []))
 
     @property
+    def sections_programme_attendues(self) -> int:
+        """Combien de sections la segmentation trouve sur un vrai programme.
+
+        Sert au garde-fou d'entrée, et à lui seul : les identifiants de section
+        du PROGRAMME (`1`, `3.2`, `4.3`) et ceux du profil (`preuve`,
+        `langages`) vivent dans deux espaces de noms distincts, on ne peut donc
+        pas vérifier les seconds avant que le modèle ait tranché.
+        """
+        return int((self.donnees.get("programme") or {}).get("sections_attendues", 0))
+
+    @property
+    def part_minimale_programme(self) -> float:
+        return float((self.donnees.get("programme") or {}).get("part_minimale", 0.5))
+
+    @property
+    def part_numerotee_minimale(self) -> float:
+        """Part des sections dont l'identifiant est une numérotation
+        hiérarchique. C'est la FORME, et non le nombre, qui sépare un programme
+        d'un rapport de jury."""
+        return float((self.donnees.get("programme") or {}).get("part_numerotee_minimale", 0.0))
+
+    @property
     def ids_sections_cibles(self) -> list[str]:
         return [s["id"] for s in self.sections_cibles]
 

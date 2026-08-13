@@ -217,6 +217,31 @@ def cmd_construire(config: Config, args: argparse.Namespace) -> int:
             return 2
 
     referentiel = ref.assembler(decisions_par_section, index_unites, profil)
+
+    # NORMALISATION AVANT LE CONTRÔLE. Le modèle invente des identifiants de
+    # cible — `prouver_terminaison_variant` là où la notion s'appelle
+    # `prouver_terminaison_par_variant`. Ce n'est pas une notion manquante,
+    # c'est un mot différent pour la même chose, et laisser quatre renvois de
+    # vocabulaire bloquer la publication d'un référentiel complet payé 3 $ est
+    # disproportionné. Au-dessous du seuil, on ne repointe pas : un repointage
+    # douteux ferait dire à une notion qu'elle en exclut une autre, à tort.
+    examens = ref.normaliser_renvois(referentiel)
+    reparations.extend(examens)
+    repointes = [e for e in examens if e["repointe"]]
+    sans_candidat = [e for e in examens if not e["repointe"]]
+    if examens:
+        _ecrire("")
+        _ecrire(
+            f"renvois inventés  : {len(examens)} — {len(repointes)} repointé(s), "
+            f"{len(sans_candidat)} sans candidat au-dessus de {ref.SEUIL_SIMILARITE}"
+        )
+        for e in repointes:
+            _ecrire(f"  ~ {e['renvoi_origine']!r} → {e['cible_retenue']} "
+                    f"(score {e['score']:.2f})  depuis {e['cible']}")
+        for e in sans_candidat:
+            _ecrire(f"  ✗ {e['renvoi_origine']!r} : meilleur candidat "
+                    f"{e['meilleur_candidat']} à {e['score']:.2f} — reste bloquant")
+
     anomalies = ref.valider(referentiel, profil)
 
     meta = {

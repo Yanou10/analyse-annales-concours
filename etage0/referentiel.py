@@ -597,6 +597,70 @@ def _similarite(a_libelle: str, a_id: str, b_libelle: str, b_id: str) -> float:
     return max(lib, slug, jaccard)
 
 
+def normaliser_renvois(
+    referentiel: Referentiel, seuil: float = SEUIL_SIMILARITE
+) -> list[dict[str, Any]]:
+    """Repointe les renvois non résolus vers la notion existante la plus proche.
+
+    Le modèle invente des identifiants de cible : il écrit
+    `prouver_terminaison_variant` là où la notion s'appelle autrement. Ce n'est
+    pas une notion manquante, c'est un mot différent pour la même chose — et
+    laisser quatre renvois de vocabulaire bloquer la publication d'un
+    référentiel complet, payé 3 $, est disproportionné.
+
+    L'appariement est celui de l'étalon, `_similarite`, et pour la même raison :
+    le libellé et le slug se dégradent différemment, on garde le meilleur des
+    deux angles. La même prudence aussi — **au-dessous du seuil on ne repointe
+    pas**, le renvoi reste non résolu et donc bloquant. Un repointage douteux
+    serait pire qu'un blocage : il ferait dire à une notion qu'elle en exclut
+    une autre, à tort et sans trace.
+
+    Rend la liste de TOUS les cas examinés, repointés ou non. Les seconds
+    portent leur meilleur candidat et son score : c'est exactement ce qu'il faut
+    pour décider à la main, et le taire obligerait à refaire la mesure.
+    """
+    examens: list[dict[str, Any]] = []
+    candidats = [(n["libelle"], n["id"]) for n in referentiel.notions]
+
+    for notion in referentiel.notions:
+        for exclusion in notion.get("exclusions") or []:
+            brut = exclusion.get("voir_brut")
+            if exclusion.get("voir") is not None or not brut:
+                continue
+            meilleur_id, meilleur_libelle, meilleur_score = None, None, 0.0
+            for libelle, identifiant in candidats:
+                if identifiant == notion["id"]:
+                    continue  # une notion ne s'exclut pas elle-même
+                score = _similarite(brut, brut, libelle, identifiant)
+                if score > meilleur_score:
+                    meilleur_id, meilleur_libelle, meilleur_score = identifiant, libelle, score
+
+            repointe = meilleur_id is not None and meilleur_score >= seuil
+            if repointe:
+                exclusion["voir"] = meilleur_id
+                exclusion["voir_type"] = TYPE_NOTION
+                exclusion.pop("voir_brut", None)
+            examens.append({
+                "section": notion["section_id"],
+                "cible": notion["id"],
+                "regle": "renvoi_repointe" if repointe else "renvoi_sans_candidat",
+                "constat": f"renvoi non résolu vers {brut!r}",
+                "reparation": (
+                    f"repointé vers {meilleur_id} (score {meilleur_score:.2f})"
+                    if repointe else
+                    f"NON repointé — meilleur candidat {meilleur_id} "
+                    f"(score {meilleur_score:.2f} < {seuil})"
+                ),
+                "renvoi_origine": brut,
+                "cible_retenue": meilleur_id if repointe else None,
+                "meilleur_candidat": meilleur_id,
+                "libelle_candidat": meilleur_libelle,
+                "score": round(meilleur_score, 4),
+                "repointe": repointe,
+            })
+    return examens
+
+
 def comparer_etalon(
     referentiel: Referentiel, dossier_etalon: Path, seuil: float = SEUIL_SIMILARITE
 ) -> dict[str, Any]:

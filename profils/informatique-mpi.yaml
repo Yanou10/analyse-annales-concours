@@ -193,6 +193,29 @@ mentions_restrictives:
       Ne justifie JAMAIS un hors_referentiel.
 
 # --- Cibles de dimensionnement (contrôlées par la validation, pas par le LLM)
+# Garde-fou d'ENTRÉE. Un sujet d'annales déposé par erreur dans le seau des
+# programmes a consommé des appels Opus pour produire 32 notions inexploitables,
+# toutes sections cibles vides. Le document doit donc ressembler à un programme
+# AVANT le premier appel payant : la segmentation est déterministe et gratuite,
+# c'est elle qui tranche.
+#
+# `sections_attendues` est le nombre de sections que la segmentation trouve sur
+# le programme officiel de référence (44 pour spé 777). Les identifiants de
+# section du PROGRAMME (`1`, `3.2`, `4.3`) et ceux du profil (`preuve`,
+# `langages`) vivent dans deux espaces de noms distincts : on ne peut pas
+# vérifier les seconds avant que le modèle ait tranché, donc on compte les
+# premiers.
+programme:
+  sections_attendues: 44
+  part_minimale: 0.5
+  # Le compte seul ne suffit pas : quatre rapports d'annales dépassent 22
+  # sections (26, 36, 51, 53) et franchiraient le seuil. Ce qui les sépare, ce
+  # n'est pas le nombre mais la FORME — un programme officiel numérote ses
+  # sections hiérarchiquement (`1`, `3.2`, `4.3`), un rapport les titre
+  # (« Cycles eulériens »). Mesuré : 64 % de sections numérotées pour le
+  # programme, 0 à 25 % pour les annales.
+  part_numerotee_minimale: 0.4
+
 cibles:
   notions_min: 80
   notions_max: 120
