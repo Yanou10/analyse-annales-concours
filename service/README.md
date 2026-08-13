@@ -43,12 +43,19 @@ se réfèrent aux notions de **ce** référentiel-là.
 protocole complet. Une passe qui ne sait plus contre quoi elle a été mesurée
 n'est comparable à rien.
 
+`GET /objets?seau=corpus` liste un seau en lecture seule, restreint aux trois
+seaux connus. Il existe pour que l'orchestrateur puisse répondre à « y a-t-il
+des sujets en attente ? » **sans détenir d'identifiants MinIO** : lui donner un
+accès S3 direct pour un simple comptage ferait voyager un secret de plus, et
+pour lire ce que le service voit déjà.
+
 ## Endpoints
 
 | méthode | chemin | commande |
 |---|---|---|
 | `GET` | `/sante` | — |
 | `GET` | `/referentiels` | — |
+| `GET` | `/objets?seau=…` | — |
 | `POST` | `/construire` | `etage0 construire` **lourde** |
 | `POST` | `/extraire` | `etage1 extraire` |
 | `POST` | `/confronter` | `etage0 confronter` |

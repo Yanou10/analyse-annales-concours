@@ -305,6 +305,42 @@ def referentiels() -> dict[str, Any]:
 # --------------------------------------------------------------------------- #
 # endpoints de travail
 # --------------------------------------------------------------------------- #
+@application.get("/objets")
+def objets(seau: str, prefixe: str = "", limite: int = 500) -> dict[str, Any]:
+    """Liste un seau, en lecture seule.
+
+    Existe pour que l'orchestrateur puisse répondre à « y a-t-il des sujets en
+    attente ? » sans détenir d'identifiants MinIO. Lui donner un accès S3
+    direct pour un simple comptage ferait voyager un secret de plus, et pour
+    lire ce que le service voit déjà.
+    """
+    connus = {config.SEAU_PROGRAMMES, config.SEAU_CORPUS, config.SEAU_SORTIES}
+    if seau not in connus:
+        raise HTTPException(
+            status_code=400,
+            detail=f"seau inconnu : {seau!r}. Connus : {', '.join(sorted(connus))}")
+    try:
+        prefixe = valider_cle(prefixe) + "/" if prefixe else ""
+    except CheminRefuse as err:
+        raise HTTPException(status_code=400, detail=str(err)) from None
+    try:
+        trouves = list(stockage.lister(seau, prefixe))
+    except Exception as err:  # noqa: BLE001
+        raise HTTPException(status_code=503,
+                            detail=f"stockage injoignable : {err}") from None
+    tronque = len(trouves) > limite
+    return {
+        "seau": seau,
+        "prefixe": prefixe,
+        "total": len(trouves),
+        "tronque": tronque,
+        "objets": [
+            {"cle": o.cle, "taille": o.taille, "modifie": o.modifie}
+            for o in trouves[:limite]
+        ],
+    }
+
+
 @application.post("/construire")
 def construire(corps: Construction) -> dict[str, Any]:
     """`etage0 construire` — produit un référentiel depuis un programme officiel.

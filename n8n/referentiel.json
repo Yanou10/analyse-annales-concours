@@ -1,0 +1,491 @@
+{
+  "name": "Chaîne annales — construire un référentiel",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "programme",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "738ec1f1-c51b-47f0-a7dd-4a4accdecdcd",
+      "name": "Réception du programme",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "3b830de9-dfd0-430f-a065-aee12bfcdaf2"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Deux formes : la notification S3 de MinIO, et un appel manuel. La clé S3 est\n// encodée en URL et les espaces y sont des « + » — la décoder n'est pas une\n// coquetterie, le service ne trouverait pas « 2026+programme.md ».\nconst entree = $json.body ?? $json;\nlet cle = null;\n\nif (Array.isArray(entree.Records) && entree.Records.length > 0) {\n  const brut = entree.Records[0]?.s3?.object?.key ?? null;\n  if (brut) cle = decodeURIComponent(String(brut).replace(/\\+/g, ' '));\n}\ncle = cle ?? entree.cle ?? entree.key ?? entree.programme ?? null;\n\nif (!cle) {\n  throw new Error(\n    \"aucune clé d'objet : attendu Records[0].s3.object.key (événement MinIO) \" +\n    \"ou {\\\"cle\\\": \\\"programme.md\\\"} (appel manuel)\"\n  );\n}\nif (!/\\.md$/i.test(cle)) {\n  throw new Error(\"seuls les programmes .md sont traités, reçu : \" + cle);\n}\n\nreturn [{ json: {\n  service: \"http://annales-service:8000\",\n  cle: cle,\n  // La construction coûte ~3 $ en appels Opus : elle ne se déclenche pas sur\n  // un dépôt accidentel. `forcer` doit être explicite.\n  forcer: entree.forcer === true,\n  etag: entree.Records?.[0]?.s3?.object?.eTag ?? null,\n  recu_le: new Date().toISOString(),\n}}];"
+      },
+      "id": "1ba3a82b-cb48-497a-82bc-e0f93fee41c5",
+      "name": "Normaliser l'événement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://annales-service:8000/referentiels",
+        "options": {}
+      },
+      "id": "1fa390a7-540e-4c9b-880c-7def140707c5",
+      "name": "Lister les référentiels",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Garde-fou de dépense. Le rapprochement se fait sur la CLÉ de l'objet\n// programme, inscrite dans origine.json par le service : c'est la seule\n// information dont dispose le workflow — il ne télécharge pas le fichier et ne\n// peut donc pas en calculer l'empreinte de contenu.\n//\n// Conséquence à connaître : redéposer un programme CORRIGÉ sous le même nom est\n// bloqué lui aussi. C'est le bon défaut à 3 $ l'appel ; `forcer: true` passe\n// outre.\nconst contexte = $(\"Normaliser l'événement\").first().json;\nconst liste = $json?.referentiels ?? [];\nconst attendu = \"programmes/\" + contexte.cle;\n\nconst deja = liste.filter(r => (r?.origine?.programme ?? null) === attendu);\n\nreturn [{ json: {\n  ...contexte,\n  deja_construit: deja.length > 0,\n  empreintes_existantes: deja.map(r => r.empreinte),\n  referentiels_connus: liste.length,\n  reconstruire: contexte.forcer || deja.length === 0,\n}}];"
+      },
+      "id": "481e23ef-ce0f-4582-815c-d2b57a6fc59b",
+      "name": "Référentiel déjà construit ?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "294be027-1664-47c1-a503-85c9ce977a09",
+              "leftValue": "={{ $json.reconstruire }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "27115160-4665-481c-86a2-ea6aab6d9728",
+      "name": "Reconstruire ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const c = $json;\nreturn [{ json: {\n  resultat: \"ignoré\",\n  raison: \"un référentiel a déjà été construit depuis ce programme\",\n  programme: c.cle,\n  empreintes_existantes: c.empreintes_existantes,\n  cout_evite_usd: 3,\n  pour_reconstruire:\n    \"redéposer avec {\\\"cle\\\": \\\"\" + c.cle + \"\\\", \\\"forcer\\\": true} \" +\n    \"sur le webhook /programme\",\n}}];"
+      },
+      "id": "9d722413-9215-4bce-a352-ebb43917214c",
+      "name": "Notifier la dépense évitée",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        990,
+        510
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://annales-service:8000/construire",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ programme: $json.cle }) }}"
+      },
+      "id": "13bc11ac-90e0-43f3-8041-0beb001d2263",
+      "name": "Lancer la construction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "c2d94ad0-8673-46b8-9b02-0c6f4dc172cb",
+      "name": "Attendre la construction",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        300
+      ],
+      "webhookId": "3eeb49e9-6e4b-48d3-974c-623c5c839172"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://annales-service:8000/taches/{{ $(\"Lancer la construction\").first().json.tache }}",
+        "options": {}
+      },
+      "id": "1f9d69a9-4c40-4140-949a-496d6d7d51e6",
+      "name": "Vérifier la construction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1fb949f3-4615-4033-89ee-97fe42c52689",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "fini",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "2f85c83e-734c-41be-af5d-d3f41f4f6d62",
+      "name": "Construction terminée ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d798b996-a418-47c8-808c-8169c3429af7",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "echec",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "b156e8d6-58fb-4872-bcfd-5b8cc5b1fe7c",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "interrompu",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "d68f5982-99e3-4368-a677-90ab6d12aa0c",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 40,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "59256708-858a-48cd-9ebf-2b858f50899e",
+      "name": "Construction irrécupérable ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1870,
+        510
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://annales-service:8000/objets?seau=corpus&limite=500",
+        "options": {}
+      },
+      "id": "ef43d455-3fa4-4d2a-88a6-8fbc538866c7",
+      "name": "Lister le corpus en attente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// On SIGNALE les sujets en attente, on ne les enchaîne pas : l'étiquetage se\n// paie, et le référentiel qui vient d'être construit mérite d'être regardé\n// avant qu'on mesure 2 000 questions contre lui.\nconst corpus = $json;\nconst tache = $(\"Vérifier la construction\").first().json;\nconst contexte = $(\"Référentiel déjà construit ?\").first().json;\nconst empreinte = tache?.resultat?.empreinte ?? null;\n\nconst enAttente = (corpus?.objets ?? [])\n  .map(o => o.cle)\n  .filter(c => /\\.md$/i.test(c));\n\nreturn [{ json: {\n  resultat: \"réussi\",\n  programme: contexte.cle,\n  forcee: contexte.forcer === true,\n  empreinte: empreinte,\n  notions: tache?.resultat?.notions ?? null,\n  signature_etiquetage: tache?.resultat?.signature_etiquetage ?? null,\n  prefixe: tache?.resultat?.prefixe ?? null,\n  duree_s: tache?.duree_s ?? null,\n  sujets_en_attente: enAttente.length,\n  sujets: enAttente.slice(0, 50),\n  prochaine_etape: enAttente.length === 0\n    ? \"déposer des sujets dans le seau `corpus` — leur dépôt déclenchera le \" +\n      \"workflow principal\"\n    : enAttente.length + \" sujet(s) déjà dans `corpus` : ils ne seront PAS \" +\n      \"traités automatiquement (leur dépôt est antérieur). Rejouer le webhook \" +\n      \"/traiter pour chacun, ou appeler /extraire puis /etiqueter avec la \" +\n      \"liste complète — le regroupement par combinaison de sections n'opère \" +\n      \"qu'à l'intérieur d'un même appel.\",\n}}];"
+      },
+      "id": "deadaba4-c6e1-4f20-b4fa-aef52ead1d74",
+      "name": "Composer le compte rendu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "94a39d59-4916-466e-ab16-72bf36be42b3",
+      "name": "Notifier la réussite",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const tache = $json;\nconst contexte = $(\"Référentiel déjà construit ?\").first().json;\nconst borne = tache.etat !== \"echec\" && tache.etat !== \"interrompu\";\n\nreturn [{ json: {\n  resultat: \"échoué\",\n  etape: \"construire\",\n  cause: borne ? \"borne d'itérations atteinte (20 min), tâche toujours en cours\"\n               : (tache.erreur ?? \"commande en échec\"),\n  etat_tache: tache.etat,\n  tache: tache.id,\n  code_retour: tache.code_retour ?? null,\n  programme: contexte.cle,\n  stderr: (tache.stderr ?? \"\").slice(-4000),\n}}];"
+      },
+      "id": "ebf0acd1-334d-4cd1-9265-6fe335f32053",
+      "name": "Composer le rapport d'échec",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2530,
+        730
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ \"Construction du référentiel interrompue — \" + $json.cause }}"
+      },
+      "id": "ac05a57a-4806-41da-9f0a-3b0dc346a780",
+      "name": "Arrêter en erreur",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2750,
+        730
+      ]
+    }
+  ],
+  "connections": {
+    "Réception du programme": {
+      "main": [
+        [
+          {
+            "node": "Normaliser l'événement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliser l'événement": {
+      "main": [
+        [
+          {
+            "node": "Lister les référentiels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lister les référentiels": {
+      "main": [
+        [
+          {
+            "node": "Référentiel déjà construit ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Référentiel déjà construit ?": {
+      "main": [
+        [
+          {
+            "node": "Reconstruire ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconstruire ?": {
+      "main": [
+        [
+          {
+            "node": "Lancer la construction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notifier la dépense évitée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lancer la construction": {
+      "main": [
+        [
+          {
+            "node": "Attendre la construction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre la construction": {
+      "main": [
+        [
+          {
+            "node": "Vérifier la construction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier la construction": {
+      "main": [
+        [
+          {
+            "node": "Construction terminée ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construction terminée ?": {
+      "main": [
+        [
+          {
+            "node": "Lister le corpus en attente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Construction irrécupérable ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Construction irrécupérable ?": {
+      "main": [
+        [
+          {
+            "node": "Composer le rapport d'échec",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Attendre la construction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lister le corpus en attente": {
+      "main": [
+        [
+          {
+            "node": "Composer le compte rendu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Composer le compte rendu": {
+      "main": [
+        [
+          {
+            "node": "Notifier la réussite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Composer le rapport d'échec": {
+      "main": [
+        [
+          {
+            "node": "Arrêter en erreur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "chaine-annales"
+  },
+  "tags": []
+}

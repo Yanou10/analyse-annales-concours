@@ -411,3 +411,30 @@ def test_importer_exige_une_passe_et_son_referentiel(client):
         assert r.json()["detail"]["erreur"] == "passe_incomplete"
     finally:
         del os.environ["DATABASE_URL"]
+
+
+# --------------------------------------------------------------------------- #
+# GET /objets
+# --------------------------------------------------------------------------- #
+def test_objets_liste_un_seau_connu(client):
+    essai, factice, _, _ = client
+    (factice.racine / "corpus").mkdir(parents=True, exist_ok=True)
+    (factice.racine / "corpus" / "2019_InfoA.md").write_text("x", encoding="utf-8")
+    corps = essai.get("/objets", params={"seau": "corpus"}).json()
+    assert corps["seau"] == "corpus"
+    assert any(o["cle"].endswith(".md") for o in corps["objets"])
+    assert corps["tronque"] is False
+
+
+def test_objets_refuse_un_seau_inconnu(client):
+    """Un seau libre laisserait lire n'importe quoi de l'instance MinIO."""
+    essai, _, _, _ = client
+    reponse = essai.get("/objets", params={"seau": "secrets"})
+    assert reponse.status_code == 400
+    assert "programmes" in reponse.json()["detail"]
+
+
+def test_objets_refuse_un_prefixe_qui_remonte(client):
+    essai, _, _, _ = client
+    reponse = essai.get("/objets", params={"seau": "corpus", "prefixe": "../../etc"})
+    assert reponse.status_code == 400
