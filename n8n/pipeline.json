@@ -1,0 +1,902 @@
+{
+  "name": "Chaîne annales — traiter un sujet déposé",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "traiter",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "b0bbffaa-6016-43ab-bb9a-61dc921a6733",
+      "name": "Réception du dépôt",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ],
+      "webhookId": "6185a46b-bc85-4815-a77d-28c616cda3a0"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Deux formes acceptées : la notification S3 de MinIO, et un appel manuel.\n// La clé S3 est encodée en URL et les espaces y sont des « + » : la décoder\n// n'est pas une coquetterie, un sujet nommé « 2024 InfoA.md » arriverait sinon\n// sous le nom « 2024+InfoA.md » et le service ne le trouverait pas.\nconst entree = $json.body ?? $json;\nlet cle = null;\n\nif (Array.isArray(entree.Records) && entree.Records.length > 0) {\n  const brut = entree.Records[0]?.s3?.object?.key ?? null;\n  if (brut) cle = decodeURIComponent(String(brut).replace(/\\+/g, ' '));\n}\ncle = cle ?? entree.cle ?? entree.key ?? entree.objet ?? null;\n\nif (!cle) {\n  throw new Error(\n    \"aucune clé d'objet dans la charge utile : attendu Records[0].s3.object.key \" +\n    \"(événement MinIO) ou {\\\"cle\\\": \\\"2024_InfoA.md\\\"} (appel manuel)\"\n  );\n}\nif (!/\\.md$/i.test(cle)) {\n  throw new Error(\"seuls les sujets .md sont traités, reçu : \" + cle);\n}\n\nconst nom = cle.split('/').pop().replace(/\\.md$/i, '');\nconst horodatage = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);\n\nreturn [{ json: {\n  service: \"http://annales-service:8000\",\n  cle: cle,\n  lot: entree.lot ?? nom,\n  passe: entree.passe ?? (nom + '-' + horodatage),\n  referentiel_demande: entree.referentiel ?? null,\n  recu_le: new Date().toISOString(),\n}}];"
+      },
+      "id": "92db48ae-aeca-4b87-8b2b-bfe5cd2c028b",
+      "name": "Normaliser l'événement",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://annales-service:8000/sante",
+        "options": {}
+      },
+      "id": "2c7b52c0-026b-4a76-81e2-7558da81dcc1",
+      "name": "Interroger la santé",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Le référentiel n'est plus un préalable du service : une instance neuve n'en\n// a aucun, et c'est un état légitime. Le workflow, lui, ne peut rien étiqueter\n// sans référentiel — il s'arrête ici plutôt qu'à mi-parcours.\nconst sante = $json;\nconst contexte = $(\"Normaliser l'événement\").first().json;\nconst disponibles = sante?.referentiels?.disponibles ?? [];\nconst demande = contexte.referentiel_demande;\n\nconst referentiel = (demande && disponibles.includes(demande))\n  ? demande\n  : (disponibles.length > 0 ? disponibles[0] : null);\n\nreturn [{ json: {\n  ...contexte,\n  sante_etat: sante?.etat ?? \"inconnu\",\n  disponibles: disponibles,\n  referentiel: referentiel,\n}}];"
+      },
+      "id": "6b2c807c-ebe9-44f3-937a-97d96035001c",
+      "name": "Choisir le référentiel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "907fd735-4e91-4009-babd-74c9539ad2b2",
+              "leftValue": "={{ $json.referentiel }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "e0bdadda-b304-469e-a038-ddcae363d7dc",
+      "name": "Référentiel disponible ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const c = $json;\nreturn [{ json: {\n  resultat: \"arrêté\",\n  raison: \"aucun référentiel disponible\",\n  remede: \"POST /construire sur un programme du seau `programmes`, \" +\n          \"puis relancer ce workflow\",\n  sujet: c.cle,\n  sante: c.sante_etat,\n}}];"
+      },
+      "id": "5bd3467c-e275-41cc-8d49-8962a6eae886",
+      "name": "Notifier l'absence de référentiel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://annales-service:8000/extraire",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sujets: [$json.cle], lot: $json.lot }) }}"
+      },
+      "id": "0147815b-4045-457a-8630-08853b2669ac",
+      "name": "Lancer l'extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "41c0a527-5194-4792-bd50-7ab40ed6bbea",
+      "name": "Attendre l'extraction",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        300
+      ],
+      "webhookId": "a269164e-a46f-41cd-a23f-78ebfb2caf25"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://annales-service:8000/taches/{{ $(\"Lancer l'extraction\").first().json.tache }}",
+        "options": {}
+      },
+      "id": "51c95300-6565-4b65-afc6-307d04cef209",
+      "name": "Vérifier l'extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5219149b-e770-4325-a387-307c6e402911",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "fini",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "8a52ed5b-98cb-40a6-8c34-5606ea957e14",
+      "name": "Extraction terminée ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "983815ee-d853-4ba2-b74e-404ad3766714",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "echec",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "181559ae-77ac-44e3-b880-d37143664533",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "interrompu",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "99da2461-802d-4360-92db-82c714a41008",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 20,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "79c573a7-f786-4ffa-a086-e1795b22e544",
+      "name": "Extraction irrécupérable ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1870,
+        510
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://annales-service:8000/etiqueter",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ lot: $(\"Choisir le référentiel\").first().json.lot, referentiel: $(\"Choisir le référentiel\").first().json.referentiel, passe: $(\"Choisir le référentiel\").first().json.passe, batch: true, tranche_lot: 10 }) }}"
+      },
+      "id": "2baf70a2-a01f-40a7-92fb-17c0ee65f5a3",
+      "name": "Lancer l'étiquetage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1980,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "b89bb5f3-bd5b-4877-b167-a25f13e846e0",
+      "name": "Attendre l'étiquetage",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2200,
+        300
+      ],
+      "webhookId": "a08f86fe-8cc0-4e29-ae09-026e7f49d022"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://annales-service:8000/taches/{{ $(\"Lancer l'étiquetage\").first().json.tache }}",
+        "options": {}
+      },
+      "id": "bb98f738-2360-485b-9814-748cd1b73b17",
+      "name": "Vérifier l'étiquetage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "97c4e241-61b4-41f3-9f5b-0b0a15ca5cc2",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "fini",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "03664b24-8e16-4bc4-ab11-34cfd593fb5e",
+      "name": "Étiquetage terminé ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2640,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "92a3bc24-0f33-4914-af48-bbbfd638f348",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "echec",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "6b8cb759-cc67-4d48-a3d2-5e3b151312b6",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "interrompu",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "2bcf96ff-31d9-4fe3-8d8b-0b88c42e3b88",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 360,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "dfcf863b-cea8-43b4-bac3-8ed53171b9b0",
+      "name": "Étiquetage irrécupérable ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2750,
+        510
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://annales-service:8000/mesurer",
+        "options": {},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ sous_commande: \"distribution\", passes: [$(\"Choisir le référentiel\").first().json.passe], referentiel: $(\"Choisir le référentiel\").first().json.referentiel }) }}"
+      },
+      "id": "98ba871d-7817-4413-a0d4-4f623a5c9e5a",
+      "name": "Lancer la mesure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "8dbb5f2a-d4e3-4b9e-880c-d5801185012b",
+      "name": "Attendre la mesure",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3080,
+        300
+      ],
+      "webhookId": "3cad62ae-fcfe-40ba-a1f6-fa4862f4aa68"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=http://annales-service:8000/taches/{{ $(\"Lancer la mesure\").first().json.tache }}",
+        "options": {}
+      },
+      "id": "a350c381-f6b8-46b6-ad0c-5e9afef19706",
+      "name": "Vérifier la mesure",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "adf5719b-d6e8-462f-8d9b-3337cdf916dd",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "fini",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "1f3d9d04-9cb6-465b-94e5-2c35b174aaf6",
+      "name": "Mesure terminée ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1ad1a705-7e56-4e4d-89af-b5937cd36370",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "echec",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f9830824-3753-4d3c-94b5-6843b3db706a",
+              "leftValue": "={{ $json.etat }}",
+              "rightValue": "interrompu",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "f207cc82-0d1e-464f-90a7-ab442a3c45ba",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 20,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "774093ec-c2d8-4c5f-a255-769306d0c132",
+      "name": "Mesure irrécupérable ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3630,
+        510
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO passes (id, signature, source, protocole)\nVALUES ($1, $2, $3, '{}'::jsonb)\nON CONFLICT (id) DO UPDATE\n  SET signature = EXCLUDED.signature, source = EXCLUDED.source;",
+        "options": {
+          "queryReplacement": "={{ $(\"Choisir le référentiel\").first().json.passe }},={{ $(\"Lancer l'étiquetage\").first().json.signature }},=sorties/etiquettes/{{ $(\"Choisir le référentiel\").first().json.passe }}/"
+        }
+      },
+      "id": "0aac4a9b-d680-4ddd-a640-100484f2aade",
+      "name": "Enregistrer la passe en base",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        3740,
+        300
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// La mesure est du TEXTE : l'étage 4 rend des tableaux sur stdout, le service\n// ne les dépose pas dans MinIO. On les remonte tels quels.\nconst mesure = $(\"Vérifier la mesure\").first().json;\nconst etiquetage = $(\"Vérifier l'étiquetage\").first().json;\nconst extraction = $(\"Vérifier l'extraction\").first().json;\nconst contexte = $(\"Choisir le référentiel\").first().json;\n\nreturn [{ json: {\n  resultat: \"réussi\",\n  sujet: contexte.cle,\n  lot: contexte.lot,\n  passe: contexte.passe,\n  referentiel: contexte.referentiel,\n  signature: etiquetage?.contexte?.signature ?? null,\n  documents_extraits: extraction?.resultat?.documents ?? null,\n  etiquettes: etiquetage?.resultat ?? null,\n  duree_totale_s: Math.round(\n    (extraction?.duree_s ?? 0) + (etiquetage?.duree_s ?? 0) + (mesure?.duree_s ?? 0)\n  ),\n  distribution: mesure?.stdout ?? \"\",\n  a_faire_a_la_main:\n    \"chargement complet en base : `annales-import --corpus … --referentiel … \" +\n    \"--etiquettes … --passe \" + contexte.passe + \"` (pas d'endpoint HTTP)\",\n}}];"
+      },
+      "id": "e6d9fe88-877f-47f2-ac84-413dcf7316ae",
+      "name": "Composer le compte rendu",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2532ab60-4aaa-44e4-bc16-9c1f83b6f37e",
+      "name": "Notifier la réussite",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        4180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// L'étape qui a échoué est celle dont on vient : on lit la tâche courante,\n// pas une étape antérieure. Continuer sur une étape ratée produirait des\n// mesures sur un corpus incomplet, ce qui est pire que s'arrêter.\nconst tache = $json;\nconst contexte = $(\"Choisir le référentiel\").first().json;\nconst borne = tache.etat !== \"echec\" && tache.etat !== \"interrompu\";\n\nreturn [{ json: {\n  resultat: \"échoué\",\n  etape: tache.endpoint ?? \"inconnue\",\n  cause: borne ? \"borne d'itérations atteinte, tâche toujours en cours\"\n               : (tache.erreur ?? \"commande en échec\"),\n  etat_tache: tache.etat,\n  tache: tache.id,\n  code_retour: tache.code_retour ?? null,\n  sujet: contexte.cle,\n  passe: contexte.passe,\n  referentiel: contexte.referentiel,\n  stderr: (tache.stderr ?? \"\").slice(-4000),\n}}];"
+      },
+      "id": "af8b989f-05f7-4aaa-8668-6a2209031b01",
+      "name": "Composer le rapport d'échec",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4180,
+        760
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ \"Pipeline interrompu à l'étape \" + $json.etape + \" — \" + $json.cause }}"
+      },
+      "id": "f1ece639-a921-4c3e-8f9b-48d6ba175732",
+      "name": "Arrêter en erreur",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        4400,
+        760
+      ]
+    }
+  ],
+  "connections": {
+    "Réception du dépôt": {
+      "main": [
+        [
+          {
+            "node": "Normaliser l'événement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliser l'événement": {
+      "main": [
+        [
+          {
+            "node": "Interroger la santé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interroger la santé": {
+      "main": [
+        [
+          {
+            "node": "Choisir le référentiel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Choisir le référentiel": {
+      "main": [
+        [
+          {
+            "node": "Référentiel disponible ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Référentiel disponible ?": {
+      "main": [
+        [
+          {
+            "node": "Lancer l'extraction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notifier l'absence de référentiel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lancer l'extraction": {
+      "main": [
+        [
+          {
+            "node": "Attendre l'extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre l'extraction": {
+      "main": [
+        [
+          {
+            "node": "Vérifier l'extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier l'extraction": {
+      "main": [
+        [
+          {
+            "node": "Extraction terminée ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraction terminée ?": {
+      "main": [
+        [
+          {
+            "node": "Lancer l'étiquetage",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extraction irrécupérable ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraction irrécupérable ?": {
+      "main": [
+        [
+          {
+            "node": "Composer le rapport d'échec",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Attendre l'extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lancer l'étiquetage": {
+      "main": [
+        [
+          {
+            "node": "Attendre l'étiquetage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre l'étiquetage": {
+      "main": [
+        [
+          {
+            "node": "Vérifier l'étiquetage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier l'étiquetage": {
+      "main": [
+        [
+          {
+            "node": "Étiquetage terminé ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Étiquetage terminé ?": {
+      "main": [
+        [
+          {
+            "node": "Lancer la mesure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Étiquetage irrécupérable ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Étiquetage irrécupérable ?": {
+      "main": [
+        [
+          {
+            "node": "Composer le rapport d'échec",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Attendre l'étiquetage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lancer la mesure": {
+      "main": [
+        [
+          {
+            "node": "Attendre la mesure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attendre la mesure": {
+      "main": [
+        [
+          {
+            "node": "Vérifier la mesure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vérifier la mesure": {
+      "main": [
+        [
+          {
+            "node": "Mesure terminée ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesure terminée ?": {
+      "main": [
+        [
+          {
+            "node": "Enregistrer la passe en base",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mesure irrécupérable ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mesure irrécupérable ?": {
+      "main": [
+        [
+          {
+            "node": "Composer le rapport d'échec",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Attendre la mesure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enregistrer la passe en base": {
+      "main": [
+        [
+          {
+            "node": "Composer le compte rendu",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Composer le compte rendu": {
+      "main": [
+        [
+          {
+            "node": "Notifier la réussite",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Composer le rapport d'échec": {
+      "main": [
+        [
+          {
+            "node": "Arrêter en erreur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "chaine-annales"
+  },
+  "tags": []
+}
