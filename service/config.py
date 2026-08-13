@@ -19,6 +19,18 @@ TRAVAIL = Path(os.environ.get("SERVICE_TRAVAIL", "/travail")).resolve()
 TACHES = TRAVAIL / "taches"
 JOURNAL_ETAGES = Path(os.environ.get("ETAGE0_JOURNAL", str(TRAVAIL / "journal" / "journal.jsonl")))
 
+#: Le référentiel vit dans le VOLUME, pas dans l'image. C'est de la matière
+#: produite, elle évolue à son rythme, et la reconstruire dans une image à
+#: chaque correction de notion n'a pas de sens. Conséquence directe : un volume
+#: non approvisionné donne un service qui démarre et ne peut rien étiqueter —
+#: `/sante` doit donc le dire, pas rendre « 0 notion » l'air de rien.
+REFERENTIEL = Path(os.environ.get(
+    "SERVICE_REFERENTIEL", str(TRAVAIL / "referentiel" / "genere" / "sections")))
+SONDES = Path(os.environ.get("SERVICE_SONDES", str(TRAVAIL / "referentiel" / "sondes.yaml")))
+#: `ETAGE0_SORTIE` est le dossier PARENT de `sections/` : c'est par lui que les
+#: étages 0 et 3 trouvent le référentiel.
+SORTIE_ETAGES = Path(os.environ.get("ETAGE0_SORTIE", str(REFERENTIEL.parent)))
+
 #: Une seule tâche lourde à la fois. L'étiquetage appelle l'API et se paie :
 #: deux passes concurrentes sur le même corpus doubleraient la facture sans
 #: rien apporter, le journal ne dédoublonnant qu'APRÈS l'appel.
@@ -71,6 +83,7 @@ def environnement_etages() -> dict[str, str]:
     env = dict(os.environ)
     env.setdefault("ETAGE0_RACINE", str(RACINE_CODE))
     env.setdefault("ETAGE0_JOURNAL", str(JOURNAL_ETAGES))
+    env.setdefault("ETAGE0_SORTIE", str(SORTIE_ETAGES))
     env["PYTHONIOENCODING"] = "utf-8"
     env["PYTHONUNBUFFERED"] = "1"
     return env

@@ -5,6 +5,12 @@
 -- Trois contraintes portent une décision de conception, pas seulement de
 -- l'intégrité :
 
+-- MIGRATION sur une base déjà créée : `exercices.rang` est postérieur au
+-- schéma d'origine. `annales-import --verifier-seulement` nomme cet écart et
+-- tous les autres ; ne pas deviner, lire ce qu'il rend.
+--
+--     ALTER TABLE exercices ADD COLUMN IF NOT EXISTS rang INTEGER;
+--
 -- 1. `documents.empreinte` est UNIQUE. C'est la déduplication par condensat
 --    remontée au niveau de la base : `2024_InfoF`, identique octet pour octet à
 --    `2024_InfoC`, aurait été refusé ici sans qu'aucun code ne s'en mêle.

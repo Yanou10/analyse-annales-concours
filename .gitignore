@@ -62,4 +62,7 @@ passe-*/
 dispersion-*/
 *.html
 !etage4/moteur.html
-referentiel/genere/*.zip
+# Le référentiel est de la matière produite : il suit le volume, pas le
+# dépôt. `config/` et `profils/` restent versionnés — ce sont des réglages,
+# petits et stables, et l'image en a besoin.
+referentiel/

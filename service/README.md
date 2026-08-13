@@ -11,6 +11,23 @@ des appels payants.
 
 Adresse interne : `http://annales-service:8000`. Aucun port publié.
 
+## Approvisionner le volume — à faire avant tout
+
+**Le référentiel n'est pas dans l'image.** C'est de la matière produite : la
+figer dans une image obligerait à reconstruire à chaque notion corrigée, et
+ferait diverger l'image de ce qu'on mesure. Il vit dans `/travail`, avec le
+corpus, le journal des appels et les passes.
+
+```bash
+docker compose cp referentiel annales-service:/travail/referentiel
+docker compose cp .etage0/journal.jsonl annales-service:/travail/journal/journal.jsonl
+```
+
+Le journal porte les appels déjà payés : le déposer évite de repayer une
+campagne. Tant que le référentiel manque, le service démarre et `/sante` répond
+`"etat": "referentiel_absent"` avec le chemin attendu — jamais « 0 notion »,
+qui se lirait comme une mesure.
+
 ## Endpoints
 
 | méthode | chemin | commande lancée |
@@ -124,13 +141,22 @@ Le schéma de référence est dans [`schema.sql`](schema.sql). L'import vérifie
 que la base réelle lui correspond **avant** d'écrire, et refuse en nommant les
 écarts plutôt que d'échouer à la 1 800ᵉ ligne.
 
+**À lancer en premier, avant tout import.** Le schéma du VPS est antérieur à
+`exercices.rang` : la commande nomme cet écart et tous les autres, plutôt que
+de laisser deviner.
+
 ```bash
 docker compose exec annales-service annales-import --verifier-seulement
+# écart attendu sur une base existante :
+#   exercices : colonnes absentes rang
+# correctif :
+#   ALTER TABLE exercices ADD COLUMN IF NOT EXISTS rang INTEGER;
+
 docker compose exec annales-service annales-import --creer-schema --verifier-seulement
 
 docker compose exec annales-service annales-import \
   --corpus /travail/corpus \
-  --referentiel /app/referentiel/genere/sections \
+  --referentiel /travail/referentiel/genere/sections \
   --etiquettes /travail/passe-39 --passe passe-39 \
   --protocole /app/config/mesure.yaml
 ```

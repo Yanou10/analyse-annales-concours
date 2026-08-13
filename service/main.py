@@ -163,21 +163,30 @@ def _signature_protocole() -> dict[str, Any]:
 
 @application.get("/sante")
 def sante() -> dict[str, Any]:
-    sections = config.RACINE_CODE / "referentiel" / "genere" / "sections"
+    sections = config.REFERENTIEL
     notions = 0
     if sections.is_dir():
         for fichier in sections.glob("*.yaml"):
             donnees = yaml.safe_load(fichier.read_text(encoding="utf-8")) or {}
             notions += len(donnees.get("notions") or [])
+    # Un référentiel absent n'est pas « 0 notion » : c'est un volume non
+    # approvisionné, et le service ne peut rien étiqueter. Le dire franchement
+    # plutôt que de rendre un zéro qui se lit comme une mesure.
+    approvisionne = sections.is_dir() and notions > 0
     return {
-        "etat": "ok",
+        "etat": "ok" if approvisionne else "referentiel_absent",
         "version_service": VERSION,
         # Présence seulement : la valeur de la clé ne sort jamais du processus.
         "cle_anthropic_presente": config.etat_environnement().cle_presente,
         "referentiel": {
             "chemin": str(sections),
+            "approvisionne": approvisionne,
             "notions": notions,
             "empreinte": _empreinte_dossier(sections, "*.yaml"),
+            **({} if approvisionne else {
+                "remede": f"déposer le référentiel dans {sections} "
+                          "(volume /travail), il ne voyage pas dans l'image",
+            }),
         },
         "protocole": _signature_protocole(),
         "travail": {
@@ -238,8 +247,10 @@ def confronter(corps: Confrontation) -> dict[str, Any]:
     except CheminRefuse as err:
         raise _refuser(err) from None
     appel = commande("etage0", "confronter", *map(str, corpus))
-    if sondes:
-        appel += ["--sondes", str(sondes)]
+    # Le défaut de l'étage 0 (`referentiel/sondes.yaml`, relatif à /app) ne
+    # vaut plus : le référentiel est dans le volume. On passe donc toujours le
+    # chemin, explicitement.
+    appel += ["--sondes", str(sondes or config.SONDES)]
     if corps.sonde:
         appel += ["--sonde", corps.sonde]
     if corps.minimum is not None:
@@ -325,9 +336,9 @@ def mesurer(corps: Mesure) -> dict[str, Any]:
     except CheminRefuse as err:
         raise _refuser(err) from None
 
-    globales: list[str] = []
-    if referentiel:
-        globales += ["--referentiel", str(referentiel)]
+    # Même raison qu'aux sondes : le défaut de l'étage 4 est relatif à /app,
+    # où le référentiel n'est plus. Toujours explicite.
+    globales: list[str] = ["--referentiel", str(referentiel or config.REFERENTIEL)]
     if corps.sans_entete:
         globales.append("--sans-entete")
     appel = commande("etage4", *globales, sous, *map(str, passes))

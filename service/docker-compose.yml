@@ -31,9 +31,19 @@ services:
       ETAGE0_EFFORT: ${ETAGE0_EFFORT:-high}
       ETAGE0_MAX_TOKENS: ${ETAGE0_MAX_TOKENS:-16000}
       ETAGE0_JOURNAL: /travail/journal/journal.jsonl
+      ETAGE0_SORTIE: /travail/referentiel/genere
+      SERVICE_REFERENTIEL: /travail/referentiel/genere/sections
+      SERVICE_SONDES: /travail/referentiel/sondes.yaml
     volumes:
-      # Corpus, sorties, journal des étages et état des tâches. Le journal est
-      # la reprise sur appels déjà payés : le perdre coûte de l'argent.
+      # Le volume porte TOUTE la matière : le référentiel, le corpus, les
+      # sorties, le journal des étages et l'état des tâches. Le référentiel
+      # n'est pas dans l'image — sans lui, le service démarre et `/sante`
+      # répond `referentiel_absent`.
+      #
+      #     docker compose cp referentiel annales-service:/travail/referentiel
+      #
+      # Le journal est la reprise sur appels déjà payés : le perdre coûte de
+      # l'argent.
       - annales-travail:/travail
     networks:
       - interne

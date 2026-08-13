@@ -27,8 +27,15 @@ RACINE = Path(__file__).resolve().parents[1]
 @pytest.fixture(scope="module")
 def client(tmp_path_factory):
     travail = tmp_path_factory.mktemp("travail")
+    referentiel = RACINE / "referentiel" / "genere" / "sections"
+    if not referentiel.is_dir():
+        pytest.skip("référentiel absent : il vit dans le volume, pas dans le dépôt")
     os.environ["SERVICE_TRAVAIL"] = str(travail)
     os.environ["SERVICE_RACINE_CODE"] = str(RACINE)
+    # Le référentiel n'est plus dans l'image : le service le lit par
+    # `SERVICE_REFERENTIEL`, qui pointe le volume en production.
+    os.environ["SERVICE_REFERENTIEL"] = str(referentiel)
+    os.environ["ETAGE0_SORTIE"] = str(referentiel.parent)
     os.environ.setdefault("ETAGE0_PROGRAMME", str(RACINE / "spe777_annexe_1373646.md"))
     os.environ.setdefault("ETAGE0_MODELE", "claude-sonnet-5")
     os.environ.setdefault("ETAGE0_REFLEXION", "0")
@@ -47,6 +54,7 @@ def test_sante_rend_empreinte_et_signature(client):
     assert reponse.status_code == 200
     corps = reponse.json()
     assert corps["etat"] == "ok"
+    assert corps["referentiel"]["approvisionne"] is True
     assert corps["referentiel"]["notions"] > 0
     assert len(corps["referentiel"]["empreinte"]) == 16
     assert corps["protocole"]["signature"], corps["protocole"]

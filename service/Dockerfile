@@ -11,6 +11,15 @@ ENV PYTHONUNBUFFERED=1 \
     ETAGE0_JOURNAL=/travail/journal/journal.jsonl \
     ETAGE0_PROGRAMME=/app/programme/spe777_annexe_1373646.md
 
+# Le référentiel est de la MATIÈRE PRODUITE, pas du code : il vit dans le
+# volume. Le figer dans l'image obligerait à reconstruire à chaque notion
+# corrigée, et ferait diverger l'image de ce qu'on mesure réellement.
+# `ETAGE0_SORTIE` est le dossier parent de `sections/` : c'est par lui que les
+# étages 0 et 3 trouvent le référentiel.
+ENV SERVICE_REFERENTIEL=/travail/referentiel/genere/sections \
+    SERVICE_SONDES=/travail/referentiel/sondes.yaml \
+    ETAGE0_SORTIE=/travail/referentiel/genere
+
 WORKDIR /app
 
 COPY pyproject.toml ./
@@ -21,11 +30,11 @@ COPY etage4 ./etage4
 COPY service ./service
 RUN pip install --no-cache-dir '.[service]'
 
-# Matière nécessaire à l'exécution. Le corpus et les sorties, eux, vivent dans
-# le volume : l'image ne contient aucune donnée de travail.
+# Configuration et programme officiel : petits, stables, ils voyagent avec
+# l'image. Le référentiel, le corpus, le journal et les passes vivent dans le
+# volume — l'image ne contient aucune donnée de travail.
 COPY profils ./profils
 COPY config ./config
-COPY referentiel ./referentiel
 COPY spe777_annexe_1373646.md ./programme/spe777_annexe_1373646.md
 
 # La construction ÉCHOUE tout de suite si le paquet est incomplet. C'est le
