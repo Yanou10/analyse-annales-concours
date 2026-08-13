@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recensement des annales — Analyse</title>
+<style>
+:root{
+  --ink:#1a1d23; --paper:#f3f0e9; --slate:#222731; --slate2:#2b313d;
+  --amber:#d98e2b; --amber-soft:#e9b865; --line:#3a4150; --mut:#8b94a3;
+  --c0:#1f2530; --c1:#3a3326; --c2:#5c4a23; --c3:#86641f; --c4:#b07e1c; --c5:#d98e2b;
+  --ok:#5fa86a; --c-c:#5b8def; --c-ml:#c46b3f; --c-ps:#8a7fc4; --c-th:#7d8590;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--slate);color:var(--paper);font-family:'Iowan Old Style',Georgia,serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5;padding:0 0 80px}
+.mono{font-family:'SF Mono','JetBrains Mono',ui-monospace,Menlo,monospace}
+header{padding:38px 40px 28px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,#262c38,#222731)}
+.eyebrow{font:600 11px/1 'SF Mono',ui-monospace,monospace;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--amber);margin-bottom:14px}
+h1{font-size:38px;font-weight:600;letter-spacing:-.01em;line-height:1.05}
+h1 .thin{color:var(--mut);font-weight:400}
+.sub{margin-top:12px;color:var(--mut);font-size:15px;max-width:680px}
+.wrap{padding:0 40px}
+.filterbar{position:sticky;top:0;z-index:20;background:var(--slate2);border-bottom:1px solid var(--line)}
+.filterbar-head{display:flex;align-items:center;gap:14px;padding:10px 40px;
+  border-bottom:1px solid transparent}
+.filterbar.collapsed .filterbar-head{border-bottom-color:var(--line)}
+.fb-toggle{display:inline-flex;align-items:center;gap:8px;background:transparent;border:none;
+  color:var(--paper);font:600 12px 'SF Mono',ui-monospace,monospace;letter-spacing:.1em;
+  text-transform:uppercase;cursor:pointer;padding:4px 2px}
+.fb-toggle:hover{color:var(--amber-soft)}
+.fb-caret{display:inline-block;color:var(--amber);transition:transform .2s;font-size:11px}
+.filterbar.collapsed .fb-caret{transform:rotate(-90deg)}
+.fb-summary{color:var(--mut);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.filters{display:flex;flex-wrap:wrap;gap:22px;padding:20px 40px;
+  max-height:46vh;overflow-y:auto;transition:max-height .25s ease,padding .25s ease,opacity .2s}
+.filterbar.collapsed .filters{max-height:0;padding-top:0;padding-bottom:0;opacity:0;overflow:hidden}
+.filters::-webkit-scrollbar{width:8px}
+.filters::-webkit-scrollbar-thumb{background:#3a4150;border-radius:4px}
+.fgroup{display:flex;flex-direction:column;gap:7px}
+.fgroup-wide{flex-basis:100%;max-width:560px}
+.subdrop-toggle{display:inline-flex;align-items:center;gap:8px;background:transparent;
+  border:1px solid var(--line);border-radius:3px;color:var(--paper);
+  font:600 11px 'SF Mono',ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;padding:8px 12px;width:fit-content;transition:.12s}
+.subdrop-toggle:hover{border-color:var(--amber-soft)}
+.subdrop-caret{color:var(--amber);font-size:10px;transition:transform .2s}
+.subdrop-toggle[aria-expanded="true"] .subdrop-caret{transform:rotate(90deg)}
+.subdrop-count{color:var(--mut);font-size:10px;font-weight:500;letter-spacing:0;text-transform:none}
+.subdrop-body{max-height:0;overflow:hidden;transition:max-height .25s ease,margin .2s,opacity .2s;opacity:0;margin-top:0}
+.fgroup-wide.open .subdrop-body{max-height:340px;overflow-y:auto;opacity:1;margin-top:10px}
+.subdrop-actions{display:flex;gap:6px;margin-bottom:8px}
+.chips-vert{display:flex;flex-direction:column;gap:5px}
+.chips-vert .chip{width:100%;text-align:left;white-space:normal;line-height:1.3;font-size:12px}
+.subdrop-body::-webkit-scrollbar{width:8px}
+.subdrop-body::-webkit-scrollbar-thumb{background:#3a4150;border-radius:4px}
+.flabel{font:600 10px/1 'SF Mono',ui-monospace,monospace;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--mut)}
+.mini{font:600 9px 'SF Mono',monospace;letter-spacing:.06em;text-transform:uppercase;
+  background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:2px;
+  padding:2px 6px;margin-left:6px;cursor:pointer;transition:.12s}
+.mini:hover{border-color:var(--amber-soft);color:var(--paper)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-width:560px}
+.chip{font:500 12px/1 'SF Mono',ui-monospace,monospace;padding:6px 11px;border-radius:3px;
+  border:1px solid var(--line);background:transparent;color:var(--mut);cursor:pointer;
+  transition:.12s;user-select:none}
+.chip:hover{border-color:var(--amber-soft);color:var(--paper)}
+.chip.on{background:var(--amber);border-color:var(--amber);color:#1a1208;font-weight:600}
+.metric-toggle .chip.on{background:#3a4150;border-color:#566073;color:var(--paper)}
+section{padding:34px 40px;border-bottom:1px solid #2f3542}
+.shead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px}
+.snum{font:600 12px 'SF Mono',ui-monospace,monospace;color:var(--amber);letter-spacing:.1em}
+h2{font-size:23px;font-weight:600;letter-spacing:-.01em}
+.shint{color:var(--mut);font-size:13px;margin-bottom:22px;max-width:720px}
+.sortbar{display:flex;align-items:center;gap:8px;margin:2px 0 18px}
+/* heatmap */
+.hm{overflow-x:auto;padding-bottom:6px}
+table{border-collapse:collapse;font-family:'SF Mono',ui-monospace,monospace}
+.hm th{font-size:11px;font-weight:600;color:var(--mut);padding:6px 8px;text-align:center;
+  white-space:nowrap}
+.hm th.rowh{text-align:left;font-weight:500;color:var(--paper);min-width:300px;max-width:380px;
+  white-space:normal;line-height:1.25;font-family:'Iowan Old Style',Georgia,serif;font-size:13px}
+.hm td{width:46px;height:38px;text-align:center;font-size:12px;color:#0d0f13;
+  border:1px solid var(--slate);position:relative;cursor:default}
+.hm td.zero{color:#454c59;background:#252b36 !important}
+.hm tr:hover td{outline:1px solid rgba(217,142,43,.4)}
+.totcol{background:#2b313d !important;color:var(--amber-soft) !important;font-weight:700;font-size:13px}
+/* ranking */
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar-row{display:grid;grid-template-columns:minmax(280px,420px) 1fr 64px;align-items:center;gap:14px}
+.bar-lbl{font-size:13px;text-align:left;color:var(--paper);line-height:1.25}
+.seclabel{display:block;font:600 9px 'SF Mono',ui-monospace,monospace;color:var(--amber);
+  letter-spacing:.03em;text-transform:uppercase;opacity:.8;margin-bottom:2px}
+.bar-lbl-sec{font-size:13px;color:var(--paper)}
+.bar-lbl .k{display:inline-block;font:600 10px 'SF Mono',monospace;color:var(--amber);
+  background:#2b313d;border-radius:2px;padding:1px 5px;margin-right:8px;min-width:30px;text-align:center}
+.bar-val{text-align:right}
+.bar-track{height:22px;background:#252b36;border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--amber-soft));
+  border-radius:2px;transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.bar-val{font:600 13px 'SF Mono',monospace;color:var(--amber-soft)}
+/* lang */
+.langgrid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:14px 18px;align-items:center}
+.lang-row{display:contents}
+.stack{display:flex;height:26px;border-radius:3px;overflow:hidden;background:#252b36}
+.seg{height:100%;display:flex;align-items:center;justify-content:center;font:600 11px 'SF Mono',monospace;
+  color:#fff;min-width:0;transition:.4s}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+.lg{display:flex;align-items:center;gap:7px;font:500 12px 'SF Mono',monospace;color:var(--mut)}
+.lg .sw{width:13px;height:13px;border-radius:2px}
+.empty{color:var(--mut);font-style:italic;padding:20px 0}
+.nevertag{font:600 9px 'SF Mono',monospace;letter-spacing:.08em;text-transform:uppercase;
+  color:#c75b4a;border:1px solid #c75b4a;border-radius:2px;padding:1px 4px;margin-left:6px;vertical-align:middle}
+.seccode{display:block;font:600 9px 'SF Mono',monospace;color:var(--amber);
+  letter-spacing:.03em;margin-bottom:3px;text-transform:uppercase;opacity:.85}
+.cov{display:block;font:500 10px 'SF Mono',monospace;color:var(--mut);margin-top:2px}
+.hm th.neverh{color:var(--mut)}
+.totcol.totzero{color:#c75b4a !important;background:#2b2530 !important}
+.bar-row.zerorow .bar-lbl{color:var(--mut)}
+.bar-row.zerorow .bar-track{background:repeating-linear-gradient(45deg,#252b36,#252b36 6px,#2b2530 6px,#2b2530 12px)}
+.bar-row.zerorow .bar-val{color:#c75b4a}
+.bar-lbl.zerolbl{color:var(--mut)}
+.stack.zerostack{background:repeating-linear-gradient(45deg,#252b36,#252b36 6px,#2b2530 6px,#2b2530 12px);
+  align-items:center;justify-content:center}
+.neverseg{font:600 10px 'SF Mono',monospace;letter-spacing:.06em;color:#c75b4a;text-transform:uppercase}
+.tip{position:fixed;pointer-events:none;background:#11141a;border:1px solid var(--amber);
+  padding:7px 10px;border-radius:4px;font:500 12px 'SF Mono',monospace;color:var(--paper);
+  z-index:99;opacity:0;transition:opacity .1s;max-width:240px;line-height:1.4}
+.foot{padding:26px 40px;color:var(--mut);font-size:12px;font-family:'SF Mono',monospace}
+@media(max-width:720px){
+  header,.wrap,section,.filters,.filterbar-head,.foot{padding-left:20px;padding-right:20px}
+  h1{font-size:28px}.bar-row{grid-template-columns:minmax(140px,1fr) 80px 50px}
+  .bar-lbl{font-size:11px}
+}
+
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Concours · Informatique MPI · Notions × Type × Langage · 2017–2025</div>
+  <h1>Étiquettes — avec notions jamais tombées</h1>
+  <p class="sub">2344 étiquettes de notions sur 9 années, 7 épreuves et 19 sections. Projetées sur les 124 notions du référentiel : 119 déjà tombées, 5 jamais (marquées <span style='color:#c75b4a;font-weight:600'>jamais</span>). Filtre par année, type, épreuve, langage ou section ; trie la carte de chaleur.</p>
+</header>
+
+<div class="filterbar" id="filterbar">
+  <div class="filterbar-head">
+    <button class="fb-toggle" id="fbToggle" aria-expanded="true">
+      <span class="fb-caret">▾</span> Filtres
+    </button>
+    <span class="fb-summary mono" id="fbSummary"></span>
+    <button class="mini" id="fbReset" style="margin-left:auto">tout réinitialiser</button>
+  </div>
+  <div class="filters" id="filters">
+  <div class="fgroup">
+    <span class="flabel">Années <button class="mini" id="yAll">tout</button><button class="mini" id="yNone">aucune</button></span>
+    <div class="chips" id="anneeSel"></div>
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Métrique</span>
+    <div class="chips metric-toggle" id="metricSel">
+      <span class="chip on" data-m="presence">Présence (1/sujet)</span>
+      <span class="chip" data-m="poids">Pondérée (Quantité)</span>
+    </div>
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Notions jamais tombées</span>
+    <div class="chips metric-toggle" id="zeroSel">
+      <span class="chip on" data-z="1">Afficher</span>
+      <span class="chip" data-z="0">Masquer</span>
+    </div>
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Épreuve</span>
+    <div class="chips" id="epreuveSel"></div>
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Type</span>
+    <div class="chips" id="typeSel"></div>
+  </div>
+  <div class="fgroup">
+    <span class="flabel">Langage</span>
+    <div class="chips" id="langSel"></div>
+  </div>
+  <div class="fgroup fgroup-wide">
+    <button class="subdrop-toggle" id="secToggle" aria-expanded="false">
+      <span class="subdrop-caret">▸</span> Section
+      <span class="subdrop-count mono" id="secCount"></span>
+    </button>
+    <div class="subdrop-body" id="secBody">
+      <div class="subdrop-actions">
+        <button class="mini" id="sAll">tout</button>
+        <button class="mini" id="sNone">aucune</button>
+      </div>
+      <div class="chips chips-vert" id="sectionSel"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<section>
+  <div class="shead"><div><span class="snum">01</span> &nbsp;<h2 style="display:inline">Carte de chaleur · notion × année</h2></div><span class="mono" style="color:var(--mut);font-size:12px" id="periodTag"></span></div>
+  <div class="sortbar"><span class="flabel" style="margin-right:2px">Trier</span>
+    <div class="chips metric-toggle" id="hmSortSel">
+      <span class="chip on" data-s="prog">Programme</span>
+      <span class="chip" data-s="totDesc">Total ↓</span>
+      <span class="chip" data-s="totAsc">Total ↑</span>
+      <span class="chip" data-s="alpha">A→Z</span>
+    </div>
+    <span class="flabel" style="margin:0 2px 0 18px">Échelle couleur</span>
+    <div class="chips metric-toggle" id="hmScaleSel">
+      <span class="chip on" data-sc="log">Log</span>
+      <span class="chip" data-sc="rank">Par rang</span>
+      <span class="chip" data-sc="row">Par ligne</span>
+      <span class="chip" data-sc="lin">Linéaire</span>
+    </div>
+  </div>
+  <p class="shint">Chaque case = total pour cette notion cette année-là. La couleur suit l'échelle choisie : <b>Log</b> (défaut) et <b>Par rang</b> compressent les valeurs extrêmes pour que les cellules moyennes ne paraissent plus froides ; <b>Par ligne</b> colore chaque notion relativement à son propre maximum ; <b>Linéaire</b> est l'échelle absolue brute. La colonne Σ cumule sur la période choisie.</p>
+  <div class="hm" id="heatmap"></div>
+</section>
+
+<section>
+  <div class="shead"><div><span class="snum">02</span> &nbsp;<h2 style="display:inline">Notions les plus fréquentes</h2></div><span class="mono" style="color:var(--mut);font-size:12px" id="rankTotal"></span></div>
+  <p class="shint">Classement sur la sélection courante. C'est la réponse directe à « qu'est-ce qui tombe le plus ? ».</p>
+  <div class="bars" id="ranking"></div>
+</section>
+
+<section>
+  <div class="shead"><div><span class="snum">03</span> &nbsp;<h2 style="display:inline">Croisement par langage</h2></div><span class="mono" style="color:var(--mut);font-size:12px" id="langTotal"></span></div>
+  <p class="shint">Pour chaque notion, la répartition des occurrences entre OCaml, C, pseudo-code et théorique. Révèle quelles notions sont traitées par programmation et dans quel langage.</p>
+  <div class="legend" id="legend"></div>
+  <div class="langgrid" id="langchart"></div>
+</section>
+
+<section>
+  <div class="shead"><div><span class="snum">04</span> &nbsp;<h2 style="display:inline">Répartition Algorithmique vs Théorie</h2></div><span class="mono" style="color:var(--mut);font-size:12px" id="typeTotal"></span></div>
+  <p class="shint">Pour chaque section, la part des occurrences relevant d'algorithmique ou de théorie, sur la sélection courante.</p>
+  <div class="legend" id="typeLegend"></div>
+  <div class="langgrid" id="typechart"></div>
+</section>
+
+<section style="border-bottom:none">
+  <div class="shead"><div><span class="snum">05</span> &nbsp;<h2 style="display:inline">Poids par section du programme</h2></div></div>
+  <p class="shint">Total des occurrences agrégé par section, sur la sélection courante. Le ratio à droite indique combien de notions de la section sont déjà tombées sur le total au programme (couverture).</p>
+  <div class="bars" id="sectionchart"></div>
+</section>
+
+<div class="foot">__PIED_PLACEHOLDER__</div>
+<div class="tip" id="tip"></div>
+
+<script>__DATA_PLACEHOLDER__</script>
+<script>
+const LANGCOL={'OCaml':'var(--c-ml)','C':'var(--c-c)','Pseudo-code':'var(--c-ps)','Théorique':'var(--c-th)','(inconnu)':'#566073'};
+const LANGSHORT={'OCaml':'OCaml','C':'C','Pseudo-code':'Pseudo','Théorique':'Théorique','(inconnu)':'Inconnu'};
+const TYPECOL={'Algorithmique':'var(--c-c)','Théorie':'var(--c-ps)'};
+let state={metric:'presence',epreuves:new Set(DATA.epreuves),sections:new Set(DATA.sections),langs:new Set(DATA.langages),types:new Set(DATA.types),annees:new Set(DATA.annees),showZero:true,hmSort:'prog',hmScale:'log'};
+const OFFICIELS=DATA.notions_officielles;
+const JAMAIS=new Set(DATA.jamais_tombes||[]);
+const ORDER={};OFFICIELS.forEach((n,i)=>ORDER[n]=i);
+function cmpProg(a,b){return (ORDER[a]??9999)-(ORDER[b]??9999);}
+const tip=document.getElementById('tip');
+function showTip(e,html){tip.innerHTML=html;tip.style.opacity=1;moveTip(e);}
+function moveTip(e){tip.style.left=Math.min(e.clientX+14,innerWidth-250)+'px';tip.style.top=(e.clientY+14)+'px';}
+function hideTip(){tip.style.opacity=0;}
+
+function buildChips(id,items,setRef,labelFn,titleFn){
+  const c=document.getElementById(id);
+  items.forEach(it=>{
+    const s=document.createElement('span');s.className='chip on';
+    s.textContent=labelFn?labelFn(it):it;
+    if(titleFn)s.title=titleFn(it);
+    s.onclick=()=>{if(setRef.has(it)){setRef.delete(it);s.classList.remove('on');}
+      else{setRef.add(it);s.classList.add('on');}render();};
+    c.appendChild(s);
+  });
+}
+const secCode=s=>{const m=s.match(/^([\d.]+|\d+)/);if(m)return m[0];
+  // pas de numéro : abréviation = initiales des 2-3 premiers mots significatifs
+  const stop=new Set(['de','des','du','la','le','les','et','en','d','l','pour','un','une','à','aux']);
+  const w=s.replace(/[(),]/g,' ').split(/\s+/).filter(x=>x&&!stop.has(x.toLowerCase()));
+  return w.slice(0,3).map(x=>x[0].toUpperCase()).join('');};
+buildChips('epreuveSel',DATA.epreuves,state.epreuves);
+buildChips('typeSel',DATA.types,state.types);
+buildChips('langSel',DATA.langages,state.langs,l=>l,l=>l);
+buildChips('sectionSel',DATA.sections,state.sections,s=>s,s=>s);
+buildChips('anneeSel',DATA.annees,state.annees);
+// Sous-dropdown Section
+const secWide=document.getElementById('secToggle').closest('.fgroup-wide');
+const secToggle=document.getElementById('secToggle');
+secToggle.onclick=()=>{const open=secWide.classList.toggle('open');
+  secToggle.setAttribute('aria-expanded',String(open));};
+function updateSecCount(){
+  const el=document.getElementById('secCount');
+  const n=state.sections.size,t=DATA.sections.length;
+  el.textContent=n===t?`(toutes : ${t})`:n===0?'(aucune)':`(${n}/${t})`;
+}
+document.getElementById('sAll').onclick=()=>{DATA.sections.forEach(s=>state.sections.add(s));
+  document.querySelectorAll('#sectionSel .chip').forEach(c=>c.classList.add('on'));render();};
+document.getElementById('sNone').onclick=()=>{state.sections.clear();
+  document.querySelectorAll('#sectionSel .chip').forEach(c=>c.classList.remove('on'));render();};
+document.getElementById('yAll').onclick=()=>{DATA.annees.forEach(a=>state.annees.add(a));
+  document.querySelectorAll('#anneeSel .chip').forEach(c=>c.classList.add('on'));render();};
+document.getElementById('yNone').onclick=()=>{state.annees.clear();
+  document.querySelectorAll('#anneeSel .chip').forEach(c=>c.classList.remove('on'));render();};
+document.querySelectorAll('#metricSel .chip').forEach(ch=>{
+  ch.onclick=()=>{document.querySelectorAll('#metricSel .chip').forEach(x=>x.classList.remove('on'));
+    ch.classList.add('on');state.metric=ch.dataset.m;render();};
+});
+document.querySelectorAll('#zeroSel .chip').forEach(ch=>{
+  ch.onclick=()=>{document.querySelectorAll('#zeroSel .chip').forEach(x=>x.classList.remove('on'));
+    ch.classList.add('on');state.showZero=ch.dataset.z==='1';render();};
+});
+document.querySelectorAll('#hmSortSel .chip').forEach(ch=>{
+  ch.onclick=()=>{document.querySelectorAll('#hmSortSel .chip').forEach(x=>x.classList.remove('on'));
+    ch.classList.add('on');state.hmSort=ch.dataset.s;render();};
+});
+document.querySelectorAll('#hmScaleSel .chip').forEach(ch=>{
+  ch.onclick=()=>{document.querySelectorAll('#hmScaleSel .chip').forEach(x=>x.classList.remove('on'));
+    ch.classList.add('on');state.hmScale=ch.dataset.sc;render();};
+});
+
+// --- Barre de filtres repliable ---
+const filterbar=document.getElementById('filterbar');
+const fbToggle=document.getElementById('fbToggle');
+fbToggle.onclick=()=>{
+  const collapsed=filterbar.classList.toggle('collapsed');
+  fbToggle.setAttribute('aria-expanded', String(!collapsed));
+};
+function setSummary(){
+  const el=document.getElementById('fbSummary');
+  const parts=[];
+  const fmt=(sel,total,label)=>{
+    if(sel.size===total) return `toutes ${label}`;
+    if(sel.size===0) return `aucune ${label}`;
+    return `${sel.size}/${total} ${label}`;
+  };
+  parts.push(state.metric==='poids'?'pondéré':'présence');
+  parts.push(fmt(state.annees,DATA.annees.length,'années'));
+  parts.push(fmt(state.epreuves,DATA.epreuves.length,'épreuves'));
+  parts.push(fmt(state.types,DATA.types.length,'types'));
+  parts.push(fmt(state.langs,DATA.langages.length,'langages'));
+  parts.push(fmt(state.sections,DATA.sections.length,'sections'));
+  el.textContent='· '+parts.join(' · ');
+  updateSecCount();
+}
+document.getElementById('fbReset').onclick=()=>{
+  state.metric='presence';state.showZero=true;state.hmSort='prog';state.hmScale='log';
+  state.annees=new Set(DATA.annees);state.epreuves=new Set(DATA.epreuves);
+  state.langs=new Set(DATA.langages);state.sections=new Set(DATA.sections);state.types=new Set(DATA.types);
+  document.querySelectorAll('.filters .chip').forEach(c=>c.classList.add('on'));
+  document.querySelectorAll('#metricSel .chip').forEach(c=>c.classList.toggle('on',c.dataset.m==='presence'));
+  document.querySelectorAll('#zeroSel .chip').forEach(c=>c.classList.toggle('on',c.dataset.z==='1'));
+  document.querySelectorAll('#hmSortSel .chip').forEach(c=>c.classList.toggle('on',c.dataset.s==='prog'));
+  document.querySelectorAll('#hmScaleSel .chip').forEach(c=>c.classList.toggle('on',c.dataset.sc==='log'));
+  render();
+};
+
+function filtered(){
+  return DATA.records.filter(r=>state.epreuves.has(r.epreuve)&&state.sections.has(r.section)&&state.langs.has(r.langage)&&state.types.has(r.type)&&state.annees.has(r.annee));
+}
+function val(r){return state.metric==='poids'?r.poids:1;}
+
+function render(){
+  const rows=filtered();
+  const ys=DATA.annees.filter(a=>state.annees.has(a));
+  const tag=document.getElementById('periodTag');
+  if(tag){
+    if(!ys.length) tag.textContent='aucune année';
+    else if(ys.length===DATA.annees.length) tag.textContent=`${ys[0]}–${ys[ys.length-1]} · toutes`;
+    else tag.textContent=`${ys.length} année(s) : ${ys.join(', ')}`;
+  }
+  renderHeatmap(rows);
+  renderRanking(rows);
+  renderLang(rows);
+  renderTypes(rows);
+  renderSections(rows);
+  setSummary();
+}
+
+function chapList(tot){
+  // base = notions présentes dans la sélection ; complète avec officielles (section + type sélectionnés) si showZero
+  const set=new Set(Object.keys(tot));
+  if(state.showZero) OFFICIELS.forEach(n=>{
+    if(state.sections.has(DATA.notion_section[n]) && state.types.has(DATA.notion_type[n])) set.add(n);
+  });
+  return [...set];
+}
+
+function renderHeatmap(rows){
+  const annees=DATA.annees.filter(a=>state.annees.has(a));
+  const host0=document.getElementById('heatmap');
+  if(!annees.length){host0.innerHTML='<p class="empty">Sélectionne au moins une année.</p>';return;}
+  const map={}; const tot={};
+  rows.forEach(r=>{map[r.notion]=map[r.notion]||{};
+    map[r.notion][r.annee]=(map[r.notion][r.annee]||0)+val(r);
+    tot[r.notion]=(tot[r.notion]||0)+val(r);});
+  const chaps=chapList(tot).sort((a,b)=>{
+    const ta=tot[a]||0, tb=tot[b]||0;
+    switch(state.hmSort){
+      case 'totDesc': return tb!==ta ? tb-ta : cmpProg(a,b);
+      case 'totAsc':  return ta!==tb ? ta-tb : cmpProg(a,b);
+      case 'alpha':   return a.localeCompare(b,'fr');
+      default:        return cmpProg(a,b); // ordre programme
+    }
+  });
+  // Valeurs non nulles pour calibrer les échelles globales
+  const allVals=chaps.flatMap(c=>annees.map(a=>(map[c]||{})[a]||0)).filter(v=>v>0);
+  const maxCell=Math.max(1,...allVals);
+  const logMax=Math.log(maxCell+1);
+  // échelle "par rang" : quantiles sur les valeurs non nulles triées
+  const sorted=[...allVals].sort((x,y)=>x-y);
+  const rankOf=v=>{ // position relative (0..1) de v parmi les valeurs
+    let lo=0,hi=sorted.length;while(lo<hi){const m=(lo+hi)>>1;if(sorted[m]<v)lo=m+1;else hi=m;}
+    return sorted.length>1?lo/(sorted.length-1):1;
+  };
+  // max par ligne pour l'échelle "par ligne"
+  const rowMax={};chaps.forEach(c=>{rowMax[c]=Math.max(1,...annees.map(a=>(map[c]||{})[a]||0));});
+  function colorIdx(v,c){
+    if(v<=0)return 0;
+    let t;
+    switch(state.hmScale){
+      case 'lin': t=v/maxCell; break;
+      case 'row': t=v/rowMax[c]; break;
+      case 'rank':t=rankOf(v); break;
+      default:    t=Math.log(v+1)/logMax; // log
+    }
+    return Math.min(5,Math.max(1,Math.ceil(t*5)));
+  }
+  const host=document.getElementById('heatmap');
+  if(!chaps.length){host.innerHTML='<p class="empty">Aucune donnée pour cette sélection.</p>';return;}
+  let h='<table><thead><tr><th class="rowh">Notion</th>';
+  annees.forEach(a=>h+=`<th>${a}</th>`);
+  h+='<th class="totcol" style="border:none">Σ</th></tr></thead><tbody>';
+  chaps.forEach(c=>{
+    const isZero=!(tot[c]>0);
+    h+=`<tr><th class="rowh${isZero?' neverh':''}" title="${DATA.notion_section[c]||''}"><span class="seccode">${DATA.notion_section[c]||''}</span>${c}${isZero?' <span class="nevertag">jamais</span>':''}</th>`;
+    annees.forEach(a=>{const v=(map[c]||{})[a]||0;
+      if(!v){h+='<td class="zero">·</td>';}
+      else{const ci=colorIdx(v,c);
+        h+=`<td style="background:var(--c${ci})" data-tip="${c} · ${a}<br>${v} ${state.metric==='poids'?'pts':'sujet(s)'}">${v}</td>`;}
+    });
+    h+=`<td class="totcol${isZero?' totzero':''}">${tot[c]||0}</td></tr>`;
+  });
+  h+='</tbody></table>';host.innerHTML=h;
+  host.querySelectorAll('td[data-tip]').forEach(td=>{
+    td.onmousemove=e=>showTip(e,td.dataset.tip);td.onmouseleave=hideTip;});
+}
+
+function renderRanking(rows){
+  const tot={};rows.forEach(r=>tot[r.notion]=(tot[r.notion]||0)+val(r));
+  const chaps=chapList(tot).sort((a,b)=>{
+    const d=(tot[b]||0)-(tot[a]||0); return d!==0?d:cmpProg(a,b);
+  });
+  const max=Math.max(1,...chaps.map(c=>tot[c]||0));
+  const sum=chaps.reduce((s,c)=>s+(tot[c]||0),0);
+  const nZero=chaps.filter(c=>!(tot[c]>0)).length;
+  document.getElementById('rankTotal').textContent=sum?`total ${sum} · ${chaps.length} notions${nZero?` · ${nZero} jamais tombée(s)`:''}`:'';
+  const host=document.getElementById('ranking');
+  if(!chaps.length){host.innerHTML='<p class="empty">Aucune donnée.</p>';return;}
+  host.innerHTML=chaps.map(c=>{
+    const sec=DATA.notion_section[c]||'';
+    const name=c;
+    const v=tot[c]||0; const isZero=!(v>0);
+    return `<div class="bar-row${isZero?' zerorow':''}"><div class="bar-lbl" title="${sec}"><span class="seclabel">${sec}</span>${name}</div>
+      <div class="bar-track">${isZero?'':`<div class="bar-fill" style="width:${v/max*100}%"></div>`}</div>
+      <div class="bar-val">${v}</div></div>`;
+  }).join('');
+}
+
+function renderLang(rows){
+  const langs=DATA.langages.filter(l=>state.langs.has(l));
+  const leg=document.getElementById('legend');
+  leg.innerHTML=langs.map(l=>`<div class="lg"><span class="sw" style="background:${LANGCOL[l]}"></span>${LANGSHORT[l]||l}</div>`).join('');
+  const map={};const tot={};
+  rows.forEach(r=>{map[r.notion]=map[r.notion]||{};
+    map[r.notion][r.langage]=(map[r.notion][r.langage]||0)+val(r);
+    tot[r.notion]=(tot[r.notion]||0)+val(r);});
+  // seulement les notions tombées (au moins une occurrence), triées par total décroissant
+  const chaps=Object.keys(tot).filter(n=>tot[n]>0).sort((a,b)=>{
+    const d=tot[b]-tot[a]; return d!==0?d:cmpProg(a,b);
+  });
+  const sum=chaps.reduce((s,c)=>s+tot[c],0);
+  document.getElementById('langTotal').textContent=sum?`${chaps.length} notions · ${sum} occurrences`:'';
+  const host=document.getElementById('langchart');
+  if(!chaps.length){host.innerHTML='<p class="empty">Aucune donnée pour cette sélection.</p>';return;}
+  let h='';
+  chaps.forEach(c=>{
+    const sec=DATA.notion_section[c]||'';
+    h+=`<div class="bar-lbl" title="${sec}"><span class="seclabel">${sec}</span>${c}</div><div class="stack">`;
+    langs.forEach(l=>{const v=(map[c]||{})[l]||0;if(!v)return;
+      const pct=v/tot[c]*100;
+      h+=`<div class="seg" style="width:${pct}%;background:${LANGCOL[l]}" data-tip="${LANGSHORT[l]||l} · ${c}<br>${v} (${pct.toFixed(0)}%)">${pct>11?v:''}</div>`;});
+    h+='</div>';
+  });
+  host.innerHTML=h;
+  host.querySelectorAll('.seg[data-tip]').forEach(s=>{
+    s.onmousemove=e=>showTip(e,s.dataset.tip);s.onmouseleave=hideTip;});
+}
+
+function renderTypes(rows){
+  const types=DATA.types.filter(t=>state.types.has(t));
+  const leg=document.getElementById('typeLegend');
+  leg.innerHTML=types.map(t=>`<div class="lg"><span class="sw" style="background:${TYPECOL[t]||'#566073'}"></span>${t}</div>`).join('');
+  const map={};const tot={};
+  rows.forEach(r=>{map[r.section]=map[r.section]||{};
+    map[r.section][r.type]=(map[r.section][r.type]||0)+val(r);
+    tot[r.section]=(tot[r.section]||0)+val(r);});
+  const secs=Object.keys(tot).filter(s=>tot[s]>0).sort((a,b)=>{
+    const d=tot[b]-tot[a]; return d!==0?d:DATA.sections.indexOf(a)-DATA.sections.indexOf(b);
+  });
+  const sum=secs.reduce((s,c)=>s+tot[c],0);
+  document.getElementById('typeTotal').textContent=sum?`${secs.length} sections · ${sum} occurrences`:'';
+  const host=document.getElementById('typechart');
+  if(!secs.length){host.innerHTML='<p class="empty">Aucune donnée pour cette sélection.</p>';return;}
+  let h='';
+  secs.forEach(s=>{
+    h+=`<div class="bar-lbl bar-lbl-sec" title="${s}">${s}</div><div class="stack">`;
+    types.forEach(t=>{const v=(map[s]||{})[t]||0;if(!v)return;
+      const pct=v/tot[s]*100;
+      h+=`<div class="seg" style="width:${pct}%;background:${TYPECOL[t]||'#566073'}" data-tip="${t} · ${s}<br>${v} (${pct.toFixed(0)}%)">${pct>11?v:''}</div>`;});
+    h+='</div>';
+  });
+  host.innerHTML=h;
+  host.querySelectorAll('.seg[data-tip]').forEach(s=>{
+    s.onmousemove=e=>showTip(e,s.dataset.tip);s.onmouseleave=hideTip;});
+}
+
+function renderSections(rows){
+  // Agrège par section : total des occurrences + nb notions tombées / total notions de la section
+  const totSec={}, hitSec={};
+  rows.forEach(r=>{totSec[r.section]=(totSec[r.section]||0)+val(r);});
+  // compter notions distinctes tombées par section (sur la sélection)
+  const seen={};
+  rows.forEach(r=>{(seen[r.section]=seen[r.section]||new Set()).add(r.notion);});
+  // total de notions au programme par section (référentiel, restreint aux types sélectionnés)
+  const totalNotions={};
+  OFFICIELS.forEach(n=>{ if(!state.types.has(DATA.notion_type[n])) return;
+    const s=DATA.notion_section[n];totalNotions[s]=(totalNotions[s]||0)+1;});
+  const secs=DATA.sections.filter(s=>state.sections.has(s));
+  const host=document.getElementById('sectionchart');
+  if(!secs.length){host.innerHTML='<p class="empty">Sélectionne au moins une section.</p>';return;}
+  const ordered=secs.slice().sort((a,b)=>{
+    const d=(totSec[b]||0)-(totSec[a]||0); return d!==0?d:DATA.sections.indexOf(a)-DATA.sections.indexOf(b);
+  });
+  const max=Math.max(1,...ordered.map(s=>totSec[s]||0));
+  host.innerHTML=ordered.map(s=>{
+    const v=totSec[s]||0;
+    const hit=(seen[s]?seen[s].size:0), tn=totalNotions[s]||0;
+    const cov=tn?Math.round(hit/tn*100):0;
+    const isZero=v===0;
+    return `<div class="bar-row${isZero?' zerorow':''}"><div class="bar-lbl bar-lbl-sec" title="${s}">${s}</div>
+      <div class="bar-track">${isZero?'':`<div class="bar-fill" style="width:${v/max*100}%"></div>`}</div>
+      <div class="bar-val" title="${hit}/${tn} notions tombées">${v}<span class="cov">${hit}/${tn}</span></div></div>`;
+  }).join('');
+}
+render();
+</script>
+</body>
+</html>

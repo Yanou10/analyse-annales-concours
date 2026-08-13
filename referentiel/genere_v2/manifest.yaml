@@ -1,0 +1,78 @@
+version: 1.0.0
+date: '2026-08-10'
+matiere: informatique
+programme_source: spe777_annexe_1373646.md
+profil: informatique-mpi.yaml
+genere_par:
+  fournisseur: anthropic
+  modele: claude-opus-5
+  effort: high
+  signature_prompt: 277f40c4a5741999
+  appels: 2
+  reprises: 42
+  jetons_entree: 2224
+  jetons_sortie: 9067
+  jetons_cache_lus: 8636
+  sections_perdues:
+  - section: '4.3'
+    cause: 'contrat violé : 4.3/mise_en_oeuvre/01 : eclate avec une seule notion'
+sections:
+- id: preuve
+  fichier: sections/01-preuve.yaml
+  notions: 2
+- id: correction
+  fichier: sections/02-correction.yaml
+  notions: 11
+- id: complexite_algo
+  fichier: sections/03-complexite-algo.yaml
+  notions: 8
+- id: recursion
+  fichier: sections/04-recursion.yaml
+  notions: 5
+- id: modelisation
+  fichier: sections/05-modelisation.yaml
+  notions: 4
+- id: sd_sequentielles
+  fichier: sections/06-sd-sequentielles.yaml
+  notions: 10
+- id: sd_hierarchiques
+  fichier: sections/07-sd-hierarchiques.yaml
+  notions: 11
+- id: graphes_repr
+  fichier: sections/08-graphes-repr.yaml
+  notions: 11
+- id: graphes_algo
+  fichier: sections/09-graphes-algo.yaml
+  notions: 12
+- id: strategies
+  fichier: sections/10-strategies.yaml
+  notions: 15
+- id: textes
+  fichier: sections/11-textes.yaml
+  notions: 6
+- id: logique
+  fichier: sections/12-logique.yaml
+  notions: 19
+- id: langages
+  fichier: sections/13-langages.yaml
+  notions: 22
+- id: complexite_pb
+  fichier: sections/14-complexite-pb.yaml
+  notions: 7
+- id: ressources
+  fichier: sections/15-ressources.yaml
+  notions: 30
+- id: bdd
+  fichier: sections/16-bdd.yaml
+  notions: 11
+- id: idiomes
+  fichier: sections/17-idiomes.yaml
+  notions: 29
+notions_total: 213
+migrations: {}
+changelog:
+- version: 1.0.0
+  date: '2026-08-10'
+  operations:
+  - génération automatique depuis le programme officiel (étage 0)
+  - 84 unité(s) refusée(s) au critère d'admission

@@ -1,0 +1,147 @@
+version: "1.0.0"
+date: "2026-08-10"
+matiere: "informatique"
+programme_source: "spe777_annexe_1373646.md"
+programme_libelle: "Programme d'informatique MPI, première et deuxième années"
+
+# ---------------------------------------------------------------------------
+# Le référentiel est une liste de NOTIONS ATTRIBUABLES, pas un miroir du
+# programme. Critère d'admission d'une entrée :
+#   « en apprenant que cette notion pèse X % des questions, le candidat
+#     sait quoi travailler ce soir »
+#   -> algorithme, construction, technique de preuve, théorème appliqué : ADMIS
+#   -> objet, terme, définition, champ lexical                          : REFUSÉ
+#   -> entrée regroupant plusieurs notions distinctes                   : ÉCLATÉ
+# Nommage par l'ACTION (verbe en tête), jamais par l'objet.
+# ---------------------------------------------------------------------------
+
+schema_notion:
+  id:                  "identifiant stable, section.slug. JAMAIS renommé (le libellé, lui, peut changer)."
+  libelle:             "verbe en tête, une action."
+  semestre:            "S1 | S2 | S3-4 | null  (repris du programme ; signal de fraîcheur)"
+  origine:             "programme[lignes] | mise_en_oeuvre[lignes] | annexe[lignes] | hors_programme_recurrent"
+  definition_operatoire: "1-2 phrases : CE QU'UNE QUESTION DOIT DEMANDER pour que la notion s'applique. Pas une définition de cours."
+  declencheurs:        "2-4 formulations typiques de consigne."
+  exclusions:          "liste {motif, voir}. Champ anti-aimant : ce que la notion n'est PAS, avec redirection."
+  exemples_positifs:   "liste {source, extrait} — extraits LITTÉRAUX du corpus."
+  exemples_negatifs:   "liste {source, extrait, vers} — extrait littéral + id où il aurait dû aller."
+  langages_plausibles: "INDICATION seulement. Ne doit JAMAIS servir de valeur par défaut à l'axe `langage`."
+  statut:              "actif | rare | jamais_observe | eclatee_en[] | fusionnee_dans | retiree"
+
+# ---------------------------------------------------------------------------
+sections:
+  - {id: preuve,            fichier: sections/01-preuve.yaml,            notions: 11}
+  - {id: correction,        fichier: sections/02-correction.yaml,        notions: 5}
+  - {id: complexite_algo,   fichier: sections/03-complexite-algo.yaml,   notions: 7}
+  - {id: recursion,         fichier: sections/04-recursion.yaml,         notions: 4}
+  - {id: modelisation,      fichier: sections/05-modelisation.yaml,      notions: 5}
+  - {id: sd_sequentielles,  fichier: sections/06-sd-sequentielles.yaml,  notions: 7}
+  - {id: sd_hierarchiques,  fichier: sections/07-sd-hierarchiques.yaml,  notions: 9}
+  - {id: graphes_repr,      fichier: sections/08-graphes-repr.yaml,      notions: 6}
+  - {id: graphes_algo,      fichier: sections/09-graphes-algo.yaml,      notions: 8}
+  - {id: strategies,        fichier: sections/10-strategies.yaml,        notions: 11}
+  - {id: textes,            fichier: sections/11-textes.yaml,            notions: 4}
+  - {id: logique,           fichier: sections/12-logique.yaml,           notions: 8}
+  - {id: langages,          fichier: sections/13-langages.yaml,          notions: 11}
+  - {id: complexite_pb,     fichier: sections/14-complexite-pb.yaml,     notions: 7}
+  - {id: ressources,        fichier: sections/15-ressources.yaml,        notions: 5}
+  - {id: bdd,               fichier: sections/16-bdd.yaml,               notions: 4}
+  - {id: idiomes,           fichier: sections/17-idiomes.yaml,           notions: 5}
+
+notions_total: 117
+
+# ---------------------------------------------------------------------------
+# AXES DE SORTIE — dimensions séparées des notions, une valeur par question.
+# ---------------------------------------------------------------------------
+axes:
+  langage:
+    valeurs: [theorique, pseudocode, ocaml, c, sql, mixte, indetermine]
+    regle: >
+      Déduit de la CONSIGNE — le verbe et son complément — jamais du contexte du
+      sujet. `langage_impose` est du contexte, jamais une valeur par défaut.
+  langage_impose:
+    champs: {valeur: "...", portee: "sujet | partie | question", extrait: "..."}
+    note: >
+      La portée n'est PAS toujours le sujet. 2024_TPAlgo impose OCaml aux parties
+      1/2/4 et C à la partie 3, et le répète en tête de chaque partie. À la portée
+      `partie`, c'est une vraie consigne.
+  niveau_detail:
+    valeurs: [haut_niveau, complet, non_applicable]
+    note: >
+      `non_applicable` est obligatoire pour toute question non-programmation.
+      Sans lui, `complet` devient une valeur par défaut silencieuse et l'axe
+      ne mesure plus rien.
+  type_tache:
+    valeurs: [modeliser, concevoir_algorithme, implementer, prouver,
+              analyser_complexite, calculer_exemple, contre_exemple]
+    origine: "compétences visées du programme (spe777:65-72), moins « communiquer »"
+  filiere:
+    valeurs: [mpi, mp, mp_option_info, commun]
+    regle: >
+      Discriminer sur (année, libellé), jamais sur le libellé seul. Avant 2023,
+      « MP option MPI » désigne l'ancienne option informatique de la filière MP,
+      PAS la filière MPI. Axe de sortie, jamais un filtre destructif.
+
+statuts_sortie:
+  ok:                "étiquettes attribuées, chacune avec extrait littéral >= 5 mots"
+  hors_referentiel:  "raison ∈ {declare_hors_programme, absent_du_programme, notion_definie_dans_le_sujet}"
+  figure_manquante:  "drapeau `figure_referencee`, distinct de `etiquetage_possible`"
+  indecidable:       "consigne présente mais objet ambigu MÊME avec l'énoncé complet de l'exercice"
+
+# ---------------------------------------------------------------------------
+# ÉCLATEMENTS PRÉVUS — axe fixé AVANT de voir les chiffres, pour ne pas le
+# choisir après coup. Déclenchement décidé sur la mesure du corpus complet.
+# ---------------------------------------------------------------------------
+eclatements_prevus:
+  - id: complexite_algo.pire_cas
+    axe: "par technique de justification, PAS par objet"
+    vers: [resolution_recurrence, comptage_operations, amortissement, taille_arbre_appels]
+  - id: preuve.induction_structurelle
+    axe: "par structure support"
+    vers: [arbre, formule, mot, derivation]
+  - id: strategies.exploration_exhaustive
+    axe: "par stratégie"
+    vers: [force_brute, retour_sur_trace, separation_evaluation]
+cible_v2: "130-145 notions"
+
+migrations: {}   # ancien_id -> [nouveaux_ids] ; permet de re-scorer un étiquetage
+                 # ancien contre un référentiel neuf SANS réappeler le LLM.
+
+changelog:
+  - version: "1.0.0"
+    date: "2026-08-10"
+    operations:
+      - "création initiale à partir de spe777_annexe_1373646.md"
+      - "exclusions appliquées : introduction, objectifs, compétences, §1.2 Discipline de programmation"
+      - "annexes A/B versées à l'axe langage, SAUF 5 techniques promues (section idiomes)"
+      - "paragraphes « Mise en œuvre » balayés au critère d'admission, 4 notions retenues"
+      - "section `preuve` créée hors programme : techniques récurrentes du corpus ENS"
+
+# ---------------------------------------------------------------------------
+# SEUILS — deux jeux distincts. Le pilote ne mesure PAS la couverture.
+# ---------------------------------------------------------------------------
+seuils:
+  pilote:
+    perimetre: "6 documents distincts, ~57 unités-sujet, ~450 questions"
+    etage1_unites_sujet_retrouvees: 1.00     # bloquant, vérifié à la main
+    etage1_fausses_questions: 0              # fiches réponses + sections Corrigé
+    etage1_identifiants_uniques: 1.00
+    etage1_rattachement_corriges: 0.90       # là où un corrigé existe
+    etage3_rejet_justification: 0.05         # après 1 retry
+    etage3_etiquette_max: 0.08               # seuil relâché, n petit
+    etage3_langage_accord_gold: 0.90
+    etage3_langage_accord_pieges: 1.00       # questions théoriques en sujet à langage imposé
+    etage3_top10_sans_vocabulaire: true      # CRITÈRE QUALITATIF, lu à la main
+    couverture: null                         # non mesurée, sans objet
+  corpus:
+    perimetre: "39 sujets, tous ENS"
+    etiquette_max: 0.04
+    hors_referentiel: 0.05
+    couverture_globale: 0.55                 # plafond attendu : corpus 100 % ENS
+    couverture_intra_section_attestee: 0.70  # LA métrique de qualité d'étiquetage
+
+# ---------------------------------------------------------------------------
+# Rien dans ce fichier n'est spécifique à l'informatique au-delà du contenu
+# des sections : remplacer `sections/` et `programme_source` suffit à porter
+# le pipeline sur une autre matière.
+# ---------------------------------------------------------------------------

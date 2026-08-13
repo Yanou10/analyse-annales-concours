@@ -1,0 +1,192 @@
+section:
+  id: complexite_pb
+  libelle: Décidabilité et classes de complexité
+  ordre: 14
+  perimetre: 'Classer un PROBLÈME : P, NP, réductions, NP-complétude, indécidabilité.'
+notions:
+- id: complexite_pb.formuler_probleme_decision
+  slug: formuler_probleme_decision
+  libelle: Formuler un problème sous forme de problème de décision et en mesurer la taille d'instance
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:665-670
+    verdict: eclate
+  definition_operatoire: La question demande d'énoncer un problème comme question à réponse oui/non, d'identifier
+    ses instances et de préciser la taille d'une instance ou les opérations élémentaires comptées.
+  declencheurs:
+  - Écrire ce problème comme un problème de décision
+  - Quelle est la taille d'une instance de ce problème ?
+  - Préciser les opérations élémentaires prises en compte
+  - Donner l'ensemble des instances positives
+  exclusions:
+  - motif: Passer d'un problème d'optimisation à un problème de décision par un seuil
+    voir: complexite_pb.transformer_optimisation_en_decision
+  - motif: Évaluer le coût d'un algorithme donné en fonction de la taille de l'entrée
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: complexite_pb.justifier_appartenance_classe_p
+  slug: justifier_appartenance_classe_p
+  libelle: Justifier qu'un problème de décision appartient à la classe P
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:665-670
+    verdict: eclate
+  definition_operatoire: La question demande de montrer qu'un problème de décision est dans P en exhibant
+    un algorithme de décision et en majorant son temps par un polynôme en la taille de l'instance.
+  declencheurs:
+  - Montrer que ce problème appartient à P
+  - Justifier que ce problème est décidable en temps polynomial
+  - Ce problème est-il dans la classe P ? Justifier
+  exclusions:
+  - motif: Vérification d'un certificat en temps polynomial
+    voir: complexite_pb.justifier_appartenance_classe_np
+  - motif: Analyse fine de la complexité d'un algorithme particulier sans conclusion sur la classe du
+      problème
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  statut: actif
+- id: complexite_pb.reduire_polynomialement_probleme
+  slug: reduire_polynomialement_probleme
+  libelle: Construire une réduction polynomiale d'un problème de décision à un autre
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:671-673
+    verdict: admis_reformule
+  definition_operatoire: La question demande de transformer en temps polynomial toute instance d'un problème
+    en une instance d'un autre en préservant la réponse, puis d'en tirer une conséquence de complexité.
+  declencheurs:
+  - Construire une réduction polynomiale de A à B
+  - Montrer que A se réduit polynomialement à B
+  - En déduire que si B est dans P alors A l'est aussi
+  - Décrire une transformation polynomiale des instances
+  exclusions:
+  - motif: Conclure à la NP-complétude d'un problème en partant de SAT
+    voir: complexite_pb.etablir_np_completude_par_reduction
+  - motif: Réduction utilisée comme technique de preuve d'indécidabilité par l'arrêt
+    voir: complexite_pb.etablir_indecidabilite_probleme_arret
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: complexite_pb.justifier_appartenance_classe_np
+  slug: justifier_appartenance_classe_np
+  libelle: Justifier qu'un problème appartient à NP en exhibant un certificat vérifiable en temps polynomial
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:674-676
+    verdict: admis_reformule
+  definition_operatoire: La question demande de proposer un certificat pour les instances positives d'un
+    problème et de décrire un algorithme de vérification polynomial, ou d'exploiter l'inclusion P ⊆ NP.
+  declencheurs:
+  - Montrer que ce problème appartient à NP
+  - Proposer un certificat pour ce problème et justifier sa vérification en temps polynomial
+  - Justifier l'inclusion P inclus dans NP
+  exclusions:
+  - motif: Décision directe en temps polynomial sans certificat
+    voir: complexite_pb.justifier_appartenance_classe_p
+  - motif: Preuve de difficulté par réduction depuis SAT
+    voir: complexite_pb.etablir_np_completude_par_reduction
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  statut: actif
+- id: complexite_pb.etablir_np_completude_par_reduction
+  slug: etablir_np_completude_par_reduction
+  libelle: Établir la NP-complétude d'un problème par réduction depuis SAT
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:677-679
+    verdict: admis_reformule
+  definition_operatoire: La question demande de prouver qu'un problème est NP-complet en montrant son
+    appartenance à NP puis en réduisant polynomialement SAT (ou un problème NP-complet connu) à lui, en
+    s'appuyant sur le théorème de Cook-Levin admis.
+  declencheurs:
+  - Montrer que ce problème est NP-complet
+  - En utilisant le théorème de Cook-Levin, en déduire que…
+  - Réduire SAT à ce problème
+  - Que peut-on conclure sur la difficulté de ce problème ?
+  exclusions:
+  - motif: Réduction polynomiale employée sans conclusion de NP-complétude
+    voir: complexite_pb.reduire_polynomialement_probleme
+  - motif: Simple vérification d'un certificat pour l'appartenance à NP
+    voir: complexite_pb.justifier_appartenance_classe_np
+  - motif: Résolution pratique d'une instance SAT ou mise en forme normale
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: complexite_pb.transformer_optimisation_en_decision
+  slug: transformer_optimisation_en_decision
+  libelle: Transformer un problème d'optimisation en problème de décision par introduction d'un seuil
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:680-682
+    verdict: admis_reformule
+  definition_operatoire: La question demande de reformuler un problème d'optimisation en une question
+    oui/non paramétrée par un seuil, et éventuellement de relier la résolution des deux versions.
+  declencheurs:
+  - Écrire la version décisionnelle de ce problème d'optimisation
+  - Introduire un seuil k et formuler le problème de décision associé
+  - Montrer que résoudre la version décisionnelle permet de résoudre la version d'optimisation
+  exclusions:
+  - motif: Mise en forme générale d'un problème de décision sans version d'optimisation de départ
+    voir: complexite_pb.formuler_probleme_decision
+  - motif: Conception d'un algorithme glouton ou d'approximation pour le problème d'optimisation
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: complexite_pb.etablir_indecidabilite_probleme_arret
+  slug: etablir_indecidabilite_probleme_arret
+  libelle: Établir l'indécidabilité du problème de l'arrêt et exploiter la machine universelle
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 9:683-684
+    verdict: admis_reformule
+  definition_operatoire: La question demande de montrer qu'aucun algorithme ne décide l'arrêt d'un programme
+    sur une entrée (raisonnement diagonal ou par l'absurde avec un programme qui se prend lui-même en
+    argument), ou d'exploiter l'idée d'un programme prenant du code en donnée.
+  declencheurs:
+  - Montrer que le problème de l'arrêt est indécidable
+  - Que peut-on dire d'un programme qui déciderait si un programme s'arrête ?
+  - Expliquer ce qu'est une machine universelle
+  - En déduire l'indécidabilité de ce problème
+  exclusions:
+  - motif: Classement d'un problème décidable dans P ou NP
+    voir: complexite_pb.justifier_appartenance_classe_p
+  - motif: Réduction polynomiale entre problèmes décidables
+    voir: complexite_pb.reduire_polynomialement_probleme
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif

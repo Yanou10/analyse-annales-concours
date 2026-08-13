@@ -1,0 +1,61 @@
+# Fragment destiné à être fusionné avec la stack du VPS (caddy, postgres,
+# redis, minio, n8n) :
+#
+#     docker compose -f docker-compose.yml -f service/docker-compose.yml up -d
+#
+# Le service ne publie AUCUN port : n8n le joint par le réseau interne, à
+# l'adresse http://annales-service:8000. Rien de tout cela ne doit être
+# atteignable depuis l'extérieur — le service exécute des commandes.
+
+services:
+  annales-service:
+    container_name: annales-service
+    build:
+      context: ..
+      dockerfile: service/Dockerfile
+    image: annales-service:latest
+    restart: unless-stopped
+    environment:
+      # La clé vient de l'environnement de l'hôte et n'est JAMAIS acceptée dans
+      # le corps d'une requête : une clé qui transite par HTTP finit dans les
+      # journaux de l'orchestrateur.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY manquante}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://annales:annales@postgres:5432/annales}
+      SERVICE_TRAVAIL: /travail
+      SERVICE_RACINE_CODE: /app
+      SERVICE_NIVEAU_LOG: ${SERVICE_NIVEAU_LOG:-INFO}
+      # Doit refléter config/mesure.yaml : l'étage 3 refuse de tourner si
+      # l'environnement s'écarte du protocole figé.
+      ETAGE0_MODELE: ${ETAGE0_MODELE:-claude-sonnet-5}
+      ETAGE0_REFLEXION: ${ETAGE0_REFLEXION:-0}
+      ETAGE0_EFFORT: ${ETAGE0_EFFORT:-high}
+      ETAGE0_MAX_TOKENS: ${ETAGE0_MAX_TOKENS:-16000}
+      ETAGE0_JOURNAL: /travail/journal/journal.jsonl
+    volumes:
+      # Corpus, sorties, journal des étages et état des tâches. Le journal est
+      # la reprise sur appels déjà payés : le perdre coûte de l'argent.
+      - annales-travail:/travail
+    networks:
+      - interne
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/sante',timeout=5).status==200 else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+volumes:
+  annales-travail:
+
+networks:
+  # `external: true` suppose que la stack principale a déjà créé ce réseau.
+  # Adapter le nom à celui de la stack existante.
+  interne:
+    external: true
+    name: ${RESEAU_INTERNE:-stack_interne}

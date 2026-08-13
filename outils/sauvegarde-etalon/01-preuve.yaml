@@ -1,0 +1,277 @@
+section:
+  id: preuve
+  libelle: "Techniques de preuve et de raisonnement"
+  ordre: 1
+  perimetre: >
+    La question demande d'ÉTABLIR un résultat, et l'objet de révision est la
+    TECHNIQUE de démonstration employée, pas le domaine sur lequel elle porte.
+    Retenir cette section dès qu'une consigne dit « montrer que », « justifier
+    que », « démontrer », « donner un exemple / contre-exemple ». Cette section
+    se cumule normalement avec la section du domaine (graphes, langages, etc.) :
+    une même question reçoit typiquement une étiquette de technique et une
+    étiquette de domaine.
+  note_origine: >
+    Section très majoritairement hors programme. Le programme ne nomme que
+    l'induction structurelle, la récurrence, le variant, l'invariant et la
+    réduction. Les autres entrées sont admises au titre du critère du
+    référentiel : sur un corpus ENS, « réviser la preuve par échange » est une
+    décision de révision au moins aussi rentable que « réviser Dijkstra ».
+
+notions:
+
+  - id: preuve.induction_structurelle
+    libelle: "Mener une preuve par induction structurelle"
+    semestre: S2
+    origine: {programme: ["spe777:180-184"]}
+    definition_operatoire: >
+      La question demande d'établir une propriété pour tous les éléments d'un
+      ensemble défini inductivement (arbre, formule, mot, dérivation, terme), en
+      raisonnant sur les constructeurs plutôt que sur un entier.
+    declencheurs:
+      - "Montrer que pour tout arbre / toute formule / tout terme …"
+      - "propriété se propageant du sous-arbre au nœud, du sous-terme au terme"
+      - "définition récursive donnée dans l'énoncé, propriété à établir dessus"
+    exclusions:
+      - {motif: "récurrence sur un entier (hauteur, taille, nombre d'étapes)", voir: preuve.recurrence_numerique}
+      - {motif: "définir la structure inductive sans rien démontrer dessus", voir: recursion.definition_inductive_type}
+    exemples_positifs:
+      - source: "2024_InfoA#L61"
+        extrait: "Montrer qu'un arbre t est un arbre binaire de recherche si et seulement si t est l'arbre vide ou si t est un arbre ⟨ℓ, x, r⟩ avec ℓ et r des arbres binaires de recherche"
+      - source: "2024_Info-rapport#L1035"
+        extrait: "Définir une relation m ≤σ v établissant la compatibilité entre un motif m et une valeur v, étant donné un environnement σ."
+    langages_plausibles: [theorique]
+    statut: actif
+    note: >
+      Le jury 2024 la recommande explicitement contre la récurrence numérique :
+      « préférer les inductions structurelles (par exemple sur un arbre) aux
+      récurrences sur un critère numérique » (2024_Info-rapport#L65). Notion
+      attendue au-dessus de 4 % sur le corpus complet — éclatement prévu par
+      structure support.
+
+  - id: preuve.recurrence_numerique
+    libelle: "Mener une récurrence sur un paramètre entier"
+    semestre: S1
+    origine: {programme: ["spe777:169-174"], hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question demande d'établir une propriété indexée par un entier (taille,
+      hauteur, nombre d'itérations, cardinal), par récurrence simple, forte ou
+      descendante.
+    declencheurs:
+      - "Montrer que pour tout n ⩾ … "
+      - "propriété portant sur une famille indexée par un entier"
+    exclusions:
+      - {motif: "l'objet est défini par constructeurs, pas par un entier", voir: preuve.induction_structurelle}
+      - {motif: "la récurrence porte sur un coût et il faut la résoudre", voir: complexite_algo.resolution_recurrence}
+    exemples_positifs:
+      - source: "2024_InfoC#L109"
+        extrait: "Montrer que, pour tout entier n ⩾ 2, il existe un graphe G à n sommets tel que HEURISTIQUE(G)/OPT(G) ⩾ n − 1."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.double_implication
+    libelle: "Prouver une équivalence par double implication"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question énonce un « si et seulement si » ou une équivalence de deux
+      caractérisations, et attend les deux sens séparément — souvent avec un sens
+      facile et un sens qui demande une construction.
+    declencheurs:
+      - "Montrer l'équivalence suivante"
+      - "Montrer que … si et seulement si …"
+      - "τ(G) ⩽ k ⟺ … ou …"
+    exclusions:
+      - {motif: "égalité numérique établie par double inégalité", voir: preuve.encadrement_double}
+      - {motif: "équivalence entre deux formules logiques par tables de vérité", voir: logique.equivalence_formules}
+    exemples_positifs:
+      - source: "2024_InfoC#L165"
+        extrait: "Soit G un graphe et {u, v} ∈ E(G). Montrer l'équivalence suivante : τ(G) ⩽ k ⟺ τ(G − {u}) ⩽ k − 1 ou τ(G − {v}) ⩽ k − 1."
+      - source: "2024_InfoC#L287"
+        extrait: "Montrer que τ(G) ⩽ k si et seulement si τ(G−V0−V1) ⩽ k−|V1|."
+      - source: "2024_InfoC#L201"
+        extrait: "Montrer que si un sommet v de G a degré 0, alors τ(G) ⩽ k si et seulement si τ(G − {v}) ⩽ k."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.echange
+    libelle: "Justifier une solution optimale par un argument d'échange"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question demande de montrer qu'il EXISTE une solution optimale ayant une
+      propriété donnée, en partant d'une solution optimale quelconque et en la
+      transformant sans dégrader son coût. C'est l'argument qui fonde la
+      correction de la quasi-totalité des algorithmes gloutons.
+    declencheurs:
+      - "Montrer qu'il existe un ensemble/une solution minimum qui contient …"
+      - "on peut supposer sans perte de généralité que la solution optimale …"
+      - "en déduire la correction de l'algorithme glouton"
+    exclusions:
+      - {motif: "concevoir le glouton lui-même, sans en prouver l'optimalité", voir: strategies.glouton_exact}
+      - {motif: "borner le rapport à l'optimum sans transformer de solution", voir: strategies.facteur_approximation}
+    exemples_positifs:
+      - source: "2024_InfoC#L74"
+        extrait: "Soient T un arbre et {u, v} une arête de T telle que v est une feuille de T. Montrer qu'il existe un ensemble couvrant minimum de T qui contient le sommet u, mais pas v."
+      - source: "2024_InfoC#L260"
+        extrait: "Montrer que S est un ensemble couvrant de G."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.contre_exemple_unique
+    libelle: "Réfuter un énoncé par un contre-exemple explicite"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question demande d'EXHIBER un objet unique, généralement petit, invalidant
+      une propriété proposée. La difficulté est le choix de l'objet, pas la preuve.
+    declencheurs:
+      - "Donner un exemple de … pour lequel il n'existe pas …"
+      - "Montrer que la réciproque est fausse"
+      - "Existe-t-il un … tel que … ?"
+    exclusions:
+      - {motif: "il faut une famille infinie pour réfuter un énoncé quantifié sur une constante", voir: preuve.famille_infinie_contre_exemples}
+      - {motif: "produire un exemple pour illustrer, sans rien réfuter — ce n'est pas une notion mais l'axe `type_tache: calculer_exemple`", voir: null}
+    exemples_positifs:
+      - source: "2024_Info-rapport#L323"
+        extrait: "Donner un exemple de graphe orienté acyclique (c'est-à-dire qui ne contient pas de cycle orienté) pour lequel il n'existe pas de coloriage avec deux couleurs."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.famille_infinie_contre_exemples
+    libelle: "Construire une famille infinie d'instances pour réfuter une borne"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question demande de montrer qu'AUCUNE constante ne convient, ce qui exige
+      une famille paramétrée d'instances dont le comportement diverge. Technique
+      distincte du contre-exemple isolé : il faut concevoir la construction ET
+      analyser son comportement asymptotique.
+    declencheurs:
+      - "Montrer que pour toute constante c, … n'est pas une c-approximation"
+      - "Donner une suite infinie de graphes justifiant que …"
+      - "En déduire qu'il n'existe pas de constante A telle que …"
+    exclusions:
+      - {motif: "un seul objet suffit à réfuter", voir: preuve.contre_exemple_unique}
+    exemples_positifs:
+      - source: "2024_InfoC#L134"
+        extrait: "En utilisant la construction ci-dessus, montrer que pour toute constante c, GLOUTON n'est pas une c-approximation."
+      - source: "2024_InfoC#L151"
+        extrait: "Donner une suite infinie de graphes justifiant que, pour tout c < 2, APPROX n'est pas une c-approximation."
+      - source: "2024_InfoC#L248"
+        extrait: "En déduire qu'il n'existe pas de constante A telle que τ(G) − τf(G) < A pour tout graphe G."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.disjonction_cas
+    libelle: "Structurer une preuve par disjonction de cas exhaustive"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question exige d'énumérer une partition de situations et de traiter
+      chacune, l'enjeu étant l'exhaustivité de la partition. Typique des preuves
+      de rééquilibrage, des analyses de branchement récursif et des raisonnements
+      sur les degrés.
+    declencheurs:
+      - "pour chaque cas qu'on choisit de distinguer dans la preuve"
+      - "Donner une description précise des … (puis en déduire)"
+      - "selon que … ou que …"
+    exclusions:
+      - {motif: "les cas sont les constructeurs d'un type inductif", voir: preuve.induction_structurelle}
+    exemples_positifs:
+      - source: "2024_InfoA#L120"
+        extrait: "Montrer que, lorsque la fonction join_right est appelée avec un AVL l de hauteur h et un AVL r de hauteur ≤ h − 2, alors elle renvoie soit un arbre de hauteur h; soit un arbre de hauteur h+1"
+      - source: "2024_InfoC#L173"
+        extrait: "Donner une description précise des graphes de degré maximum 2."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.absurde
+    libelle: "Mener un raisonnement par l'absurde"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question se prête à supposer la négation de la conclusion pour en tirer
+      une contradiction, et cette voie est la voie naturelle (et non un détour).
+    declencheurs:
+      - "Montrer qu'il n'existe pas de …"
+      - "Montrer que … n'est pas …"
+    exclusions:
+      - {motif: "une construction directe donne le résultat", voir: preuve.double_implication}
+      - {motif: "réfutation par exhibition d'un objet", voir: preuve.contre_exemple_unique}
+    exemples_positifs:
+      - source: "2024_Info-rapport#L109"
+        extrait: "Montrer que (Σ²)⁺aΣ* n'est pas testable alphabétiquement mais est M2-testable alphabétiquement."
+    langages_plausibles: [theorique]
+    statut: actif
+    note: >
+      Le jury 2024 met en garde : « utiliser les raisonnements par l'absurde
+      uniquement lorsque ceux-ci sont nécessaires » (2024_Info-rapport#L65).
+      Étiquette à réserver aux questions où l'absurde est la voie attendue.
+
+  - id: preuve.denombrement
+    libelle: "Dénombrer ou énumérer exhaustivement des objets d'une famille"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question demande COMBIEN d'objets vérifient une contrainte, ou de tous
+      les produire. L'enjeu est de ne rien oublier et de ne rien compter deux fois.
+    declencheurs:
+      - "Combien y a-t-il de … ? Les dessiner."
+      - "Donner la valeur de … pour tous entiers …"
+      - "Calculer le nombre total de …"
+    exclusions:
+      - {motif: "le comptage sert à établir une complexité", voir: complexite_algo.pire_cas}
+    exemples_positifs:
+      - source: "2024_InfoA#L59"
+        extrait: "Combien y a-t-il d'arbres binaires de recherche contenant exactement les trois éléments x, y et z, avec x < y < z? Les dessiner."
+      - source: "2024_InfoA#L75"
+        extrait: "Combien y a-t-il d'arbres AVL contenant exactement les trois éléments x, y et z, avec x < y < z? Les dessiner. Même question avec les quatre éléments w < x < y < z. Justifier les réponses."
+      - source: "2024_InfoC#L56"
+        extrait: "Donner la valeur de τ(Kn), τ(Pn), τ(Cn) et τ(Ka,b) pour tous entiers naturels non nuls a, b, n. Justifier soigneusement les réponses."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.tiroirs
+    libelle: "Conclure par le principe des tiroirs ou un argument de comptage"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question se résout en confrontant deux cardinaux : plus d'objets que de
+      places, somme des degrés contre nombre d'arêtes, etc. Reconnaissable au fait
+      que la conclusion tombe d'une inégalité de comptage, sans construction.
+    declencheurs:
+      - "En déduire qu'au moins un … "
+      - "Montrer que si |E| > |V| alors …"
+    exclusions:
+      - {motif: "l'objet en excès doit être construit explicitement", voir: preuve.famille_infinie_contre_exemples}
+    exemples_positifs:
+      - source: "2022_InfoU-exercices#L101"
+        extrait: "si un graphe connexe est complexe, |E| > |V|, donc par le principe des tiroirs au moins une case reçoit au moins deux objets"
+      - source: "2024_InfoC#L215"
+        extrait: "En déduire que si τ(G′) ⩽ k′, alors V(G′) ⩽ k′ + k′² et E(G′) ⩽ k′²."
+    langages_plausibles: [theorique]
+    statut: actif
+
+  - id: preuve.encadrement_double
+    libelle: "Établir une égalité ou une borne par encadrement des deux côtés"
+    semestre: null
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question demande une valeur EXACTE (nombre chromatique, taille optimale,
+      hauteur minimale) et l'obtention passe par une majoration et une minoration
+      établies séparément, souvent par deux arguments de nature différente.
+      Inclut la considération d'un objet extrémal — le plus petit AVL de hauteur h,
+      la plus grande clique — comme outil de minoration.
+    declencheurs:
+      - "Montrer que le nombre minimal de … est exactement …"
+      - "on pourra considérer N_h, le nombre minimal de … et minorer cette quantité"
+      - "Montrer que … ⩾ … puis que … ⩽ …"
+    exclusions:
+      - {motif: "équivalence entre deux énoncés, pas une valeur", voir: preuve.double_implication}
+    exemples_positifs:
+      - source: "2024_InfoA#L77"
+        extrait: "Montrer que pour tout AVL t, on a h(t) ≤ 2log(n(t) + 1). Indication : on pourra considérer Nh, le nombre minimal de nœuds d'un AVL de hauteur h, et minorer cette quantité en fonction de h."
+      - source: "2024_Info-rapport#L356"
+        extrait: "Montrer que le nombre minimal de couleurs nécessaires pour colorier GP[π] est exactement k."
+    langages_plausibles: [theorique]
+    statut: actif

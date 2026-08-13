@@ -1,0 +1,56 @@
+{
+  "2024_InfoA.md": {
+    "fichier": "2024_InfoA.md",
+    "filiere": "mpi",
+    "exercices": 3,
+    "questions": 22,
+    "solutions_rattachees": 0,
+    "figures_manquantes": 4,
+    "ratio_texte_conserve": 0.981
+  },
+  "2024_InfoC.md": {
+    "fichier": "2024_InfoC.md",
+    "filiere": "mpi",
+    "exercices": 6,
+    "questions": 37,
+    "solutions_rattachees": 0,
+    "figures_manquantes": 4,
+    "ratio_texte_conserve": 0.9753
+  },
+  "2022_InfoU-exercices.md": {
+    "fichier": "2022_InfoU-exercices.md",
+    "filiere": "mp_info",
+    "exercices": 14,
+    "questions": 99,
+    "solutions_rattachees": 83,
+    "figures_manquantes": 2,
+    "ratio_texte_conserve": 0.9766
+  },
+  "2022_InfoLCR-rapport.md": {
+    "fichier": "2022_InfoLCR-rapport.md",
+    "filiere": "mp_info",
+    "exercices": 23,
+    "questions": 178,
+    "solutions_rattachees": 0,
+    "figures_manquantes": 4,
+    "ratio_texte_conserve": 0.9653
+  },
+  "2024_Info-rapport.md": {
+    "fichier": "2024_Info-rapport.md",
+    "filiere": "mpi",
+    "exercices": 18,
+    "questions": 114,
+    "solutions_rattachees": 53,
+    "figures_manquantes": 6,
+    "ratio_texte_conserve": 0.9792
+  },
+  "2024_TPAlgo-MPI-rapport.md": {
+    "fichier": "2024_TPAlgo-MPI-rapport.md",
+    "filiere": "mpi",
+    "exercices": 12,
+    "questions": 57,
+    "solutions_rattachees": 0,
+    "figures_manquantes": 12,
+    "ratio_texte_conserve": 0.9885
+  }
+}

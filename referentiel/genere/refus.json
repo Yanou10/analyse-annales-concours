@@ -1,0 +1,512 @@
+[
+  {
+    "unite_id": "1/prose/01",
+    "source": "1:90-91",
+    "extrait": "Le programme construit une progression à partir des acquis du lycée en matière d'algorithmique et programmation, dont on rappelle qu'ils ont permis, a minima, de rencontrer les not",
+    "raison": "Paragraphe de cadrage rappelant les acquis du lycée sous forme de champ lexical (variable, type, affectation, conditionnelle, boucle) : aucune action révisable n'y est nommée."
+  },
+  {
+    "unite_id": "1.1/prose/01",
+    "source": "1.1:94-95",
+    "extrait": "Ce paragraphe introduit notamment le principe de validation d'un algorithme ou d'un programme et celui d'étude de son efficacité, qui sont pratiqués tout au long des deux années.",
+    "raison": "Paragraphe de chapeau annonçant que validation et efficacité seront pratiquées : aucune action révisable propre, les notions correspondantes sont portées par les lignes 1.1/table/04 et 1.1/table/05."
+  },
+  {
+    "unite_id": "1.1/table/01",
+    "source": "1.1:98-103",
+    "extrait": "Notion de programme comme mise en œuvre d'un algorithme. Paradigme im pératif structuré, paradigme déclaratif fonctionnel, paradigme logique.",
+    "raison": "Entrée purement lexicale (notion de programme, noms de paradigmes) que le commentaire prive explicitement de toute théorie : rien à réviser sous forme d'action."
+  },
+  {
+    "unite_id": "1.3/prose/01",
+    "source": "1.3:146-147",
+    "extrait": "La validation de code par sa soumission à des jeux de tests est une phase essentielle du cycle de développement logiciel. On en fait percevoir l'importance dès le début et durant t",
+    "raison": "Paragraphe d'intention pédagogique sur l'importance du test dans le cycle de développement : aucune action révisable n'y est décrite."
+  },
+  {
+    "unite_id": "2/prose/01",
+    "source": "2:164-165",
+    "extrait": "La capacité d'un programme à faire appel à lui-même est un concept primordial en informatique. Historiquement, l'auto-référence est au cœur du paradigme de programmation fonctionne",
+    "raison": "Paragraphe d'introduction motivant la récursivité et l'induction : aucune action révisable, seulement un champ lexical et une justification pédagogique."
+  },
+  {
+    "unite_id": "2/mise_en_oeuvre/02",
+    "source": "2:190-191",
+    "extrait": "Toute théorie générale de la dérécursification est hors programme.",
+    "raison": "Simple délimitation de programme excluant la théorie de la dérécursification : aucune action à réviser n'y est décrite."
+  },
+  {
+    "unite_id": "2/mise_en_oeuvre/03",
+    "source": "2:192-193",
+    "extrait": "Un étudiant peut mener des raisonnements par induction structurelle.",
+    "raison": "Reformulation d'une capacité déjà couverte par la notion de preuve par induction structurelle issue de 2/table/02 ; ne pas la dupliquer."
+  },
+  {
+    "unite_id": "3.1/mise_en_oeuvre/01",
+    "source": "3.1:220-221",
+    "extrait": "Il s'agit de montrer l'intérêt et l'influence des structures de données sur les algorithmes et les méthodes de programmation.",
+    "raison": "Consigne pédagogique générale au professeur : aucune action évaluable ni objet de révision identifiable."
+  },
+  {
+    "unite_id": "3.1/mise_en_oeuvre/02",
+    "source": "3.1:222-223",
+    "extrait": "On insiste sur la distinction entre une structure de données abstraite (un type muni d'opérations ou encore une interface) et son implémentation concrète. On montre l'intérêt d'une",
+    "raison": "Reprend exactement l'action déjà couverte par la spécification d'une structure abstraite et sa distinction de l'implémentation, sans rien ajouter."
+  },
+  {
+    "unite_id": "3.1/mise_en_oeuvre/03",
+    "source": "3.1:224-225",
+    "extrait": "Grâce aux bibliothèques, on peut utiliser des structures de données avant d'avoir programmé leur réalisation concrète.",
+    "raison": "Simple indication d'organisation du cours sur l'usage des bibliothèques ; aucune technique révisable."
+  },
+  {
+    "unite_id": "3.2/mise_en_oeuvre/01",
+    "source": "3.2:245-246",
+    "extrait": "On présente les structures de données construites à l'aide de pointeurs d'abord au tableau avant de guider les étudiants dans l'implémentation d'une telle structure.",
+    "raison": "Consigne pédagogique sur l'ordre de présentation au tableau ; aucune action évaluable qui ne soit déjà couverte par l'implémentation par maillons chaînés."
+  },
+  {
+    "unite_id": "3.3/mise_en_oeuvre/01",
+    "source": "3.3:276-277",
+    "extrait": "On présente les manipulations usuelles sur les arbres en C et en OCaml. Il n'est pas attendu d'un étudiant une maîtrise technique de l'écriture du code d'une structure de données a",
+    "raison": "Paragraphe de consignes au professeur : il borne le niveau technique attendu sur les arbres mutables en C et OCaml sans énoncer d'action révisable propre, déjà couverte par les notions de définition et de manipulation d'arbres."
+  },
+  {
+    "unite_id": "4.2/mise_en_oeuvre/01",
+    "source": "4.2:334-335",
+    "extrait": "L'objectif est de donner des outils de conception d'algorithmes et de parvenir à ce que les étudiants puissent, dans une situation simple, sélectionner une stratégie pertinente par",
+    "raison": "Paragraphe d'objectifs pédagogiques adressé au professeur : il n'énonce aucune action algorithmique révisable, seulement l'ambition que l'étudiant sache choisir une stratégie."
+  },
+  {
+    "unite_id": "4.6/prose/01",
+    "source": "4.6:408-409",
+    "extrait": "Cette partie permet d'introduire les concepts d'apprentissage, de stratégie et d'heuristique. Ce dernier est abordé par des exemples où l'heuristique est précisément définie mais s",
+    "raison": "Chapeau introductif annonçant des concepts (apprentissage, stratégie, heuristique) sans action révisable propre ; les notions sont portées par les lignes suivantes."
+  },
+  {
+    "unite_id": "4.6/mise_en_oeuvre/01",
+    "source": "4.6:435-436",
+    "extrait": "La connaissance des théories sous-jacentes aux algorithmes de cette section n'est pas un attendu du programme. Les étudiants acquièrent une familiarité avec les idées qu'ils peuven",
+    "raison": "Consigne pédagogique bornant les attendus théoriques, sans action révisable propre."
+  },
+  {
+    "unite_id": "5/prose/01",
+    "source": "5:439-440",
+    "extrait": "Le programme vise à donner un premier aperçu des liens qu'assurent les systèmes d'exploitation (plus largement les plates-formes d'exécution) entre les programmes et les ressources",
+    "raison": "Paragraphe de cadrage qui énumère ce qui est hors programme et annonce les trois axes suivants : aucun contenu actionnable, c'est un chapeau."
+  },
+  {
+    "unite_id": "5/prose/03",
+    "source": "5:445-446",
+    "extrait": "Bien que ces notions soient indépendantes du système d'exploitation, le système Linux est le plus propice pour introduire les éléments de ce programme.",
+    "raison": "Simple indication pédagogique sur le choix d'un système d'exploitation support : aucune action révisable ni objet de question."
+  },
+  {
+    "unite_id": "5.2/mise_en_oeuvre/01",
+    "source": "5.2:477-478",
+    "extrait": "Les seules notions exigibles sont celles permettant à un programme de gérer l'ouverture, la fermeture et l'accès à un ou plusieurs fichiers, selon les modalités précisées en annexe",
+    "raison": "Paragraphe de cadrage adressé au professeur : il borne les exigibles (ouverture, fermeture, accès, expérience du shell) sans introduire d'action nouvelle non déjà couverte par les notions des lignes du tableau."
+  },
+  {
+    "unite_id": "5.3/prose/01",
+    "source": "5.3:481-482",
+    "extrait": "L'apprentissage des notions liées au parallélisme d'exécution se limite au cas de fils d'exécutions (threads) internes à un processus, sur une machine. Les problèmes d'algorithmes ",
+    "raison": "Paragraphe de bornage du périmètre (threads d'un processus, exclusion du réparti) : aucune action révisable n'y est décrite."
+  },
+  {
+    "unite_id": "6.1/prose/01",
+    "source": "6.1:505-506",
+    "extrait": "Le but de cette partie est de familiariser progressivement les étudiants avec la différence entre syntaxe et sémantique d'une part et de donner le vocabulaire permettant de modélis",
+    "raison": "Paragraphe d'intention pédagogique annonçant le vocabulaire de la partie ; aucune action révisable n'y est décrite."
+  },
+  {
+    "unite_id": "6.1/table/01",
+    "source": "6.1:509-510",
+    "extrait": "Variables propositionnelles, connec- teurs logiques, arité.",
+    "raison": "Simple champ lexical (variables propositionnelles, connecteurs, arité) et table de notations : objets et vocabulaire, aucune action à réviser."
+  },
+  {
+    "unite_id": "6.1/table/07",
+    "source": "6.1:518-519",
+    "extrait": "Mise en œuvre On implémente uniquement les formules propositionnelles sous forme d'arbres.",
+    "raison": "Consigne de mise en œuvre bornant le cadre d'implémentation (formules propositionnelles sous forme d'arbres) ; l'action correspondante est déjà couverte par representer_formule_par_arbre."
+  },
+  {
+    "unite_id": "6.2/prose/01",
+    "source": "6.2:523-524",
+    "extrait": "Par souci d'éviter trop de technicité, on ne présente la notion de valeur de vérité que pour des formules sans quantificateurs.",
+    "raison": "Cadrage de périmètre (formules sans quantificateurs) : aucune action révisable n'y est décrite."
+  },
+  {
+    "unite_id": "6.3/prose/01",
+    "source": "6.3:547-548",
+    "extrait": "Il s'agit de présenter les preuves comme permettant de pallier deux problèmes de la présentation précédente du calcul propositionnel : nature exponentielle de la vérification d'une",
+    "raison": "Paragraphe de cadrage pédagogique motivant l'introduction des preuves ; aucune action révisable n'y est décrite."
+  },
+  {
+    "unite_id": "6.3/prose/02",
+    "source": "6.3:549-550",
+    "extrait": "Il ne s'agit, en revanche, que d'introduire la notion d'arbre de preuve. La déduction naturelle est présentée comme un jeu de règles d'inférence simple permettant de faire un calcu",
+    "raison": "Chapeau limitant la technicité attendue ; l'action (construire un arbre de preuve) est portée par les lignes du tableau qui suivent."
+  },
+  {
+    "unite_id": "6.3/mise_en_oeuvre/01",
+    "source": "6.3:568-569",
+    "extrait": "Il ne s'agit pas d'implémenter ces règles mais plutôt d'être capable d'écrire de petites preuves dans ce système. On peut également présenter d'autres utilisations de règles d'infé",
+    "raison": "Consigne au professeur bornant les attentes (pas d'implémentation) ; l'action « écrire de petites preuves » est déjà couverte par les notions des lignes du tableau."
+  },
+  {
+    "unite_id": "7/prose/01",
+    "source": "7:572-573",
+    "extrait": "On se limite volontairement à une description applicative des bases de données en langage SQL. Il s'agit de permettre d'interroger une base présentant des données à travers plusieu",
+    "raison": "Paragraphe de cadrage général qui délimite le périmètre (SQL applicatif, pas d'algèbre relationnelle) sans décrire aucune action révisable."
+  },
+  {
+    "unite_id": "7/table/01",
+    "source": "7:576-576",
+    "extrait": "Vocabulaire des bases de données : tables ou relations, attributs ou colonnes, domaine, schéma de tables, enregistrements ou lignes, types de données.",
+    "raison": "Pure liste de vocabulaire (table, attribut, domaine, schéma, enregistrement) : champ lexical, aucune action à réviser."
+  },
+  {
+    "unite_id": "7/mise_en_oeuvre/01",
+    "source": "7:586-587",
+    "extrait": "La création, la suppression et la modification de tables au travers du langage SQL sont hors programme. La mise en œuvre effective se fait au travers d'un logiciel permettant d'int",
+    "raison": "Consignes de mise en œuvre et exclusions (DDL hors programme, pas de récupération programmatique, diagrammes informels) : aucune action nouvelle, la modélisation par diagramme est déjà couverte par modeliser_entites_associations."
+  },
+  {
+    "unite_id": "7/mise_en_oeuvre/02",
+    "source": "7:588-589",
+    "extrait": "Sont hors programme : la notion de modèle logique vs physique, les bases de données non relationnelles, les méthodes de modélisation de base, les fragments DDL, TCL et ACL du langa",
+    "raison": "Liste purement négative de sujets hors programme, sans action révisable."
+  },
+  {
+    "unite_id": "8.1/prose/01",
+    "source": "8.1:594-595",
+    "extrait": "On introduit les expressions régulières comme formalisme dénotationnel pour spécifier un motif dans le cadre d'une recherche textuelle.",
+    "raison": "Paragraphe d'intention pédagogique introduisant le formalisme : aucune action révisable propre, la construction d'expressions régulières est couverte par l'unité 8.1/table/03."
+  },
+  {
+    "unite_id": "8.1/table/01",
+    "source": "8.1:598-599",
+    "extrait": "Alphabet, mot, préfixe, suffixe, facteur, sous-mot.",
+    "raison": "Pure liste de termes de vocabulaire (alphabet, mot, préfixe, facteur) sans action à effectuer ; aucune question ne porte sur ces définitions seules."
+  },
+  {
+    "unite_id": "8.2/prose/01",
+    "source": "8.2:616-617",
+    "extrait": "Les automates constituent un modèle de calcul puissant qui irrigue de nombreuses branches de l'informatique. On voit ici les automates comme un formalisme opérationnel efficace pou",
+    "raison": "Paragraphe d'introduction annonçant l'esprit de la section : aucune action révisable propre, les constructions annoncées sont couvertes par les lignes du tableau."
+  },
+  {
+    "unite_id": "8.3/prose/01",
+    "source": "8.3:633-634",
+    "extrait": "Les grammaires formelles ont pour principal intérêt de définir des syntaxes structurées, en particulier celles des langages informatiques (langage de programmation, langage de requ",
+    "raison": "Paragraphe d'intention pédagogique présentant l'intérêt des grammaires : aucune action révisable n'y est décrite."
+  },
+  {
+    "unite_id": "8.3/mise_en_oeuvre/01",
+    "source": "8.3:657-658",
+    "extrait": "On étudie surtout de petits exemples que l'on peut traiter à la main et qui modélisent des situations rencontrées couramment en informatique. On fait le lien avec la définition par",
+    "raison": "Consigne pédagogique sur le choix des exemples et le lien avec les définitions inductives ; l'action correspondante est déjà couverte par l'écriture de grammaires et par la récursion."
+  },
+  {
+    "unite_id": "9/prose/01",
+    "source": "9:661-662",
+    "extrait": "On s'intéresse à la question de savoir ce qu'un algorithme peut ou ne peut pas faire, inconditionnellement ou sous condition de ressources en temps. Cette partie permet de justifie",
+    "raison": "Paragraphe d'introduction qui annonce l'intention de la section sans nommer aucune action révisable."
+  },
+  {
+    "unite_id": "9/mise_en_oeuvre/01",
+    "source": "9:688-689",
+    "extrait": "On prend soin de distinguer la notion de complexité d'un algorithme de la notion de classe de complexité d'un problème. Le modèle de calcul est une machine à mémoire infinie qui ex",
+    "raison": "Consigne pédagogique fixant le modèle de calcul et un niveau d'exigence ; aucune action nouvelle à réviser, la distinction algorithme/problème étant déjà portée par les notions de classes."
+  },
+  {
+    "unite_id": "A/annexe/01",
+    "source": "A:692-693",
+    "extrait": "La présente annexe liste limitativement les éléments du langage C (norme C99 ou plus récente) dont la connaissance, selon les modalités de chaque sous-section, est exigible des étu",
+    "raison": "Chapeau d'annexe qui délimite le périmètre exigible du langage C sans décrire aucune action révisable ; il alimente l'axe langage, pas le référentiel de notions."
+  },
+  {
+    "unite_id": "A/annexe/02",
+    "source": "A:694-695",
+    "extrait": "À l'écrit, on travaille toujours sous l'hypothèse que les entêtes suivants ont tous été inclus : <assert.h>, <stdbool.h>, <stddef.h>, <stdint.h>, <stdlib.h>. Mais ces fichiers ne f",
+    "raison": "Convention d'énoncé sur les entêtes inclus, explicitement non exigible : aucune technique ni construction à réviser n'en découle."
+  },
+  {
+    "unite_id": "A.1/annexe/01",
+    "source": "A.1:698-699",
+    "extrait": "Les éléments et notations suivants du langage C doivent pouvoir être compris et utilisés par les étudiants sans faire l'objet d'un rappel, y compris lorsqu'ils n'ont pas accès à un",
+    "raison": "Phrase d'introduction annonçant la liste limitative des éléments du langage C : c'est un chapeau administratif sans action révisable, aucune question ne peut porter sur lui."
+  },
+  {
+    "unite_id": "A.2/annexe/01",
+    "source": "A.2:749-750",
+    "extrait": "Les éléments suivants du langage C doivent pouvoir être utilisés par les étudiants pour écrire des programmes dès lors qu'ils ont fait l'objet d'un rappel et que la documentation c",
+    "raison": "Phrase de cadrage introduisant la liste limitative des éléments C rappelables : elle n'énonce aucune action révisable, seulement une convention d'usage pour les énoncés."
+  },
+  {
+    "unite_id": "B/annexe/01",
+    "source": "B:769-770",
+    "extrait": "La présente annexe liste limitativement les éléments du langage OCaml (version 4 ou supérieure) dont la connaissance, selon les modalités de chaque sous-section, est exigible des é",
+    "raison": "Phrase d'introduction délimitant le périmètre de l'annexe de langage : elle n'énonce aucune action révisable, seulement le statut limitatif de la liste qui suit, et alimente au mieux l'axe langage."
+  },
+  {
+    "unite_id": "B.1/annexe/01",
+    "source": "B.1:773-774",
+    "extrait": "Les éléments et notations suivants du langage OCaml doivent pouvoir être compris et utilisés par les étudiants sans faire l'objet d'un rappel, y compris lorsqu'ils n'ont pas accès ",
+    "raison": "Chapeau introductif d'une liste limitative d'éléments de langage : il n'énonce aucune action révisable, seulement le statut des notations OCaml qui suivent (elles alimentent l'axe langage, pas le référentiel de notions)."
+  },
+  {
+    "unite_id": "B.2/annexe/01",
+    "source": "B.2:820-821",
+    "extrait": "Les éléments suivants du langage OCaml doivent pouvoir être utilisés par les étudiants pour écrire des programmes dès lors qu'ils ont fait l'objet d'un rappel et que la documentati",
+    "raison": "Phrase de cadrage annonçant le statut des éléments listés ensuite (utilisables après rappel) : elle ne nomme aucune action algorithmique ou technique révisable, c'est un chapeau d'annexe."
+  },
+  {
+    "unite_id": "divers/annexe/03",
+    "source": "divers:744-744",
+    "extrait": "Notion de fichier d'en-tête. Directive #include \"fichier.h\".",
+    "raison": "Terme et directive de syntaxe : « notion de fichier d'en-tête » désigne un objet du langage, aucune action révisable ni évaluable n'en découle."
+  },
+  {
+    "unite_id": "divers/annexe/04",
+    "source": "divers:745-745",
+    "extrait": "Commentaires /\\ ... \\/et commentaires ligne //",
+    "raison": "Simple élément de syntaxe (délimiteurs de commentaires) : objet lexical, pas une action révisable."
+  },
+  {
+    "unite_id": "divers/annexe/05",
+    "source": "divers:812-812",
+    "extrait": "Usage de begin ... end.",
+    "raison": "Élément de syntaxe de séquencement en OCaml : objet du langage, aucune action à réviser pour lui-même."
+  },
+  {
+    "unite_id": "divers/annexe/06",
+    "source": "divers:813-813",
+    "extrait": "print\\_int, print\\_float, print\\_string, read\\_int, read\\_float, read\\_line.",
+    "raison": "Liste limitative de primitives d'entrée-sortie : déjà couverte par l'action de lecture/écriture sur la console (voir lire_ecrire_entrees_sorties_console), et réduite ici à un champ lexical."
+  },
+  {
+    "unite_id": "divers/annexe/08",
+    "source": "divers:815-815",
+    "extrait": "Utilisation d'un module : notation M.f. Les noms des modules commencent par une majuscule.",
+    "raison": "Convention de notation d'accès aux modules : élément de syntaxe, pas une action révisable en soi."
+  },
+  {
+    "unite_id": "divers/annexe/09",
+    "source": "divers:816-816",
+    "extrait": "Syntaxe des commentaires, à l'exclusion de la nécessité d'équilibrer les délimiteurs dans un commentaire.",
+    "raison": "Syntaxe des commentaires : objet lexical, aucune question ne porte sur lui."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/01",
+    "source": "définitions-et-types-de-base:710-710",
+    "extrait": "Types entiers signés int8\\_t, int32\\_t et int64\\_t, types entiers non signés uint8\\_t, uint32\\_t et uint64\\_t. Lorsque la spécification d'une taille précise pour le type n'apporte ",
+    "raison": "Liste limitative de types et d'opérateurs arithmétiques du langage : aucun objet de révision actionnable, cela alimente l'axe langage et non le référentiel de notions."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/02",
+    "source": "définitions-et-types-de-base:711-711",
+    "extrait": "Le type char sert exclusivement à représenter des caractères codés sur un octet. Notation '\\0' pour le caractère nul.",
+    "raison": "Simple désignation du type char et de la notation du caractère nul : terme et notation, pas une action révisable."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/03",
+    "source": "définitions-et-types-de-base:712-712",
+    "extrait": "Type double (on considère qu'il est sur 64 bits). Opérations +, -, \\, /.",
+    "raison": "Énumération du type double et de ses opérateurs : élément de langage sans action à réviser."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/04",
+    "source": "définitions-et-types-de-base:713-713",
+    "extrait": "Type bool et les constantes true et false. Opérateurs !, &&, | | (y compris évaluation paresseuse). Les entiers ne doivent pas être utilisés comme booléens, ni l'inverse.",
+    "raison": "Liste du type bool, de ses constantes et de ses opérateurs : vocabulaire de langage, aucune technique à travailler."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/05",
+    "source": "définitions-et-types-de-base:714-714",
+    "extrait": "Opérateurs de comparaison ==, !=, <, >, <=, >=.",
+    "raison": "Liste d'opérateurs de comparaison : pure notation, aucune action."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/06",
+    "source": "définitions-et-types-de-base:715-715",
+    "extrait": "Les constantes du programme sont définies par const $type\\ c = v$ . On n'utilise pas la directive du préprocesseur #define à cette fin.",
+    "raison": "Convention d'écriture des constantes imposée au professeur : consigne de style, pas une notion évaluable."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/07",
+    "source": "définitions-et-types-de-base:786-786",
+    "extrait": "let, let rec (pour des fonctions), let rec ... and ..., fun $x y \\rightarrow e$ .",
+    "raison": "Liste de constructions syntaxiques de définition en OCaml : élément d'annexe de langage sans action révisable propre."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/08",
+    "source": "définitions-et-types-de-base:787-787",
+    "extrait": "let v = e in e', let rec f(x) = e in e'.",
+    "raison": "Formes syntaxiques des définitions locales : notation de langage, pas une technique à réviser."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/09",
+    "source": "définitions-et-types-de-base:788-788",
+    "extrait": "Expression conditionnelle if e then $e_V$ else $e_F$ .",
+    "raison": "Syntaxe de l'expression conditionnelle : élément de langage, aucune action à travailler."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/10",
+    "source": "définitions-et-types-de-base:789-789",
+    "extrait": "Types de base: int et les opérateurs +, -, \\, /, l'opérateur mod quand toutes les grandeurs sont positives; exception Division\\_by\\_zero; float et les opérateurs +., -., \\., /.; bo",
+    "raison": "Énumération des types de base OCaml et de leurs opérateurs : liste limitative de langage, sans action révisable."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/11",
+    "source": "définitions-et-types-de-base:790-790",
+    "extrait": "Comparaisons sur les types de base : =, <>, <, >, <=, >=.",
+    "raison": "Liste d'opérateurs de comparaison : pure notation."
+  },
+  {
+    "unite_id": "définitions-et-types-de-base/annexe/12",
+    "source": "définitions-et-types-de-base:791-791",
+    "extrait": "Types char et string; 'x' quand x est un caractère imprimable, \"x\" quand x est constituée de caractères imprimables, String.length, s. [i], opérateur ^. Existence d'une relation d'",
+    "raison": "Liste des types char et string, de leurs notations et primitives : éléments de langage, aucune technique à réviser pour elle-même."
+  },
+  {
+    "unite_id": "gestions-des-ressources-de-la-machine/annexe/05",
+    "source": "gestions-des-ressources-de-la-machine:839-839",
+    "extrait": "Gestion defichiers: fonctions open in. open out. close in. close out. input line, output string.",
+    "raison": "Liste limitative de fonctions OCaml d'entrée-sortie : l'action de lire et écrire un fichier est déjà couverte par lire_ecrire_fichier_texte, cette entrée n'alimente que l'axe langage."
+  },
+  {
+    "unite_id": "gestions-des-ressources-de-la-machine/annexe/06",
+    "source": "gestions-des-ressources-de-la-machine:840-840",
+    "extrait": "Fils d'exécution: recours au module Thread, fonctions Thread.create, Thread.join.",
+    "raison": "Équivalent OCaml des primitives pthread : l'action est déjà couverte par creer_synchroniser_fils_execution, aucune notion nouvelle."
+  },
+  {
+    "unite_id": "gestions-des-ressources-de-la-machine/annexe/07",
+    "source": "gestions-des-ressources-de-la-machine:841-841",
+    "extrait": "Mutex: recours au module Mutex, fonctions Mutex.create, Mutex.lock, Mutex.unlock.",
+    "raison": "Équivalent OCaml du module Mutex : l'action est déjà couverte par proteger_section_critique_mutex."
+  },
+  {
+    "unite_id": "programmation-impérative/annexe/01",
+    "source": "programmation-impérative:805-805",
+    "extrait": "Absence d'instruction; la programmation impérative est mise en œuvre par des expressions impures; unit, ().",
+    "raison": "Entrée purement lexicale et conceptuelle (type unit, expressions impures) : aucun geste algorithmique révisable n'en découle."
+  },
+  {
+    "unite_id": "programmation-impérative/annexe/03",
+    "source": "programmation-impérative:807-807",
+    "extrait": "Séquence ;. La séquence intervient entre deux expressions.",
+    "raison": "Élément de syntaxe (opérateur de séquence) sans geste révisable propre : il relève de l'axe langage, pas du référentiel."
+  },
+  {
+    "unite_id": "structures-de-contrôle/annexe/01",
+    "source": "structures-de-contrôle:725-725",
+    "extrait": "Conditionnelle if (c) $s_T$ , if (c) $s_T$ else $s_F$ .",
+    "raison": "Élément de syntaxe listé en annexe de langage : aucune action révisable pour elle-même, cela alimente l'axe langage et non le référentiel de notions."
+  },
+  {
+    "unite_id": "structures-de-contrôle/annexe/02",
+    "source": "structures-de-contrôle:726-726",
+    "extrait": "Boucle while (c) s; boucle for (init; fin; incr) s, possibilité de définir une variable dans init; break.",
+    "raison": "Liste limitative de constructions syntaxiques (while, for, break) : objet de langage, pas une technique que l'on réviserait comme notion distincte."
+  },
+  {
+    "unite_id": "traits-divers/annexe/01",
+    "source": "traits-divers:824-824",
+    "extrait": "Types de base : opérateur mod avec opérandes de signes quelconques, opérateur \\\\.",
+    "raison": "Liste limitative d'opérateurs de types de base : ce sont des éléments de langage, pas une action révisable pour elle-même."
+  },
+  {
+    "unite_id": "traits-divers/annexe/03",
+    "source": "traits-divers:826-826",
+    "extrait": "Fonctions de conversion entre types de base.",
+    "raison": "Simple mention de fonctions de conversion : champ lexical de la bibliothèque, aucune action évaluable de façon autonome."
+  },
+  {
+    "unite_id": "traits-divers/annexe/08",
+    "source": "traits-divers:831-831",
+    "extrait": "Boucle for v = f downto d do b done.",
+    "raison": "Variante syntaxique d'une boucle for : élément de langage relevant de l'axe langage, aucune action de révision propre."
+  },
+  {
+    "unite_id": "traits-divers/annexe/11",
+    "source": "traits-divers:835-835",
+    "extrait": "Utilisation de ocamle ou ocamlopt pour compiler un fichier dépendant uniquement de la bibliothèque standard.",
+    "raison": "Consigne d'outillage (compilation d'un fichier) : ne correspond à aucune action évaluable en question de concours."
+  },
+  {
+    "unite_id": "traits-généraux/annexe/01",
+    "source": "traits-généraux:702-702",
+    "extrait": "Typage statique. Types indiqués par le programme lors de la déclaration ou définition.",
+    "raison": "Trait de langage descriptif (typage statique, déclaration de types) : aucune action révisable, cela alimente l'axe langage et non le référentiel de notions."
+  },
+  {
+    "unite_id": "traits-généraux/annexe/02",
+    "source": "traits-généraux:704-704",
+    "extrait": "Délimitation des portées par les accolades. Les retours à la ligne et l'indentation ne sont pas signifiants mais sont nécessaires pour la lisibilité du code.",
+    "raison": "Élément de syntaxe et de mise en forme du code : aucune question ne porte sur cette convention, ce n'est pas une action révisable."
+  },
+  {
+    "unite_id": "traits-généraux/annexe/03",
+    "source": "traits-généraux:705-705",
+    "extrait": "Déclaration et définition de fonctions, uniquement dans le cas d'un nombre fixé de paramètres.",
+    "raison": "Simple mention de la construction syntaxique de déclaration/définition de fonction, sans technique évaluable propre."
+  },
+  {
+    "unite_id": "traits-généraux/annexe/09",
+    "source": "traits-généraux:782-782",
+    "extrait": "Les retours à la ligne et l'indentation ne sont pas signifiants mais sont nécessaires pour la lisibilité du code.",
+    "raison": "Convention de mise en forme du code, sans action évaluable : relève de l'axe langage, pas du référentiel."
+  },
+  {
+    "unite_id": "traits-généraux-et-divers/annexe/01",
+    "source": "traits-généraux-et-divers:753-753",
+    "extrait": "Utilisation de #define, #ifndef et #endif lors de l'écriture d'un fichier d'en-tête pour rendre son inclusion idempotente.",
+    "raison": "Élément d'annexe de langage purement lexical (directives de préprocesseur) : aucune action algorithmique révisable, cela alimente l'axe langage et non le référentiel."
+  },
+  {
+    "unite_id": "traits-généraux-et-divers/annexe/02",
+    "source": "traits-généraux-et-divers:754-754",
+    "extrait": "Rôle des arguments de la fonction int main(int argc, char\\ argv[]); utilisation des arguments à partir de la ligne de commande.",
+    "raison": "Simple connaissance de la signature de main et du passage d'arguments : convention de langage, pas une technique révisable pour elle-même."
+  },
+  {
+    "unite_id": "traits-généraux-et-divers/annexe/03",
+    "source": "traits-généraux-et-divers:755-755",
+    "extrait": "Fonctions de conversion de chaînes de caractères vers un type de base comme atoi.",
+    "raison": "Mention d'une fonction de bibliothèque (atoi) : élément de vocabulaire de l'annexe, pas une action évaluable."
+  },
+  {
+    "unite_id": "traits-généraux-et-divers/annexe/04",
+    "source": "traits-généraux-et-divers:756-756",
+    "extrait": "Définition d'un tableau par un initialisateur $\\{t_0, t_1, \\dots, t_{N-1}\\}$ .",
+    "raison": "Syntaxe d'initialisation d'un tableau : trait de langage relevant de l'axe langage, sans contenu algorithmique à réviser."
+  },
+  {
+    "unite_id": "traits-généraux-et-divers/annexe/05",
+    "source": "traits-généraux-et-divers:757-757",
+    "extrait": "Définition d'une valeur de type structure par un initialisateur $\\{.c_1 = v_1, ..., c_2 = v_2, ...\\}$ .",
+    "raison": "Syntaxe d'initialisation d'une structure : trait de langage, pas une notion attribuable."
+  },
+  {
+    "unite_id": "traits-généraux-et-divers/annexe/06",
+    "source": "traits-généraux-et-divers:758-758",
+    "extrait": "Compilation séparée.",
+    "raison": "Terme isolé désignant une pratique d'outillage de compilation : ni algorithme, ni construction, ni technique de preuve."
+  },
+  {
+    "unite_id": "4.3/prose/02",
+    "source": "4.3:357-358",
+    "extrait": "On souligne les enjeux de complexité en mémoire. On peut traiter un ou plusieurs exemples comme : problème de la somme d'un sous-ensemble, ordonnancement de tâches pondérées, plus ",
+    "raison": "Paragraphe de commentaire : il ne fait que lister des exemples d'application et rappeler l'enjeu mémoire, déjà couvert par les notions de programmation dynamique (implementer_dp_ascendante_ou_memoisation) ; aucune action nouvelle révisable."
+  },
+  {
+    "unite_id": "4.3/mise_en_oeuvre/01",
+    "source": "4.3:361-362",
+    "extrait": "L'objectif est de donner des outils de conception d'algorithmes et de parvenir à ce que les étudiants puissent, dans une situation simple, sélectionner une stratégie pertinente par",
+    "raison": "Consigne pédagogique au professeur sur l'autonomie des étudiants et le caractère non limitatif des exemples : aucune action évaluable propre."
+  }
+]

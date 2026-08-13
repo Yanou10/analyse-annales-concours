@@ -1,0 +1,102 @@
+# Protocole de mesure — figé avant toute passe, affiché en tête de toute sortie
+# de l'étage 4.
+#
+# Sans ce bloc, deux mesures prises à quinze jours d'intervalle ne sont pas
+# comparables : le modèle, un réglage, une borne ou une empreinte a pu bouger
+# entre les deux sans que rien ne le signale. C'est le même défaut que la
+# section perdue en silence, appliqué aux chiffres.
+
+version_protocole: "1.0.0"
+date: "2026-08-11"
+
+modele:
+  fournisseur: anthropic
+  id: claude-sonnet-5
+  # Les modèles courants ne prennent AUCUN paramètre d'échantillonnage :
+  # temperature, top_p et top_k sont rejetés en 400 sur Sonnet 5 comme sur
+  # Opus 5, 4.8 et 4.7. Il n'existe donc pas de réglage de déterminisme —
+  # les deux seuls leviers sont ci-dessous.
+  temperature: non_disponible
+  reflexion: false          # thinking: {type: disabled}
+  effort: high              # output_config.effort — low|medium|high|xhigh|max
+  max_tokens: 16000
+
+etiquetage:
+  unite_de_travail: exercice
+  pre_filtrage:
+    sections_min: 2
+    sections_max: 4         # validé côté client : minItems/maxItems ne sont
+                            # pas exprimables en mode strict
+    troncature: false       # au-delà de la borne, on conserve et on journalise
+  justification:
+    mots_minimum: 5
+    litteralite: extrait_litteral_de_l_enonce
+    normalisation:          # appliquée aux DEUX côtés avant comparaison
+      - balisage_markdown   # \_ * ` # $ { } et balises <...>
+      - symboles_unicode_latex   # τ <-> tau, ⩽ <-> <=, − <-> -
+      - mise_en_page        # espaces ignorés
+  statuts: [ok, hors_referentiel, figure_manquante, indecidable]
+  raisons_hors_referentiel: [hors_programme, absent_du_programme]
+  multi_etiquetage: normal  # rien dans le prompt ne pousse à n'en garder qu'une
+
+entrees:
+  referentiel:
+    chemin: referentiel/genere/sections
+    notions: 182
+    empreinte: null         # renseignée à l'exécution (sha256 des *.yaml triés)
+  exclusions:
+    chemin: referentiel/genere/exclusions.json
+    mentions: 27
+    objets_exclus: 18       # seule portée autorisant un hors_referentiel motivé
+  corpus:
+    chemin: corpus/
+    fichiers_distincts: 38
+    exercices: 338          # dont 2 sans question, ignorés à l'étiquetage
+    questions: 2199
+    empreinte: null         # renseignée à l'exécution
+    exclu: 2024_InfoF (doublon octet pour octet de 2024_InfoC)
+
+# Mesure de fidélité de l'instrument — À PUBLIER avec tout chiffre qui en
+# dépend. Obtenue en relançant DEUX FOIS la même configuration sur le même
+# fichier et en comparant les ensembles d'étiquettes question par question.
+reproductibilite:
+  protocole: deux passes identiques sur 2024_InfoC (37 questions)
+  mesure_le: "2026-08-11"
+  avec_reflexion:
+    ensembles_identiques: 0.43
+    jaccard: 0.31
+    pre_filtrage_jaccard: 0.65
+  sans_reflexion:
+    ensembles_identiques: 0.59
+    jaccard: 0.52
+    pre_filtrage_jaccard: 0.78
+  seuil_exige: 0.80
+  verdict: INSUFFISANT — aucune cible chiffrée n'est mesurable à ce niveau de bruit
+
+# Réserves réécrites le 2026-08-12 sur le corpus complet. Elles ne sont pas
+# opérantes (elles n'entrent pas dans la signature) : elles commentent la
+# mesure, elles ne la déterminent pas.
+reserves:
+  - >
+    La famille InfoU-exercices (5 fichiers) pèse 653 questions sur 2 199, soit
+    30 %, et 2018_InfoU à lui seul 186. Ce sont des recueils d'exercices, plus
+    denses en questions courtes que les sujets d'épreuve : toute fréquence
+    globale est tirée par eux.
+  - >
+    non_marque n'est pas une filière inconnue, c'est une époque : MPI n'existe
+    qu'à partir de la session 2023, et 47,8 % des questions de 2017-2022 n'ont
+    aucune marque à propager. Réunis à mp_info, le partage réel est d'environ
+    69,5 % MP option info / 30 % MPI. Ventiler par ANNÉE autant que par
+    filière. 2023_InfoC (27 questions) est le seul vrai défaut de détection.
+  - >
+    complexite_algo.evaluer_complexite_algorithme porte à elle seule 14,3 % des
+    questions et 60 % des occurrences de sa section. La notion est trop
+    générale : elle absorbe tout ce qui parle de complexité au lieu de
+    distinguer ce qu'on demande d'en faire. Son éclatement est le premier
+    chantier du référentiel, avant celui de preuve.
+  - >
+    73 questions sur 2 199 partagent leur identifiant avec une autre, quatre
+    titres d'exercice se répétant dans leur fichier. L'étiquetage n'en souffre
+    pas — chaque exercice part dans son propre appel — mais toute mesure par
+    exercice doit désambiguïser. L'étage 4 le fait au rang d'apparition ; le
+    correctif de fond est à l'étage 1 et coûte une repasse complète.

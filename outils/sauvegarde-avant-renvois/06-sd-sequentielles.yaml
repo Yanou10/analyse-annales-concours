@@ -1,0 +1,189 @@
+section:
+  id: sd_sequentielles
+  libelle: Structures séquentielles et associatives
+  ordre: 6
+  perimetre: Listes, piles, files, tableaux associatifs, tables de hachage, sérialisation.
+notions:
+- id: sd_sequentielles.specifier_structure_abstraite_par_operations
+  slug: specifier_structure_abstraite_par_operations
+  libelle: Spécifier une structure de données abstraite par ses opérations et l'implémenter
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.1:207-214
+    verdict: admis_reformule
+  definition_operatoire: La question demande de donner l'interface d'une structure de données (signatures
+    du constructeur, des accesseurs et des transformateurs), d'en proposer une implémentation concrète
+    respectant cette interface, ou de comparer deux implémentations interchangeables de la même interface.
+  declencheurs:
+  - Donner la signature des opérations de cette structure abstraite
+  - Proposer une implémentation de cette interface à l'aide de tableaux, puis à l'aide de listes chaînées
+  - Quelles opérations doit fournir cette structure de données ?
+  - Comparer les deux implémentations proposées de la même structure abstraite
+  exclusions:
+  - motif: Implémenter une structure séquentielle particulière (pile, file, table de hachage) avec ses
+      coûts propres
+    voir: null
+  - motif: Caractère mutable ou immuable des opérations proposées
+    voir: idiomes.distinguer_structure_mutable_immuable
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  - mixte
+  statut: actif
+- id: sd_sequentielles.implementer_liste_maillons_chaines
+  slug: implementer_liste_maillons_chaines
+  libelle: Implémenter une liste par maillons chaînés
+  semestre: S1
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.2:230-236
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de compléter les opérations d'une liste représentée
+    par des maillons chaînés (tête, insertion, suppression, parcours, concaténation).
+  declencheurs:
+  - Écrire une fonction qui insère un élément en tête de la liste chaînée
+  - Compléter le type des maillons et la fonction de parcours
+  - Supprimer le maillon contenant la valeur x
+  - Donner l'implémentation de la liste par chaînage
+  exclusions:
+  - motif: Représentation d'une liste dans un tableau de taille fixée
+    voir: sd_sequentielles.implementer_sequence_par_tableau
+  - motif: Discipline d'accès LIFO ou FIFO
+    voir: sd_sequentielles.implementer_pile_file
+  - motif: Comparaison des coûts entre implémentations
+    voir: complexite_algo.comparer_couts_implementations_sequentielles
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  statut: actif
+- id: sd_sequentielles.implementer_sequence_par_tableau
+  slug: implementer_sequence_par_tableau
+  libelle: Implémenter une structure séquentielle par un tableau de taille bornée
+  semestre: S1
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.2:230-236
+    verdict: eclate
+  definition_operatoire: La question demande de représenter une liste, une pile ou une file dans un tableau
+    de taille maximale fixée, avec gestion des indices, du remplissage et éventuellement du redimensionnement.
+  declencheurs:
+  - Implémenter une pile dans un tableau de taille maximale n
+  - Gérer les indices de tête et de queue d'une file circulaire
+  - Que faire lorsque le tableau est plein ? Proposer un redimensionnement
+  - Écrire les opérations en utilisant un tableau et un compteur
+  exclusions:
+  - motif: Représentation par maillons alloués dynamiquement
+    voir: sd_sequentielles.implementer_liste_maillons_chaines
+  - motif: Spécification abstraite des opérations LIFO/FIFO
+    voir: sd_sequentielles.implementer_pile_file
+  - motif: Comparaison chiffrée des coûts selon l'implémentation
+    voir: complexite_algo.comparer_couts_implementations_sequentielles
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - pseudocode
+  - ocaml
+  statut: actif
+- id: sd_sequentielles.implementer_pile_file
+  slug: implementer_pile_file
+  libelle: Utiliser une pile ou une file pour organiser un traitement
+  semestre: S1
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.2:230-236
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire les opérations d'une pile (LIFO) ou d'une file (FIFO)
+    ou d'exploiter cette discipline d'accès pour résoudre un problème (dépiler/enfiler dans un algorithme
+    donné).
+  declencheurs:
+  - Écrire les fonctions empiler et dépiler
+  - Écrire enfiler et défiler et préciser le comportement sur file vide
+  - Quelle structure choisir, pile ou file, pour ce traitement ?
+  - Simuler l'évolution de la pile sur cet exemple
+  exclusions:
+  - motif: Détail du stockage dans un tableau borné
+    voir: sd_sequentielles.implementer_sequence_par_tableau
+  - motif: Détail du chaînage par maillons
+    voir: sd_sequentielles.implementer_liste_maillons_chaines
+  - motif: File de priorité fondée sur un tas
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  statut: actif
+- id: sd_sequentielles.utiliser_tableau_associatif_hachage
+  slug: utiliser_tableau_associatif_hachage
+  libelle: Utiliser un tableau associatif implémenté par table de hachage
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.2:237-239
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'employer une association clé-valeur pour résoudre un problème
+    (comptage, mémoïsation, index) ou d'analyser le coût d'accès d'une table de hachage donnée.
+  declencheurs:
+  - Utiliser un dictionnaire pour compter les occurrences
+  - Quel est le coût moyen d'une recherche dans la table de hachage ?
+  - Proposer une structure associative adaptée et justifier
+  - Décrire le contenu de la table après ces insertions
+  exclusions:
+  - motif: Construction d'une fonction de hachage ou gestion des collisions, non exigibles
+    voir: null
+  - motif: Association réalisée par un arbre binaire de recherche
+    voir: null
+  - motif: Structure indexée par entiers contigus
+    voir: sd_sequentielles.implementer_sequence_par_tableau
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - ocaml
+  - c
+  - theorique
+  statut: actif
+- id: sd_sequentielles.serialiser_structure
+  slug: serialiser_structure
+  libelle: Sérialiser et reconstruire une structure de données
+  semestre: S2
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.2:240-241
+    verdict: admis_reformule
+  definition_operatoire: La question demande de produire une représentation linéaire (chaîne, fichier,
+    suite de champs) d'une structure hiérarchique ou relationnelle, ou de reconstruire la structure à
+    partir de cette représentation.
+  declencheurs:
+  - Écrire une fonction qui sérialise cet arbre sous forme de chaîne
+  - Reconstruire l'arbre à partir de sa sérialisation
+  - Proposer un format de sérialisation d'une table relationnelle
+  - Écrire la structure dans un fichier puis la relire
+  exclusions:
+  - motif: Parcours d'arbre sans production d'une représentation linéaire destinée à être relue
+    voir: null
+  - motif: Écriture ou lecture de fichiers pour elle-même
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  - mixte
+  statut: actif

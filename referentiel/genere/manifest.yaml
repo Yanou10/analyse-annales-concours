@@ -1,0 +1,96 @@
+version: 1.0.0
+date: '2026-08-11'
+matiere: informatique
+programme_source: spe777_annexe_1373646.md
+profil: informatique-mpi.yaml
+genere_par:
+  fournisseur: anthropic
+  modele: claude-opus-5
+  effort: high
+  signature_prompt: 277f40c4a5741999
+  appels: 44
+  reprises: 0
+  jetons_entree: 37432
+  jetons_sortie: 117572
+  jetons_cache_lus: 185674
+sections:
+- id: preuve
+  fichier: sections/01-preuve.yaml
+  notions: 9
+- id: correction
+  fichier: sections/02-correction.yaml
+  notions: 11
+- id: complexite_algo
+  fichier: sections/03-complexite-algo.yaml
+  notions: 8
+- id: recursion
+  fichier: sections/04-recursion.yaml
+  notions: 3
+- id: modelisation
+  fichier: sections/05-modelisation.yaml
+  notions: 3
+- id: sd_sequentielles
+  fichier: sections/06-sd-sequentielles.yaml
+  notions: 6
+- id: sd_hierarchiques
+  fichier: sections/07-sd-hierarchiques.yaml
+  notions: 11
+- id: graphes_repr
+  fichier: sections/08-graphes-repr.yaml
+  notions: 5
+- id: graphes_algo
+  fichier: sections/09-graphes-algo.yaml
+  notions: 12
+- id: strategies
+  fichier: sections/10-strategies.yaml
+  notions: 23
+- id: textes
+  fichier: sections/11-textes.yaml
+  notions: 6
+- id: logique
+  fichier: sections/12-logique.yaml
+  notions: 19
+- id: langages
+  fichier: sections/13-langages.yaml
+  notions: 22
+- id: complexite_pb
+  fichier: sections/14-complexite-pb.yaml
+  notions: 8
+- id: ressources
+  fichier: sections/15-ressources.yaml
+  notions: 21
+- id: bdd
+  fichier: sections/16-bdd.yaml
+  notions: 11
+- id: idiomes
+  fichier: sections/17-idiomes.yaml
+  notions: 4
+notions_total: 182
+migrations: {}
+changelog:
+- version: 1.0.0
+  date: '2026-08-10'
+  operations:
+  - génération automatique depuis le programme officiel (étage 0)
+  - 83 unité(s) refusée(s) au critère d'admission
+- version: 1.0.0
+  date: '2026-08-11'
+  operations:
+  - section 4.3 du programme régénérée seule et injectée (8 notion(s), 2 refus)
+  - 1 objet(s) rejeté(s) au contrat — voir `unites_rejetees`
+- version: 1.0.0
+  date: '2026-08-11'
+  operations:
+  - section corpus (confrontation des 6 fichiers) du programme régénérée seule et injectée (8 notion(s),
+    0 refus)
+- version: 1.0.0
+  date: '2026-08-11'
+  operations:
+  - section corpus (réinstruction sur extraction réparée) du programme régénérée seule et injectée (2
+    notion(s), 0 refus)
+reparations: []
+unites_rejetees:
+- section: '4.3'
+  cible: 4.3/table/01/construire_code_huffman
+  regle: collision_slug_existant
+  cause: slug déjà porté par textes.construire_code_huffman — non injectée

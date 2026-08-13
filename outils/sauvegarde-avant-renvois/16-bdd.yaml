@@ -1,0 +1,304 @@
+section:
+  id: bdd
+  libelle: Bases de données
+  ordre: 16
+  perimetre: Modélisation entité-association et interrogation en SQL.
+notions:
+- id: bdd.determiner_cle_primaire
+  slug: determiner_cle_primaire
+  libelle: Déterminer et justifier la clé primaire d'une table
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:577-577
+    verdict: admis_reformule
+  definition_operatoire: La question fournit un schéma ou un jeu d'enregistrements et demande de choisir
+    un attribut ou un groupe d'attributs identifiant chaque ligne de façon unique, ou de justifier qu'un
+    candidat proposé n'est pas valable.
+  declencheurs:
+  - Quelle est la clé primaire de cette table ?
+  - Justifier que l'attribut ... ne peut pas servir de clé primaire.
+  - Proposer une clé primaire pour la relation ...
+  - Cette clé primaire doit-elle porter sur plusieurs attributs ?
+  exclusions:
+  - motif: Clé étrangère servant à traduire une association entre entités
+    voir: bdd.modeliser_entites_associations
+  - motif: Écriture d'une requête d'interrogation utilisant la clé
+    voir: bdd.ecrire_requete_selection_projection
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  - theorique
+  statut: actif
+- id: bdd.modeliser_entites_associations
+  slug: modeliser_entites_associations
+  libelle: Modéliser un énoncé par des entités et des associations
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 7:578-578
+    verdict: eclate
+  definition_operatoire: La question décrit une situation concrète et demande d'identifier les entités,
+    leurs attributs et les associations qui les lient, en précisant les cardinalités 1-1, 1-plusieurs
+    ou plusieurs-plusieurs (éventuellement sous forme de diagramme sagittal).
+  declencheurs:
+  - Décrire les entités et les associations de cette base
+  - Préciser la cardinalité de l'association entre ... et ...
+  - Proposer un modèle entité-association pour la situation décrite
+  - Représenter par un diagramme les entités et leurs liens
+  exclusions:
+  - motif: Passage du modèle au schéma de tables avec clés étrangères
+    voir: bdd.traduire_association_cles_etrangeres
+  - motif: Choix de l'identifiant unique d'une table
+    voir: bdd.determiner_cle_primaire
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: bdd.traduire_association_cles_etrangeres
+  slug: traduire_association_cles_etrangeres
+  libelle: Traduire une association en tables reliées par clés étrangères
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 7:578-578
+    verdict: eclate
+  definition_operatoire: 'La question demande de passer d''un modèle entité-association à un schéma de
+    tables : placer les clés étrangères pour une association 1-1 ou 1-plusieurs, ou décomposer une association
+    plusieurs-plusieurs en deux associations 1-plusieurs via une table intermédiaire.'
+  declencheurs:
+  - Donner le schéma des tables correspondant à ce modèle
+  - Où placer la clé étrangère pour traduire cette association ?
+  - Décomposer l'association plusieurs-plusieurs en introduisant une table
+  - Expliquer comment cette association se traduit en SQL
+  exclusions:
+  - motif: Identification des entités et cardinalités à partir de l'énoncé
+    voir: bdd.modeliser_entites_associations
+  - motif: Reconstitution des données liées par une requête
+    voir: bdd.ecrire_requete_jointure
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  - theorique
+  statut: actif
+- id: bdd.ecrire_requete_selection_projection
+  slug: ecrire_requete_selection_projection
+  libelle: Écrire une requête SELECT avec sélection, projection et renommage
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:579-579
+    verdict: eclate
+  definition_operatoire: La question demande d'extraire d'une ou plusieurs tables les colonnes voulues
+    en filtrant les lignes par une condition WHERE construite avec les opérateurs arithmétiques, de comparaison,
+    logiques ou IS NULL, éventuellement en renommant par AS.
+  declencheurs:
+  - Écrire une requête SQL donnant les ... tels que ...
+  - Que renvoie la requête suivante ?
+  - Compléter la clause WHERE de cette requête
+  - Donner la requête affichant la colonne ... renommée en ...
+  exclusions:
+  - motif: Élimination des doublons ou tri et limitation du résultat
+    voir: bdd.mettre_en_forme_resultat_requete
+  - motif: Combinaison de plusieurs tables par jointure
+    voir: bdd.ecrire_requete_jointure
+  - motif: Calcul de statistiques sur des groupes de lignes
+    voir: bdd.ecrire_requete_agregation
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.mettre_en_forme_resultat_requete
+  slug: mettre_en_forme_resultat_requete
+  libelle: Trier, dédoublonner et tronquer le résultat d'une requête
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:579-579
+    verdict: eclate
+  definition_operatoire: La question demande d'utiliser DISTINCT, ORDER BY, LIMIT ou OFFSET pour contrôler
+    l'ordre, l'unicité ou la portion des lignes renvoyées, par exemple pour obtenir les k premiers éléments
+    selon un critère.
+  declencheurs:
+  - Écrire une requête donnant les 10 premiers ... par ordre décroissant de ...
+  - Éliminer les doublons du résultat
+  - Trier le résultat par ...
+  - À quoi servent les mots-clés LIMIT et OFFSET ici ?
+  exclusions:
+  - motif: Filtrage des lignes par condition logique
+    voir: bdd.ecrire_requete_selection_projection
+  - motif: Filtrage portant sur des agrégats
+    voir: bdd.filtrer_groupes_having
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.combiner_requetes_operateurs_ensemblistes
+  slug: combiner_requetes_operateurs_ensemblistes
+  libelle: Combiner des requêtes par UNION, INTERSECT, EXCEPT ou produit cartésien
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:579-579
+    verdict: eclate
+  definition_operatoire: La question demande d'obtenir un résultat en réunissant, intersectant ou soustrayant
+    les résultats de deux requêtes compatibles, ou en formant le produit cartésien de plusieurs tables.
+  declencheurs:
+  - Écrire une requête utilisant UNION pour obtenir ...
+  - Exprimer à l'aide de EXCEPT les ... qui ne sont pas ...
+  - Que donne le produit cartésien de ces deux tables ?
+  - Obtenir l'intersection des résultats de ces deux requêtes
+  exclusions:
+  - motif: Rapprochement de tables par une condition de jointure
+    voir: bdd.ecrire_requete_jointure
+  - motif: Simple filtrage d'une unique table
+    voir: bdd.ecrire_requete_selection_projection
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.ecrire_requete_jointure
+  slug: ecrire_requete_jointure
+  libelle: Écrire une requête à jointures internes sur plusieurs tables
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:580-580
+    verdict: eclate
+  definition_operatoire: La question demande de rapprocher deux ou plusieurs tables par une condition
+    ON, typiquement clé étrangère contre clé primaire, pour restituer une information dispersée dans le
+    schéma.
+  declencheurs:
+  - Écrire une requête SQL joignant les tables ... et ...
+  - Donner les noms des ... associés à ...
+  - Compléter la clause ON de cette jointure
+  - Que renvoie cette requête avec JOIN ?
+  exclusions:
+  - motif: Conservation des lignes sans correspondance
+    voir: bdd.ecrire_requete_jointure_externe
+  - motif: Assemblage de résultats de requêtes sans condition d'appariement
+    voir: bdd.combiner_requetes_operateurs_ensemblistes
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.ecrire_requete_jointure_externe
+  slug: ecrire_requete_jointure_externe
+  libelle: Utiliser une jointure externe à gauche pour conserver les lignes non appariées
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:580-580
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou d'interpréter un LEFT JOIN afin de garder les
+    lignes de la table de gauche sans correspondance à droite, souvent pour détecter les valeurs NULL
+    ainsi produites.
+  declencheurs:
+  - Écrire une requête donnant les ... y compris ceux qui n'ont aucun ...
+  - Quelle est la différence entre JOIN et LEFT JOIN ici ?
+  - Utiliser une jointure externe pour trouver les enregistrements sans correspondance
+  - Que valent les colonnes de T2 pour ces lignes ?
+  exclusions:
+  - motif: Jointure conservant uniquement les couples appariés
+    voir: bdd.ecrire_requete_jointure
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.ecrire_requete_agregation
+  slug: ecrire_requete_agregation
+  libelle: Calculer des agrégats avec MIN, MAX, SUM, AVG, COUNT et GROUP BY
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:581-581
+    verdict: eclate
+  definition_operatoire: 'La question demande de produire une statistique globale ou par groupe de lignes
+    : compter, sommer, moyenner ou extraire un extremum, éventuellement après regroupement selon un ou
+    plusieurs attributs.'
+  declencheurs:
+  - Écrire une requête donnant le nombre de ... par ...
+  - Calculer la moyenne des ... pour chaque ...
+  - Quel est le maximum de la colonne ... ?
+  - Regrouper les résultats par ... et sommer ...
+  exclusions:
+  - motif: Condition portant sur la valeur d'un agrégat de groupe
+    voir: bdd.filtrer_groupes_having
+  - motif: Filtrage des lignes avant regroupement
+    voir: bdd.ecrire_requete_selection_projection
+  - motif: Requête utilisée comme sous-requête dans une autre
+    voir: bdd.ecrire_requete_imbriquee
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.ecrire_requete_imbriquee
+  slug: ecrire_requete_imbriquee
+  libelle: Écrire une requête comportant une sous-requête imbriquée
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 7:581-581
+    verdict: eclate
+  definition_operatoire: La question demande d'utiliser le résultat d'une requête à l'intérieur d'une
+    autre (dans le WHERE ou le FROM), par exemple pour comparer une valeur à un agrégat calculé ailleurs.
+  declencheurs:
+  - Écrire une requête utilisant une sous-requête pour obtenir ...
+  - Donner les ... dont la valeur est supérieure à la moyenne
+  - Que renvoie cette requête imbriquée ?
+  - Exprimer cette question à l'aide d'une requête dans le WHERE
+  exclusions:
+  - motif: Agrégat calculé directement dans la requête principale
+    voir: bdd.ecrire_requete_agregation
+  - motif: Combinaison de deux requêtes de même schéma
+    voir: bdd.combiner_requetes_operateurs_ensemblistes
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif
+- id: bdd.filtrer_groupes_having
+  slug: filtrer_groupes_having
+  libelle: Filtrer des groupes avec HAVING et le distinguer de WHERE
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 7:582-582
+    verdict: admis_reformule
+  definition_operatoire: La question demande de ne conserver que les groupes vérifiant une condition portant
+    sur un agrégat, ou d'expliquer pourquoi telle condition doit figurer dans HAVING plutôt que dans WHERE.
+  declencheurs:
+  - Écrire une requête donnant les ... ayant plus de n ...
+  - Quelle est la différence entre WHERE et HAVING dans cette requête ?
+  - Corriger cette requête en plaçant la condition au bon endroit
+  - Ne garder que les groupes dont la somme dépasse ...
+  exclusions:
+  - motif: Calcul des agrégats et regroupement eux-mêmes
+    voir: bdd.ecrire_requete_agregation
+  - motif: Filtrage ligne à ligne avant regroupement
+    voir: bdd.ecrire_requete_selection_projection
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - sql
+  statut: actif

@@ -1,0 +1,175 @@
+section:
+  id: textes
+  libelle: Algorithmique des textes
+  ordre: 11
+  perimetre: Recherche de motif, compression, codage.
+notions:
+- id: textes.rechercher_motif_naif
+  slug: rechercher_motif_naif
+  libelle: Rechercher un motif dans un texte par comparaison directe
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 4.4:367-369
+    verdict: eclate
+  definition_operatoire: La question demande de localiser les occurrences d'un motif dans un texte en
+    comparant caractère à caractère à chaque position, ou d'en évaluer le coût.
+  declencheurs:
+  - Écrire une fonction qui renvoie les positions des occurrences du motif dans le texte
+  - Donner la complexité de la recherche naïve d'un motif de longueur m dans un texte de longueur n
+  - Compléter la fonction de recherche par décalages successifs d'une position
+  exclusions:
+  - motif: Recherche accélérée par une table de décalage sur le dernier caractère comparé
+    voir: textes.rechercher_motif_boyer_moore
+  - motif: Recherche fondée sur la comparaison d'empreintes de hachage
+    voir: textes.rechercher_motif_rabin_karp
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: textes.rechercher_motif_boyer_moore
+  slug: rechercher_motif_boyer_moore
+  libelle: Rechercher un motif par l'algorithme de Boyer-Moore simplifié
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 4.4:367-369
+    verdict: eclate
+  definition_operatoire: La question demande de construire la table de décalage associée à un motif, ou
+    de dérouler/programmer la recherche avec comparaison de droite à gauche et saut selon cette table.
+  declencheurs:
+  - Calculer la fonction de décalage du motif donné
+  - Dérouler l'algorithme de Boyer-Moore simplifié sur ce texte et ce motif
+  - Écrire la fonction de prétraitement du motif puis la recherche
+  - Combien de comparaisons effectue-t-on avec cette version simplifiée ?
+  exclusions:
+  - motif: Recherche sans prétraitement, position par position
+    voir: textes.rechercher_motif_naif
+  - motif: Recherche par empreintes numériques du motif et des fenêtres
+    voir: textes.rechercher_motif_rabin_karp
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: textes.rechercher_motif_rabin_karp
+  slug: rechercher_motif_rabin_karp
+  libelle: Rechercher un motif par l'algorithme de Rabin-Karp
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 4.4:367-369
+    verdict: eclate
+  definition_operatoire: La question demande de définir ou mettre à jour une empreinte de hachage glissante
+    sur les fenêtres du texte, puis d'en déduire les occurrences candidates du motif et de les vérifier.
+  declencheurs:
+  - Écrire la fonction de mise à jour de l'empreinte lors du décalage de la fenêtre
+  - Justifier qu'une collision impose une vérification caractère par caractère
+  - Programmer la recherche d'un motif par hachage glissant
+  - Calculer l'empreinte de ce motif modulo p
+  exclusions:
+  - motif: Recherche par table de décalage et comparaison de droite à gauche
+    voir: textes.rechercher_motif_boyer_moore
+  - motif: Conception d'une table de hachage comme structure de données
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: textes.construire_code_huffman
+  slug: construire_code_huffman
+  libelle: Construire un code préfixe optimal par l'algorithme de Huffman
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 4.4:370-370
+    verdict: eclate
+  definition_operatoire: La question demande, à partir de fréquences ou d'un texte, de construire l'arbre
+    de Huffman par fusions successives des deux poids minimaux, d'en lire les mots de code, ou d'évaluer
+    la longueur moyenne obtenue.
+  declencheurs:
+  - Construire l'arbre de Huffman associé à ces fréquences
+  - Donner le codage de chaque caractère et la taille du texte compressé
+  - Écrire la fonction qui construit l'arbre de Huffman à l'aide d'une file de priorité
+  - Justifier que le code obtenu est préfixe
+  exclusions:
+  - motif: Reconstitution du texte à partir du code et de l'arbre
+    voir: textes.decompresser_code_huffman
+  - motif: Compression par dictionnaire construit à la volée
+    voir: textes.compresser_lempel_ziv_welch
+  - motif: Implémentation de la file de priorité elle-même
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - ocaml
+  - c
+  statut: actif
+- id: textes.decompresser_code_huffman
+  slug: decompresser_code_huffman
+  libelle: Décompresser une suite de bits à l'aide d'un arbre de Huffman
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 4.4:370-370
+    verdict: eclate
+  definition_operatoire: La question demande de retrouver le texte d'origine en descendant l'arbre de
+    code au fil des bits lus, ou d'écrire la fonction de décodage correspondante.
+  declencheurs:
+  - Décoder cette suite de bits avec l'arbre précédent
+  - Écrire la fonction de décompression parcourant l'arbre de Huffman
+  - Expliquer pourquoi le décodage est non ambigu
+  exclusions:
+  - motif: Construction de l'arbre à partir des fréquences
+    voir: textes.construire_code_huffman
+  - motif: Décompression par reconstruction incrémentale d'un dictionnaire
+    voir: textes.compresser_lempel_ziv_welch
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - ocaml
+  - c
+  statut: actif
+- id: textes.compresser_lempel_ziv_welch
+  slug: compresser_lempel_ziv_welch
+  libelle: Compresser et décompresser un texte par l'algorithme de Lempel-Ziv-Welch
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 4.4:371-371
+    verdict: admis_reformule
+  definition_operatoire: La question demande de dérouler ou programmer l'encodage LZW en construisant
+    le dictionnaire à la volée, ou de reconstituer le texte à partir de la suite de codes émis.
+  declencheurs:
+  - Coder ce texte par l'algorithme LZW en indiquant l'évolution du dictionnaire
+  - Décoder cette suite de codes LZW
+  - Écrire la fonction de compression LZW utilisant un dictionnaire
+  - Quel est le taux de compression obtenu sur cet exemple ?
+  exclusions:
+  - motif: Compression par code préfixe fondé sur les fréquences
+    voir: textes.construire_code_huffman
+  - motif: Décodage à l'aide d'un arbre de code fixe
+    voir: textes.decompresser_code_huffman
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - ocaml
+  - c
+  statut: actif

@@ -1,0 +1,798 @@
+section:
+  id: idiomes
+  libelle: Idiomes de programmation
+  ordre: 17
+  perimetre: Techniques de langage qui se révisent pour elles-mêmes (filtrage par motif, références, linéarisation
+    de tableaux, retours multiples par pointeur). Le reste des annexes de langage alimente l'axe langage,
+    pas le référentiel.
+notions:
+- id: idiomes.inferer_type_fragment_code
+  slug: inferer_type_fragment_code
+  libelle: Inférer le type d'une expression ou d'une fonction à la lecture d'un fragment de code
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.1:202-206
+    verdict: eclate
+  definition_operatoire: La question fournit un fragment de code (typiquement OCaml ou C) et demande de
+    donner le type d'une expression, d'une variable ou d'une fonction, ou de repérer une incohérence de
+    typage. Toute justification théorique du typage est exclue.
+  declencheurs:
+  - Donner le type de la fonction f suivante
+  - Quel est le type de cette expression ?
+  - Indiquer pourquoi ce fragment de code ne compile pas (types)
+  - Préciser le type des arguments et du résultat
+  exclusions:
+  - motif: Écrire une fonction respectant une signature imposée relève de la programmation dans le langage,
+      pas de l'inférence de type
+    voir: null
+  - motif: Concevoir un type inductif pour représenter une structure
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - mixte
+  statut: actif
+- id: idiomes.lineariser_tableau_multidimensionnel
+  slug: lineariser_tableau_multidimensionnel
+  libelle: Manipuler des tableaux statiques et paramétrés, y compris leur représentation en mémoire
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.1:202-206
+    verdict: eclate
+  definition_operatoire: La question demande d'accéder, de parcourir ou de représenter des données dans
+    un tableau (éventuellement à plusieurs dimensions, ou de type paramétré), en explicitant le calcul
+    d'indice ou la structure composée employée.
+  declencheurs:
+  - Écrire l'accès à l'élément (i,j) d'une matrice stockée dans un tableau unidimensionnel
+  - Définir une structure composée contenant un tableau et sa taille
+  - Donner le type d'un tableau de tableaux
+  exclusions:
+  - motif: Inférer le type d'une expression déjà écrite
+    voir: idiomes.inferer_type_fragment_code
+  - motif: Allouer ce tableau dynamiquement et le libérer
+    voir: ressources.gerer_allocation_dynamique_memoire
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - ocaml
+  statut: actif
+- id: idiomes.distinguer_structure_mutable_immuable
+  slug: distinguer_structure_mutable_immuable
+  libelle: Distinguer et programmer des opérations sur structures mutables ou immuables
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.1:215-216
+    verdict: admis_reformule
+  definition_operatoire: La question demande de dire si une structure ou une opération modifie la donnée
+    en place ou renvoie une nouvelle valeur, d'écrire les deux variantes d'une même opération, ou d'expliquer
+    un effet de partage/aliasing résultant de la mutabilité.
+  declencheurs:
+  - Cette fonction modifie-t-elle son argument ou renvoie-t-elle une nouvelle structure ?
+  - Écrire une version impérative (en place) de cette fonction
+  - Expliquer ce que devient l'ancienne valeur après cette opération
+  - Quel est l'intérêt d'une structure immuable ici ?
+  exclusions:
+  - motif: Spécification de l'interface d'une structure abstraite indépendamment de la mutabilité
+    voir: sd_sequentielles.specifier_structure_abstraite_par_operations
+  - motif: Usage des références et effets de bord comme idiome de langage à part entière
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  statut: actif
+- id: idiomes.gerer_erreurs_par_exceptions
+  slug: gerer_erreurs_par_exceptions
+  libelle: Signaler et rattraper un cas d'erreur par une exception
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: divers:814-814
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire une fonction qui lève une exception dans un cas
+    particulier, ou de rattraper cette exception pour poursuivre un traitement (par exemple interrompre
+    une recherche ou traiter un cas vide). Elle porte sur le mécanisme de rupture et de reprise du flot
+    de contrôle.
+  declencheurs:
+  - Écrire une fonction qui lève une exception si la liste est vide
+  - Modifier la fonction pour qu'elle rattrape l'exception et renvoie une valeur par défaut
+  - Utiliser une exception pour interrompre le parcours dès que l'élément est trouvé
+  - Que se passe-t-il si failwith est appelé ici ?
+  exclusions:
+  - motif: Distinguer les cas par filtrage de motif sur un constructeur (option, variant)
+    voir: null
+  - motif: Vérifier une précondition par assertion en C
+    voir: correction.verifier_preconditions_assert
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.manipuler_adresse_et_pointeur_c
+  slug: manipuler_adresse_et_pointeur_c
+  libelle: Prendre l'adresse d'une variable et déclarer un pointeur en C
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: pointeurs-et-gestion-de-la-mémoire:732-732
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou de compléter du code C où l'on déclare un pointeur
+    vers un objet existant et où l'on obtient son adresse par &, notamment pour passer une variable modifiable
+    à une fonction.
+  declencheurs:
+  - Écrire une fonction qui modifie la variable passée en argument
+  - Déclarer un pointeur vers l'entier v et l'initialiser
+  - Compléter la signature de la fonction pour qu'elle renvoie deux valeurs
+  - Que vaut l'expression &v ?
+  exclusions:
+  - motif: Lire ou écrire la valeur pointée par un pointeur déjà obtenu
+    voir: idiomes.dereferencer_pointeur_c
+  - motif: Obtenir un pointeur par allocation dynamique sur le tas
+    voir: ressources.allouer_liberer_memoire_tas_c
+  - motif: Arithmétique des pointeurs, explicitement écartée
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.dereferencer_pointeur_c
+  slug: dereferencer_pointeur_c
+  libelle: Déréférencer un pointeur pour lire ou modifier la valeur pointée
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: pointeurs-et-gestion-de-la-mémoire:733-733
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou d'interpréter du code C utilisant *p (ou ->)
+    pour accéder à la valeur désignée par un pointeur valide, en particulier pour écrire un résultat à
+    travers un paramètre de sortie.
+  declencheurs:
+  - Écrire une procédure qui renvoie ses résultats via des pointeurs
+  - Que vaut *p après cette instruction ?
+  - Compléter le corps de la fonction échange(int *a, int *b)
+  - Modifier la valeur de la case pointée
+  exclusions:
+  - motif: Déclarer le pointeur et récupérer une adresse avec &
+    voir: idiomes.manipuler_adresse_et_pointeur_c
+  - motif: Tester la nullité d'un pointeur avant d'y accéder dans une structure récursive
+    voir: idiomes.chainer_structure_recursive_pointeurs_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.chainer_structure_recursive_pointeurs_c
+  slug: chainer_structure_recursive_pointeurs_c
+  libelle: Réaliser une structure récursive chaînée à l'aide de pointeurs et de NULL
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: pointeurs-et-gestion-de-la-mémoire:734-734
+    verdict: admis_reformule
+  definition_operatoire: La question demande de définir en C un type struct contenant des pointeurs vers
+    lui-même (liste, arbre) et d'écrire des fonctions qui la parcourent ou la modifient en testant le
+    pointeur NULL comme cas de base ou de fin.
+  declencheurs:
+  - Définir en C le type des listes chaînées d'entiers
+  - Écrire la structure d'un nœud d'arbre binaire en C
+  - Écrire une fonction qui insère un élément en tête de la liste chaînée
+  - Que représente un pointeur NULL dans cette structure ?
+  exclusions:
+  - motif: Simple déréférencement d'un pointeur sans structure récursive
+    voir: idiomes.dereferencer_pointeur_c
+  - motif: Allocation et libération des nœuds sur le tas
+    voir: ressources.allouer_liberer_memoire_tas_c
+  - motif: Type inductif défini en OCaml plutôt qu'en C par pointeurs
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.transtyper_void_pointeur_c
+  slug: transtyper_void_pointeur_c
+  libelle: Transtyper un pointeur depuis ou vers void* pour l'usage de malloc
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: pointeurs-et-gestion-de-la-mémoire:736-736
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou de justifier une conversion de type entre void*
+    et un type de pointeur précis, typiquement pour exploiter la valeur renvoyée par une fonction d'allocation.
+  declencheurs:
+  - 'Compléter la ligne : p = (int*) malloc(...)'
+  - Pourquoi malloc renvoie-t-il un void* ?
+  - Corriger l'erreur de type dans cet appel d'allocation
+  exclusions:
+  - motif: Calcul de la taille demandée et libération de la mémoire
+    voir: ressources.allouer_liberer_memoire_tas_c
+  - motif: Arithmétique de pointeurs, hors du champ retenu
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.gerer_tableau_taille_dynamique_c
+  slug: gerer_tableau_taille_dynamique_c
+  libelle: Gérer un tableau dont la taille n'est pas connue statiquement
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: pointeurs-et-gestion-de-la-mémoire:737-737
+    verdict: eclate
+  definition_operatoire: 'La question demande d''écrire du code C manipulant un tableau alloué à l''exécution
+    : allocation d''après une taille passée en paramètre, transport conjoint du pointeur et de la taille,
+    éventuel redimensionnement.'
+  declencheurs:
+  - Écrire une fonction qui crée un tableau de n éléments, n donné à l'exécution
+  - Pourquoi faut-il passer la taille en argument ?
+  - Écrire la fonction d'ajout avec doublement de la capacité
+  - Compléter la structure représentant un tableau dynamique
+  exclusions:
+  - motif: Mécanique de l'appel à malloc/sizeof et de free en elle-même
+    voir: ressources.allouer_liberer_memoire_tas_c
+  - motif: Cas particulier des tableaux à plusieurs dimensions représentés à plat
+    voir: idiomes.lineariser_tableau_multidimensionnel_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.lineariser_tableau_multidimensionnel_c
+  slug: lineariser_tableau_multidimensionnel_c
+  libelle: Linéariser un tableau multidimensionnel dans un bloc unique
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: pointeurs-et-gestion-de-la-mémoire:737-737
+    verdict: eclate
+  definition_operatoire: La question demande de représenter une matrice ou un tableau à plusieurs indices
+    dans un tableau unidimensionnel et d'écrire la formule d'indice (i*nb_colonnes+j) pour y accéder.
+  declencheurs:
+  - Écrire l'accès à l'élément (i,j) de la matrice stockée à plat
+  - Donner la formule d'indice de la case (i,j)
+  - Allouer une matrice n×m dans un seul bloc mémoire
+  - Justifier l'intérêt d'un stockage linéarisé
+  exclusions:
+  - motif: Tableau à une seule dimension de taille dynamique
+    voir: idiomes.gerer_tableau_taille_dynamique_c
+  - motif: Appel à malloc et libération correspondants
+    voir: ressources.allouer_liberer_memoire_tas_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.utiliser_references_mutables
+  slug: utiliser_references_mutables
+  libelle: Gérer un état mutable à l'aide de références
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: programmation-impérative:806-806
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'introduire, de lire ou de mettre à jour une valeur mutable
+    dans une fonction (compteur, accumulateur, mémoire d'un parcours) au moyen d'une référence et de ses
+    opérateurs de création, de déréférencement et d'affectation.
+  declencheurs:
+  - Écrire une fonction qui compte le nombre d'appels à l'aide d'une référence
+  - Transformer cette fonction récursive en version utilisant un accumulateur mutable
+  - Utiliser une référence pour mémoriser le maximum courant
+  - Justifier l'emploi d'une référence plutôt que d'un paramètre supplémentaire
+  exclusions:
+  - motif: Écrire une boucle de répétition contrôlée par une condition ou un compteur
+    voir: idiomes.ecrire_boucles_imperatives
+  - motif: Modifier une case de tableau ou un champ d'enregistrement mutable sans passer par une référence
+    voir: null
+  - motif: Retourner plusieurs résultats par pointeur en C
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.ecrire_boucles_imperatives
+  slug: ecrire_boucles_imperatives
+  libelle: Écrire une itération impérative par boucle conditionnelle ou boucle bornée
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: programmation-impérative:808-808
+    verdict: admis_reformule
+  definition_operatoire: La question demande de programmer un traitement répétitif en choisissant et en
+    écrivant une boucle tant-que ou une boucle pour, avec initialisation et mise à jour correctes des
+    variables de contrôle.
+  declencheurs:
+  - Écrire une version itérative de cette fonction
+  - Compléter la boucle qui parcourt le tableau
+  - Écrire une boucle qui s'arrête dès que la condition est vérifiée
+  - Remplacer cette récursion terminale par une boucle
+  exclusions:
+  - motif: Prouver l'arrêt de la boucle par un variant ou sa correction par un invariant
+    voir: null
+  - motif: Créer ou mettre à jour la variable mutable elle-même via une référence
+    voir: idiomes.utiliser_references_mutables
+  - motif: Écrire une fonction récursive plutôt qu'itérative
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  statut: actif
+- id: idiomes.passer_tableau_en_parametre_c
+  slug: passer_tableau_en_parametre_c
+  libelle: Passer un tableau en paramètre d'une fonction en C
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: structures-de-contrôle:728-729
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de corriger une fonction C recevant un tableau,
+    en gérant le fait que le paramètre se comporte comme un pointeur et que la taille doit être transmise
+    séparément.
+  declencheurs:
+  - Écrire la fonction C prenant en argument le tableau t et sa taille n
+  - Donner le prototype de la fonction qui modifie le tableau passé en argument
+  - Expliquer pourquoi les modifications faites dans la fonction sont visibles depuis l'appelant
+  - Compléter la signature en C de cette fonction opérant sur un tableau
+  exclusions:
+  - motif: Renvoyer plusieurs résultats via des paramètres pointeurs
+    voir: idiomes.simuler_retours_multiples_par_pointeurs
+  - motif: Représenter un tableau à plusieurs dimensions par un tableau linéarisé
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.simuler_retours_multiples_par_pointeurs
+  slug: simuler_retours_multiples_par_pointeurs
+  libelle: Simuler des valeurs de retour multiples par des paramètres pointeurs
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: structures-de-contrôle:728-729
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire une fonction C devant fournir plusieurs résultats,
+    en passant des pointeurs vers les variables de l'appelant et en les affectant par déréférencement.
+  declencheurs:
+  - Écrire en C une fonction qui renvoie à la fois le minimum et le maximum
+  - Proposer un prototype permettant de retourner deux valeurs
+  - Modifier la fonction pour qu'elle renseigne les deux résultats via des pointeurs
+  - Expliquer le rôle des arguments de type int* dans cette signature
+  exclusions:
+  - motif: Transmission d'un tableau à modifier en place
+    voir: idiomes.passer_tableau_en_parametre_c
+  - motif: Retour d'un n-uplet dans un langage fonctionnel
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.definir_type_enregistrement_mutable
+  slug: definir_type_enregistrement_mutable
+  libelle: Définir et manipuler un type enregistrement, avec champs mutables
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-divers:825-825
+    verdict: admis_reformule
+  definition_operatoire: La question demande de déclarer un type produit à champs nommés (éventuellement
+    mutables), de construire une valeur de ce type, d'accéder à un champ ou de le modifier en place.
+  declencheurs:
+  - Définir un type enregistrement représentant …
+  - Écrire une fonction qui met à jour le champ … de cet enregistrement
+  - Donner le type des valeurs manipulées et compléter la définition du champ mutable
+  - Modifier en place l'attribut … de la structure
+  exclusions:
+  - motif: Concevoir un type inductif (somme) pour représenter arbres ou expressions
+    voir: null
+  - motif: Utiliser une référence mutable isolée plutôt qu'un champ d'enregistrement
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.utiliser_fonctions_ordre_superieur_listes
+  slug: utiliser_fonctions_ordre_superieur_listes
+  libelle: Traiter une liste à l'aide des fonctions d'ordre supérieur du module List
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-divers:827-827
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou de compléter un traitement de liste en appliquant
+    map, filter, iter, exists, for_all ou mem, plutôt qu'une récursion explicite.
+  declencheurs:
+  - Écrire cette fonction en utilisant List.map
+  - Filtrer les éléments de la liste vérifiant …
+  - Tester à l'aide de List.exists si …
+  - Réécrire cette boucle avec une fonction d'ordre supérieur
+  exclusions:
+  - motif: Écrire la fonction par récursion explicite sur la liste
+    voir: null
+  - motif: Même traitement appliqué à un tableau
+    voir: idiomes.utiliser_fonctions_tableaux
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.utiliser_fonctions_tableaux
+  slug: utiliser_fonctions_tableaux
+  libelle: Construire et parcourir tableaux et matrices avec les fonctions du module Array
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-divers:828-828
+    verdict: admis_reformule
+  definition_operatoire: La question demande de créer un tableau ou une matrice par init/make_matrix,
+    ou d'en faire le parcours ou le test avec map, iter, exists, for_all, mem.
+  declencheurs:
+  - Créer la matrice … à l'aide de Array.make_matrix
+  - Initialiser le tableau par Array.init
+  - Vérifier que tous les éléments du tableau vérifient …
+  - Appliquer une transformation à chaque case du tableau
+  exclusions:
+  - motif: Traitement de liste par fonctions d'ordre supérieur
+    voir: idiomes.utiliser_fonctions_ordre_superieur_listes
+  - motif: Représenter une matrice par un tableau unidimensionnel linéarisé
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.ecrire_filtrage_par_motifs
+  slug: ecrire_filtrage_par_motifs
+  libelle: Écrire un filtrage par motifs, en regroupant les cas équivalents
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-divers:830-830
+    verdict: admis_reformule
+  definition_operatoire: La question demande de définir une fonction par analyse de cas sur la forme de
+    son argument, avec la notation function ou match, en regroupant éventuellement plusieurs motifs partageant
+    les mêmes variables.
+  declencheurs:
+  - Compléter le filtrage suivant
+  - Écrire cette fonction par filtrage de motifs
+  - Donner les cas manquants du match
+  - Définir la fonction à l'aide de function | … -> …
+  exclusions:
+  - motif: Écrire la définition du type inductif filtré
+    voir: recursion.definir_types_mutuellement_recursifs
+  - motif: Analyse de cas exprimée par une cascade de conditionnelles
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.determiner_type_infere_expression
+  slug: determiner_type_infere_expression
+  libelle: Déterminer le type inféré d'une expression ou d'une fonction
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-généraux:777-777
+    verdict: admis_reformule
+  definition_operatoire: La question demande de donner le type que le compilateur attribue à une expression,
+    une fonction ou une valeur, y compris lorsqu'il comporte des variables de type (polymorphisme).
+  declencheurs:
+  - Donner le type de la fonction suivante
+  - Quel type le compilateur infère-t-il pour cette expression ?
+  - Cette fonction est-elle polymorphe ? Donner son type
+  - Expliquer pourquoi ce code est refusé par le vérificateur de types
+  exclusions:
+  - motif: Concevoir un type de données inductif adapté à un problème
+    voir: null
+  - motif: Portée des variables globales lors d'une définition
+    voir: idiomes.resoudre_portee_lexicale_definitions
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.resoudre_portee_lexicale_definitions
+  slug: resoudre_portee_lexicale_definitions
+  libelle: Résoudre la portée lexicale pour déterminer la valeur capturée par une définition
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-généraux:779-779
+    verdict: admis_reformule
+  definition_operatoire: La question demande de dire ce qu'affiche ou renvoie un programme dont une définition
+    utilise une variable globale ensuite redéfinie, c'est-à-dire d'appliquer la règle de capture au moment
+    de la définition.
+  declencheurs:
+  - Qu'affiche ce programme ?
+  - Quelle valeur est utilisée par la fonction f après la redéfinition de x ?
+  - Expliquer le résultat de cette suite de définitions
+  - À quelle liaison la variable y fait-elle référence dans cette fonction ?
+  exclusions:
+  - motif: Délimitation syntaxique des blocs par accolades
+    voir: null
+  - motif: Type inféré d'une expression
+    voir: idiomes.determiner_type_infere_expression
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.exploiter_curryfication_application_partielle
+  slug: exploiter_curryfication_application_partielle
+  libelle: Exploiter la curryfication et l'application partielle d'une fonction
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-généraux:780-780
+    verdict: eclate
+  definition_operatoire: La question demande de lire ou d'écrire du code où une fonction à plusieurs arguments
+    est appliquée partiellement, ou d'en donner le type curryfié.
+  declencheurs:
+  - Donner le type de cette fonction à plusieurs arguments
+  - Que vaut l'expression obtenue en appliquant f à un seul argument ?
+  - Définir g comme application partielle de f
+  - Expliquer la différence entre f (x, y) et f x y
+  exclusions:
+  - motif: Passer une fonction en argument ou renvoyer une fonction
+    voir: idiomes.ecrire_fonction_ordre_superieur
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.ecrire_fonction_ordre_superieur
+  slug: ecrire_fonction_ordre_superieur
+  libelle: Écrire et utiliser une fonction d'ordre supérieur
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: traits-généraux:780-780
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou d'utiliser une fonction qui reçoit une fonction
+    en argument ou qui en renvoie une (itérateur, comparateur passé en paramètre, composition).
+  declencheurs:
+  - Écrire une fonction qui applique f à tous les éléments d'une liste
+  - Écrire une fonction de tri prenant la comparaison en paramètre
+  - Définir la composition de deux fonctions
+  - Utiliser une fonction anonyme comme argument
+  exclusions:
+  - motif: Application partielle d'une fonction à plusieurs arguments
+    voir: idiomes.exploiter_curryfication_application_partielle
+  - motif: Écriture d'une fonction récursive
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.manipuler_tableau_statique_c
+  slug: manipuler_tableau_statique_c
+  libelle: Déclarer et parcourir un tableau statique en C par accès indicé
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:719-719
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de corriger du code C qui déclare un tableau
+    de taille littérale et lit ou écrit ses termes par indice, y compris en discutant la licéité des indices
+    puisque le langage ne la vérifie pas.
+  declencheurs:
+  - Écrire une fonction C qui remplit le tableau T de taille N
+  - Indiquer ce que produit cet accès T[i] lorsque i vaut n
+  - Déclarer un tableau de 100 entiers et en calculer la somme
+  - Justifier que tous les accès effectués par cette boucle sont valides
+  exclusions:
+  - motif: Tableau alloué dynamiquement et arithmétique de pointeurs
+    voir: null
+  - motif: Tableau à plusieurs indices ou aplati en un seul tableau
+    voir: idiomes.manipuler_tableau_multidimensionnel_c
+  - motif: Tableau de caractères terminé par le zéro de fin de chaîne
+    voir: idiomes.manipuler_chaine_c_sentinelle
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.manipuler_tableau_multidimensionnel_c
+  slug: manipuler_tableau_multidimensionnel_c
+  libelle: Manipuler un tableau statique multidimensionnel en C
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:719-719
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de lire du code C utilisant un tableau à deux
+    indices ou plus (matrice, grille), en accédant aux termes par T[i][j] ou en raisonnant sur l'indexation
+    correspondante.
+  declencheurs:
+  - Écrire en C le produit de deux matrices stockées dans des tableaux à deux indices
+  - Déclarer une grille de taille n x m et l'initialiser
+  - Parcourir cette matrice ligne par ligne
+  - Indexer un tableau à deux dimensions
+  exclusions:
+  - motif: Tableau à un seul indice
+    voir: idiomes.manipuler_tableau_statique_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.definir_utiliser_struct_c
+  slug: definir_utiliser_struct_c
+  libelle: Définir un type structuré en C et accéder à ses champs
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:720-720
+    verdict: admis_reformule
+  definition_operatoire: La question demande de déclarer une struct (éventuellement avec typedef) pour
+    représenter une donnée composite, puis de lire ou d'écrire ses champs par v.champ ou p->champ, notamment
+    dans une fonction recevant un pointeur sur la structure.
+  declencheurs:
+  - Définir un type C représentant un point, un graphe, une pile
+  - Écrire une fonction qui met à jour le champ taille de la structure pointée
+  - Compléter cette définition de struct et le code d'accès à ses champs
+  - Donner le type C correspondant à cette description de données
+  exclusions:
+  - motif: 'Détails de l''organisation en mémoire ou de l''alignement des structures : hors action évaluable'
+    voir: null
+  - motif: Type somme avec constructeurs et filtrage (OCaml)
+    voir: recursion.definir_type_somme_recursif_ocaml
+  - motif: Retour de plusieurs valeurs par pointeurs sans structure
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.manipuler_chaine_c_sentinelle
+  slug: manipuler_chaine_c_sentinelle
+  libelle: Manipuler une chaîne de caractères en C avec sentinelle nulle
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:721-721
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou d'analyser du code C traitant une chaîne représentée
+    comme un tableau de caractères terminé par '\0', y compris en réimplémentant ou en utilisant strlen,
+    strcpy ou strcat et en discutant la taille à allouer.
+  declencheurs:
+  - Écrire une fonction C qui calcule la longueur d'une chaîne sans utiliser strlen
+  - Recopier la chaîne s dans un tableau alloué à la bonne taille
+  - Concaténer deux chaînes en C
+  - Expliquer le rôle du caractère nul terminal
+  exclusions:
+  - motif: Tableau d'un type autre que char
+    voir: idiomes.manipuler_tableau_statique_c
+  - motif: Recherche d'un motif dans un texte
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: idiomes.utiliser_n_uplets_ocaml
+  slug: utiliser_n_uplets_ocaml
+  libelle: Construire et déconstruire un n-uplet en OCaml
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:795-795
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire une fonction dont un argument ou le résultat est
+    un couple ou un n-uplet, et d'en extraire les composantes par liaison directe (let (a, b) = e) ou
+    par un motif, sans recourir à un match.
+  declencheurs:
+  - Écrire une fonction qui renvoie un couple (quotient, reste)
+  - Donner le type de cette fonction prenant un couple en argument
+  - Récupérer les deux composantes du résultat sans utiliser match
+  - Écrire une fonction qui échange les composantes d'un couple
+  exclusions:
+  - motif: Filtrage à plusieurs cas sur un type somme
+    voir: idiomes.filtrer_par_motif_ocaml
+  - motif: Regroupement de champs nommés en C
+    voir: idiomes.definir_utiliser_struct_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.declarer_type_polymorphe_ocaml
+  slug: declarer_type_polymorphe_ocaml
+  libelle: Déclarer un type nommé, éventuellement polymorphe
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:799-799
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire une déclaration de type nommant une structure de
+    données, avec un ou plusieurs paramètres de type ('a, 'b), ou de donner le type polymorphe d'une fonction
+    ainsi définie.
+  declencheurs:
+  - Déclarer un type 'a pile représentant une pile d'éléments quelconques
+  - Donner une déclaration de type pour ces données
+  - Quel est le type polymorphe de cette fonction ?
+  - Définir un type paramétré pour représenter un dictionnaire
+  exclusions:
+  - motif: Type défini par une liste de constructeurs, avec filtrage associé
+    voir: recursion.definir_type_somme_recursif_ocaml
+  - motif: Définition d'un enregistrement à champs en C
+    voir: idiomes.definir_utiliser_struct_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif
+- id: idiomes.filtrer_par_motif_ocaml
+  slug: filtrer_par_motif_ocaml
+  libelle: Écrire un filtrage par motif exhaustif et correctement ordonné
+  semestre: null
+  origine:
+    genre: annexe
+    cellule: annexe
+    source: types-structurés:801-801
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou de corriger un match dont les motifs couvrent
+    tous les cas d'un type, ou de discuter l'effet de l'ordre des motifs et de l'usage du motif universel
+    _ lorsque plusieurs motifs ont des instances communes.
+  declencheurs:
+  - Écrire par filtrage la fonction qui évalue cette expression
+  - Ce filtrage est-il exhaustif ? Corriger-le
+  - Que renvoie cette fonction si l'on échange les deux premiers cas du match ?
+  - Compléter les cas manquants du filtrage
+  exclusions:
+  - motif: Déclaration du type et de ses constructeurs
+    voir: recursion.definir_type_somme_recursif_ocaml
+  - motif: Déconstruction d'un n-uplet sans match
+    voir: idiomes.utiliser_n_uplets_ocaml
+  - motif: Filtrage limité aux constructeurs de liste dans une fonction sur les listes
+    voir: sd_sequentielles.programmer_sur_liste_ocaml
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  statut: actif

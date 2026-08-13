@@ -1,0 +1,20 @@
+# Le contexte de build ne contient QUE ce que le Dockerfile copie. Sans ce
+# fichier, `docker build .` enverrait 17 Mo au démon — corpus, journal des
+# appels et passes comprises — pour n'en utiliser qu'une fraction.
+*
+
+!pyproject.toml
+!etage0/
+!etage1/
+!etage3/
+!etage4/
+!service/
+!profils/
+!config/
+!referentiel/
+!spe777_annexe_1373646.md
+
+# Même à l'intérieur de ce qui est gardé, ceci n'a rien à faire dans l'image.
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/

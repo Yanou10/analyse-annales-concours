@@ -1,0 +1,50 @@
+[project]
+name = "referentiel-pipeline"
+version = "0.1.0"
+description = "Chaîne complète : référentiel de notions attribuables, extraction du corpus, étiquetage et mesures"
+requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.116.0",
+    "httpx>=0.27",
+    "PyYAML>=6.0",
+]
+
+[project.scripts]
+etage0 = "etage0.cli:main"
+etage1 = "etage1.cli:main"
+etage3 = "etage3.cli:main"
+etage4 = "etage4.cli:main"
+annales-import = "service.base:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27"]
+# Dépendances du service HTTP seul : le cœur de la chaîne reste installable
+# sans FastAPI ni pilote Postgres.
+service = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "psycopg[binary]>=3.2",
+]
+
+[tool.setuptools.packages.find]
+# Les quatre étages s'installent ensemble. N'en déclarer qu'un donnait un
+# `pip install .` qui réussit et une chaîne inutilisable : `etage1` et `etage3`
+# n'étaient joignables qu'en `python -m` depuis les sources.
+include = ["etage0*", "etage1*", "etage3*", "etage4*", "service*"]
+
+[tool.setuptools.package-data]
+# Le moteur du tableau de bord est une ressource du paquet : sans lui,
+# `etage4 dashboard` s'installe et échoue à la première exécution. Même
+# raisonnement pour le schéma SQL et `--creer-schema`.
+etage4 = ["*.html"]
+service = ["*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# `xfail_strict` par défaut : un xfail qui se met à passer doit casser la
+# construction, pour qu'on retire le marqueur au lieu de l'oublier.
+xfail_strict = true

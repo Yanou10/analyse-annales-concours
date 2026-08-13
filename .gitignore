@@ -1,0 +1,65 @@
+# Artefacts Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# Windows
+desktop.ini
+Thumbs.db
+
+# Secrets : `.env.example` est versionné, `.env` ne doit jamais l'être.
+.env
+.env.*
+!.env.example
+
+# Sorties de mise au point. Les passes qui comptent — `passe-39/`,
+# `dispersion-39B/`, `passe-complete/` — sont versionnées : elles sont la
+# matière des mesures, et les reproduire coûte des appels payants.
+etiquettes/
+etiquettes-diagnostic/
+etiquettes-passe2/
+etiquettes-t0a/
+etiquettes-r0a/
+etiquettes-r0b/
+mesure-dA/
+mesure-dB/
+passe-lot1/
+passe-lot2/
+passe-lot3/
+passe-lot4/
+passe-verif/
+
+# État du service : propre à une machine.
+taches/
+travail/
+
+# Artefacts de construction laissés par `pip install .`
+build/
+dist/
+
+# Journal de sortie d'une campagne : reproductible depuis .etage0/journal.jsonl
+campagne-*.log
+
+# ─── Données, jamais versionnées ───────────────────────────────────────────
+# Le dépôt porte le CODE et le PRODUIT (référentiel, config, programme
+# officiel). La matière voyage par le volume /travail, par scp ou par minio.
+#
+# Trois raisons distinctes, pas une :
+#   - les sujets de concours ne sont pas à nous à rediffuser, et `corpus/`
+#     contient le même texte re-sérialisé ;
+#   - le journal des appels grossit à chaque campagne : chaque clone traînerait
+#     tout l'historique ;
+#   - corpus, passes et tableau de bord se régénèrent par une commande.
+/[0-9][0-9][0-9][0-9]_*.md
+/[0-9][0-9][0-9][0-9]_*.json
+corpus/
+.etage0/
+.etage3/
+passe-*/
+dispersion-*/
+*.html
+!etage4/moteur.html
+referentiel/genere/*.zip

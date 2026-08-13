@@ -1,0 +1,289 @@
+section:
+  id: complexite_algo
+  libelle: Analyse de complexité d'un algorithme
+  ordre: 3
+  perimetre: Évaluer ou justifier le coût d'un algorithme. Ne pas confondre avec la complexité d'un PROBLÈME,
+    qui relève de complexite_pb.
+notions:
+- id: complexite_algo.analyser_complexite_pire_cas
+  slug: analyser_complexite_pire_cas
+  libelle: Évaluer la complexité d'un algorithme dans le pire cas
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 1.1:114-117
+    verdict: eclate
+  definition_operatoire: La question demande de compter les opérations élémentaires d'un algorithme donné
+    en fonction de la taille de l'entrée, d'exhiber une entrée réalisant le pire cas, ou d'encadrer le
+    coût par un ordre de grandeur asymptotique.
+  declencheurs:
+  - Déterminer la complexité en temps de cet algorithme dans le pire cas
+  - Donner un O( ) du nombre de comparaisons effectuées
+  - Exhiber une entrée de taille n atteignant ce coût
+  - Comparer les complexités des deux versions proposées
+  exclusions:
+  - motif: Coût moyen sur une distribution d'entrées
+    voir: complexite_algo.analyser_complexite_cas_moyen
+    voir_type: notion
+  - motif: Coût réparti sur une suite d'opérations d'une structure de données
+    voir: complexite_algo.analyser_cout_amorti
+    voir_type: notion
+  - motif: Borne inférieure valable pour tout algorithme résolvant le problème
+    voir: null
+    voir_type: null
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q5
+  - source: 2024_InfoA
+    question: Q9
+  - source: 2024_InfoA
+    question: Q13
+  - source: 2024_InfoA
+    question: Q20
+  - source: 2024_InfoA
+    question: Q22
+  - source: 2024_InfoC
+    question: I.5
+  - source: 2024_InfoC
+    question: IV.1
+  - source: 2024_InfoC
+    question: IV.3
+  - source: 2024_InfoC
+    question: V.4
+  exemples_negatifs:
+  - source: 2024_InfoA
+    question: Q18
+    motif: Montrer que la quantité Σ Ti peut être en Θ(N²) — c'est une MINORATION sur une instance construite,
+      pas la majoration du coût d'un algorithme.
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  - ocaml
+  - c
+  statut: actif
+- id: complexite_algo.analyser_complexite_cas_moyen
+  slug: analyser_complexite_cas_moyen
+  libelle: Évaluer la complexité en moyenne d'un algorithme
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 1.1:114-117
+    verdict: eclate
+  definition_operatoire: La question suppose une distribution de probabilité sur les entrées (ou des choix
+    aléatoires) et demande le coût espéré de l'algorithme, via un calcul d'espérance sur des exemples
+    simples.
+  declencheurs:
+  - Calculer la complexité en moyenne de cet algorithme
+  - Quelle est l'espérance du nombre de comparaisons, les entrées étant équiprobables ?
+  - Comparer le coût moyen et le coût dans le pire cas
+  - 'On suppose les permutations équiprobables : évaluer le coût attendu'
+  exclusions:
+  - motif: Coût de l'entrée la plus défavorable
+    voir: complexite_algo.analyser_complexite_pire_cas
+    voir_type: notion
+  - motif: Moyenne sur une séquence d'opérations et non sur les entrées
+    voir: complexite_algo.analyser_cout_amorti
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  statut: actif
+- id: complexite_algo.analyser_cout_amorti
+  slug: analyser_cout_amorti
+  libelle: Évaluer le coût amorti d'une suite d'opérations
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 1.1:114-117
+    verdict: eclate
+  definition_operatoire: La question porte sur le coût total d'une séquence d'opérations sur une structure
+    de données, à répartir sur le nombre d'opérations, alors qu'une opération isolée peut être coûteuse
+    (par exemple redimensionnement d'un tableau dynamique).
+  declencheurs:
+  - Montrer que le coût amorti d'une insertion est constant
+  - Évaluer le coût total d'une suite de n opérations, puis le coût moyen par opération
+  - Justifier la stratégie de doublement de capacité par un argument de coût amorti
+  - Pourquoi le pire cas d'une opération isolée ne reflète-t-il pas le coût global ?
+  exclusions:
+  - motif: Coût d'un unique appel dans le cas le plus défavorable
+    voir: complexite_algo.analyser_complexite_pire_cas
+    voir_type: notion
+  - motif: Coût espéré sous une hypothèse probabiliste sur les entrées
+    voir: complexite_algo.analyser_complexite_cas_moyen
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  - c
+  statut: actif
+- id: complexite_algo.resoudre_recurrence_de_cout
+  slug: resoudre_recurrence_de_cout
+  libelle: Résoudre une récurrence de coût par encadrements élémentaires
+  semestre: S2
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 2:168-179
+    verdict: eclate
+  definition_operatoire: La question demande d'établir l'ordre de grandeur du coût d'un algorithme récursif
+    en posant puis résolvant une récurrence du type T(n)=T(n-1)+an, T(n)=aT(n/2)+b ou T(n)=2T(n/2)+f(n),
+    par majorations et minorations ad hoc.
+  declencheurs:
+  - Établir une relation de récurrence vérifiée par T(n)
+  - En déduire que T(n) = O(…)
+  - Montrer par encadrement que le coût est de l'ordre de n log n
+  - Résoudre la récurrence T(n) = 2T(n/2) + n
+  exclusions:
+  - motif: Compter les opérations d'un algorithme itératif sans récurrence
+    voir: null
+    voir_type: null
+  - motif: Écrire l'algorithme récursif lui-même
+    voir: recursion.ecrire_fonction_recursive
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_InfoC
+    question: IV.6
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  statut: actif
+- id: complexite_algo.comparer_couts_implementations_sequentielles
+  slug: comparer_couts_implementations_sequentielles
+  libelle: Comparer le coût des opérations selon l'implémentation choisie
+  semestre: S1
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.2:230-236
+    verdict: eclate
+  definition_operatoire: La question demande de donner ou de justifier la complexité des opérations d'une
+    structure séquentielle et de trancher entre tableau et chaînage selon les opérations dominantes.
+  declencheurs:
+  - Donner le coût de l'insertion en tête dans les deux implémentations
+  - Quelle implémentation choisir si l'on fait surtout des accès par indice ?
+  - Comparer les complexités des opérations de la file selon la représentation
+  - Justifier le coût amorti du redimensionnement du tableau
+  exclusions:
+  - motif: Écriture effective des opérations chaînées
+    voir: sd_sequentielles.implementer_liste_maillons_chaines
+    voir_type: notion
+  - motif: Coût d'un algorithme qui utilise la structure sans comparer les représentations
+    voir: null
+    voir_type: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  statut: actif
+- id: complexite_algo.evaluer_complexite_algorithme
+  slug: evaluer_complexite_algorithme
+  libelle: Évaluer la complexité d'un algorithme donné
+  semestre: null
+  origine:
+    genre: prose
+    cellule: prose
+    source: 4:304-305
+    verdict: eclate
+  definition_operatoire: La question demande de déterminer ou de justifier le coût en temps (ou en espace)
+    d'un algorithme fourni, en nombre d'opérations élémentaires, éventuellement dans le meilleur, le pire
+    cas ou en moyenne.
+  declencheurs:
+  - Donner la complexité de cet algorithme en fonction de n
+  - Comparer les coûts des deux versions proposées
+  - Justifier que le nombre d'opérations est de l'ordre de n log n
+  - Évaluer le coût dans le pire des cas
+  exclusions:
+  - motif: Classer le problème lui-même dans P ou NP
+    voir: null
+    voir_type: null
+  - motif: Démontrer que le résultat calculé est correct
+    voir: correction.etablir_correction_algorithme
+    voir_type: notion
+  - motif: Décrire les entrées et sorties sans quantifier de coût
+    voir: correction.specifier_entrees_sorties_algorithme
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  - ocaml
+  - c
+  statut: actif
+- id: complexite_algo.majorer_taille_forme_normale
+  slug: majorer_taille_forme_normale
+  libelle: Évaluer l'explosion de taille d'une mise sous forme normale
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 6.2:539-541
+    verdict: eclate
+  definition_operatoire: La question demande d'exhiber ou d'analyser une famille de formules dont la forme
+    normale a une taille exponentiellement plus grande, ou de majorer/minorer le nombre de clauses produites.
+  declencheurs:
+  - Montrer que la FNC de cette formule comporte 2^n clauses
+  - Évaluer la taille de la forme normale obtenue
+  - Donner un exemple de formule dont la FND explose
+  - Justifier que la normalisation n'est pas de coût polynomial ici
+  exclusions:
+  - motif: Procédure de mise sous forme normale sans analyse de coût
+    voir: logique.transformer_en_forme_normale
+    voir_type: notion
+  - motif: Complexité du problème SAT en tant que problème de décision
+    voir: null
+    voir_type: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: complexite_algo.evaluer_complexite_en_espace
+  slug: evaluer_complexite_en_espace
+  libelle: Évaluer la complexité en espace d'un algorithme
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_InfoA,2024_TPAlgo-MPI-rapport,2022_InfoLCR-rapport
+    verdict: atteste_corpus
+  definition_operatoire: La question demande l'ordre de grandeur de la mémoire occupée par un algorithme
+    ou une structure en fonction de la taille de l'entrée, indépendamment du temps — souvent posée dans
+    la même phrase que le temps, et à ne pas confondre avec lui.
+  declencheurs:
+  - Évaluer sa complexité en espace, ainsi que la complexité en temps des opérations
+  - Montrer que la complexité en espace de la construction est en O(g(n))
+  - Étudier sa terminaison, sa correction, sa complexité en espace et en temps
+  exclusions:
+  - motif: Il s'agit du coût en temps et non de l'occupation mémoire
+    voir: complexite_algo.evaluer_complexite_algorithme
+    voir_type: notion
+  - motif: L'occupation mesurée est celle d'un processus, pas celle d'un algorithme
+    voir: ressources.analyser_memoire_processus
+    voir_type: notion
+  - motif: Le coût mémoire est celui de la pile d'appels récursifs
+    voir: ressources.analyser_cout_machine_appels_recursifs
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q14
+  - source: 2024_TPAlgo-MPI-rapport
+    question: Q1
+  - source: 2024_TPAlgo-MPI-rapport
+    question: Q10
+  - source: 2022_InfoLCR-rapport
+    question: Q5
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - pseudocode
+  statut: actif

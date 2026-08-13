@@ -1,0 +1,625 @@
+section:
+  id: ressources
+  libelle: Ressources machine
+  ordre: 15
+  perimetre: Mémoire d'un programme, fichiers et entrées-sorties, concurrence et synchronisation.
+notions:
+- id: ressources.decrire_chaine_compilation
+  slug: decrire_chaine_compilation
+  libelle: Décrire la transformation d'un source en exécutable et le rôle des fichiers d'interface
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 1.1:104-106
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'expliquer ou d'ordonner les étapes menant d'un fichier
+    texte source à un fichier objet puis à un exécutable, ou de dire ce qui relève d'un fichier d'interface
+    plutôt que d'implémentation, ou les conséquences du caractère compilé ou interprété du langage.
+  declencheurs:
+  - Expliquer les étapes de la compilation de ce fichier source jusqu'à l'exécutable
+  - Quel est le rôle du fichier d'interface (.mli, .h) par rapport au fichier d'implémentation ?
+  - Ce langage est-il compilé ou interprété ? Justifier les conséquences observées
+  - Indiquer à quelle étape est détectée cette erreur
+  exclusions:
+  - motif: Coût en temps d'exécution du programme obtenu
+    voir: complexite_algo.analyser_complexite_pire_cas
+  - motif: Occupation mémoire du programme à l'exécution
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - ocaml
+  - c
+  statut: actif
+- id: ressources.analyser_cout_machine_appels_recursifs
+  slug: analyser_cout_machine_appels_recursifs
+  libelle: Évaluer l'occupation mémoire et le coût des appels récursifs sur la pile d'exécution
+  semestre: null
+  origine:
+    genre: mise_en_oeuvre
+    cellule: mise_en_oeuvre
+    source: 2:188-189
+    verdict: admis_reformule
+  definition_operatoire: La question demande de discuter la profondeur ou la taille de la pile d'exécution
+    d'une fonction récursive, le coût de sauvegarde et restauration de contexte, ou de comparer deux versions
+    selon leur consommation mémoire.
+  declencheurs:
+  - Quelle est la profondeur maximale de la pile lors de cet appel ?
+  - Comparer l'occupation mémoire des deux versions
+  - Pourquoi cette fonction provoque-t-elle un débordement de pile ?
+  - Estimer le nombre de contextes simultanément empilés
+  exclusions:
+  - motif: Évaluer le nombre d'opérations via une relation de récurrence
+    voir: complexite_algo.resoudre_recurrence_de_cout
+  - motif: Compter les appels sans considération mémoire
+    voir: recursion.dessiner_arbre_des_activations
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q14
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - ocaml
+  - theorique
+  statut: actif
+- id: ressources.gerer_allocation_dynamique_memoire
+  slug: gerer_allocation_dynamique_memoire
+  libelle: Allouer et libérer dynamiquement de la mémoire à l'aide de pointeurs
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.1:202-206
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de corriger du code qui alloue (malloc), utilise
+    et libère (free) une zone mémoire manipulée par pointeur, ou d'expliquer les conséquences d'une allocation/libération
+    manquante ou erronée.
+  declencheurs:
+  - Écrire une fonction qui alloue un tableau de n entiers
+  - Compléter le code en libérant la mémoire allouée
+  - Expliquer ce qui se passe si l'on omet l'appel à free
+  - Donner le code C de création d'une cellule de liste chaînée
+  exclusions:
+  - motif: Évaluer l'occupation mémoire globale d'un programme ou la complexité spatiale
+    voir: null
+  - motif: Implémenter une structure séquentielle chaînée, indépendamment du seul geste d'allocation
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: ressources.analyser_memoire_processus
+  slug: analyser_memoire_processus
+  libelle: Analyser l'occupation mémoire d'un processus exécutant un programme
+  semestre: null
+  origine:
+    genre: prose
+    cellule: prose
+    source: 5:441-442
+    verdict: eclate
+  definition_operatoire: La question demande de situer où sont stockées les données d'un programme en
+    cours d'exécution (pile, tas, variables statiques), d'évaluer l'empreinte mémoire d'une structure
+    ou d'expliquer un débordement de pile ou une allocation dynamique.
+  declencheurs:
+  - Indiquer dans quelle zone mémoire est allouée cette variable
+  - Estimer l'espace mémoire occupé par cette structure lors de l'exécution
+  - Expliquer pourquoi cet appel provoque un débordement de pile
+  - Justifier la nécessité de libérer la mémoire allouée dynamiquement
+  exclusions:
+  - motif: Évaluation asymptotique du coût en espace d'un algorithme indépendamment de la machine
+    voir: null
+  - motif: Coût mémoire propre à l'empilement des appels récursifs étudié comme trait de la récursion
+    voir: null
+  - motif: Architecture matérielle, hiérarchie de caches ou mémoire virtuelle
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - theorique
+  - ocaml
+  statut: actif
+- id: ressources.programmer_entrees_sorties_fichiers
+  slug: programmer_entrees_sorties_fichiers
+  libelle: Programmer des entrées-sorties sur un système de fichiers
+  semestre: null
+  origine:
+    genre: prose
+    cellule: prose
+    source: 5:441-442
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de compléter du code qui lit ou écrit des données
+    via un fichier ou les flux standard d'un processus, ou d'expliquer le déroulement de ces opérations
+    (ouverture, lecture séquentielle, fermeture, fin de fichier).
+  declencheurs:
+  - Écrire une fonction qui lit les données contenues dans ce fichier
+  - Compléter le programme pour enregistrer les résultats dans un fichier
+  - Expliquer ce que fait cette suite d'opérations d'ouverture et de lecture
+  - Traiter le cas de la fin de fichier ou de l'échec d'ouverture
+  exclusions:
+  - motif: Représentation d'une structure de données sous forme de chaîne ou de flux d'octets sans considération
+      de fichier
+    voir: null
+  - motif: Interrogation de données persistantes par requêtes
+    voir: null
+  - motif: Partage d'un fichier entre plusieurs fils d'exécution et synchronisation associée
+    voir: ressources.synchroniser_fils_execution
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - ocaml
+  - pseudocode
+  statut: actif
+- id: ressources.synchroniser_fils_execution
+  slug: synchroniser_fils_execution
+  libelle: Exploiter et synchroniser des fils d'exécution concurrents
+  semestre: null
+  origine:
+    genre: prose
+    cellule: prose
+    source: 5:441-442
+    verdict: eclate
+  definition_operatoire: La question demande de découper un traitement en fils d'exécution concurrents,
+    d'exhiber un entrelacement fautif (accès concurrent, interblocage) ou de protéger une ressource partagée
+    par un mécanisme de synchronisation.
+  declencheurs:
+  - Montrer qu'un entrelacement de ces deux fils conduit à un résultat erroné
+  - Modifier le programme pour protéger l'accès à cette variable partagée
+  - Paralléliser ce calcul à l'aide de plusieurs fils d'exécution
+  - Expliquer pourquoi ce code peut conduire à un interblocage
+  exclusions:
+  - motif: Gain de temps théorique d'un algorithme parallèle analysé asymptotiquement
+    voir: null
+  - motif: Zones mémoire d'un processus séquentiel
+    voir: ressources.analyser_memoire_processus
+  - motif: Virtualisation des processeurs et ordonnancement interne du système
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - pseudocode
+  - theorique
+  statut: actif
+- id: ressources.situer_donnees_pile_tas_globales
+  slug: situer_donnees_pile_tas_globales
+  libelle: Situer les données d'un programme entre pile, tas et zone globale
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.1:451-452
+    verdict: admis_reformule
+  definition_operatoire: La question fournit un programme et demande dans quelle zone mémoire (pile, tas,
+    variables globales) réside chaque donnée, ou de décrire le bloc d'activation empilé lors d'un appel
+    de fonction.
+  declencheurs:
+  - Indiquer dans quelle zone mémoire est allouée chaque variable de ce programme
+  - Décrire le contenu du bloc d'activation lors de l'appel de f
+  - Représenter l'état de la pile d'exécution au moment de cet appel
+  - Expliquer pourquoi cette donnée est allouée sur le tas et non sur la pile
+  exclusions:
+  - motif: Question portant sur la portée syntaxique ou la durée de vie d'une variable plutôt que sur
+      sa localisation mémoire
+    voir: ressources.determiner_portee_duree_vie_variable
+  - motif: Question portant sur l'usage explicite de malloc/free et des pointeurs
+    voir: ressources.gerer_allocation_dynamique_c
+  - motif: Coût en mémoire d'un algorithme récursif exprimé en complexité spatiale
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - theorique
+  - mixte
+  statut: actif
+- id: ressources.determiner_portee_duree_vie_variable
+  slug: determiner_portee_duree_vie_variable
+  libelle: Déterminer la portée syntaxique et la durée de vie d'une variable
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.1:453-455
+    verdict: admis_reformule
+  definition_operatoire: La question fournit un code et demande quelle déclaration une occurrence de nom
+    désigne, jusqu'où une variable est visible, ou pendant quelle phase de l'exécution elle existe, selon
+    qu'elle est globale, locale ou paramètre.
+  declencheurs:
+  - Donner la portée de cette variable
+  - Quelle est la durée de vie de x dans ce programme ?
+  - À quelle déclaration se rapporte cette occurrence de la variable ?
+  - Ce code compile-t-il ? justifier en termes de portée
+  exclusions:
+  - motif: Question demandant seulement dans quelle zone mémoire (pile, tas, globales) la donnée est rangée
+    voir: ressources.situer_donnees_pile_tas_globales
+  - motif: Durée de vie d'un bloc alloué par malloc et libéré par free
+    voir: ressources.gerer_allocation_dynamique_c
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - ocaml
+  - pseudocode
+  statut: actif
+- id: ressources.gerer_allocation_dynamique_c
+  slug: gerer_allocation_dynamique_c
+  libelle: Allouer et libérer dynamiquement de la mémoire en C
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 5.1:456-458
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire, compléter ou critiquer du code utilisant malloc/free
+    pour créer un tableau ou une structure de taille non connue à la compilation, ou d'expliquer une erreur
+    mémoire (fuite, pointeur nul, violation de segmentation).
+  declencheurs:
+  - Écrire une fonction qui alloue dynamiquement un tableau de n entiers
+  - Libérer correctement la mémoire allouée par cette fonction
+  - Expliquer l'origine de cette erreur de segmentation
+  - Compléter ce code en ajoutant les appels à malloc et free nécessaires
+  exclusions:
+  - motif: Question sur la zone mémoire d'une variable locale ou globale sans allocation explicite
+    voir: ressources.situer_donnees_pile_tas_globales
+  - motif: Question sur la visibilité ou la durée de vie syntaxique d'une variable
+    voir: ressources.determiner_portee_duree_vie_variable
+  - motif: Manipulation de pointeurs comme moyen de renvoyer plusieurs résultats d'une fonction
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  statut: actif
+- id: ressources.lire_ecrire_fichier_acces_sequentiel
+  slug: lire_ecrire_fichier_acces_sequentiel
+  libelle: Lire et écrire un fichier en accès séquentiel
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.2:464-464
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'écrire ou de compléter un programme qui ouvre un fichier,
+    le parcourt ou l'écrit séquentiellement, en récupère la taille et le referme.
+  declencheurs:
+  - Écrire une fonction qui lit le fichier ligne par ligne et …
+  - Compléter le programme qui recopie le contenu du fichier dans …
+  - Quelle est la taille du fichier après cette suite d'écritures ?
+  - Ouvrir, parcourir puis fermer le fichier passé en argument
+  exclusions:
+  - motif: Question portant sur les modes d'ouverture et les droits d'accès accordés
+    voir: ressources.utiliser_modes_acces_droits_fichier
+  - motif: Question portant sur l'organisation en blocs et inodes du support
+    voir: ressources.expliquer_organisation_blocs_inodes
+  - motif: Lecture/écriture sur les flux standard ou via une redirection
+    voir: ressources.utiliser_flux_standard_redirections
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - ocaml
+  - pseudocode
+  statut: actif
+- id: ressources.expliquer_organisation_blocs_inodes
+  slug: expliquer_organisation_blocs_inodes
+  libelle: Expliquer l'organisation d'un système de fichiers en blocs, inodes et liens
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 5.2:465-466
+    verdict: admis_reformule
+  definition_operatoire: 'La question demande de raisonner sur la structure interne d''un système de fichiers
+    : blocs occupés par un fichier, rôle du nœud d''index, partage de blocs par liens physiques ou symboliques,
+    effet d''une opération sur l''arborescence de nommage.'
+  declencheurs:
+  - Combien de blocs sont nécessaires pour stocker ce fichier ?
+  - Qu'advient-il du contenu après suppression d'un lien physique ?
+  - Expliquer la différence entre lien physique et lien symbolique
+  - Que contient le nœud d'index (inode) de ce fichier ?
+  exclusions:
+  - motif: Écriture d'un programme lisant ou écrivant le contenu d'un fichier
+    voir: ressources.lire_ecrire_fichier_acces_sequentiel
+  - motif: Question sur les droits et attributs attachés à un fichier
+    voir: ressources.utiliser_modes_acces_droits_fichier
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  - indetermine
+  statut: actif
+- id: ressources.utiliser_modes_acces_droits_fichier
+  slug: utiliser_modes_acces_droits_fichier
+  libelle: Utiliser les modes d'ouverture et les droits d'accès d'un fichier
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 5.2:467-468
+    verdict: admis_reformule
+  definition_operatoire: La question demande de choisir ou d'analyser le mode d'accès (lecture, écriture,
+    ajout) d'une ouverture de fichier, ou de déterminer si une opération est autorisée compte tenu des
+    droits et attributs.
+  declencheurs:
+  - Dans quel mode faut-il ouvrir le fichier pour …
+  - Cette écriture est-elle autorisée avec ces droits ?
+  - Que se passe-t-il si l'ouverture échoue ?
+  - Modifier l'appel d'ouverture pour ajouter en fin de fichier
+  exclusions:
+  - motif: Parcours séquentiel effectif du contenu du fichier
+    voir: ressources.lire_ecrire_fichier_acces_sequentiel
+  - motif: Droits portés par l'arborescence vue comme structure interne (inodes, liens)
+    voir: ressources.expliquer_organisation_blocs_inodes
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - ocaml
+  - pseudocode
+  statut: actif
+- id: ressources.utiliser_flux_standard_redirections
+  slug: utiliser_flux_standard_redirections
+  libelle: Utiliser les flux standard et les rediriger dans l'interface système
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.2:469-473
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou d'interpréter un programme lisant sur l'entrée
+    standard et écrivant sur la sortie standard ou d'erreur, ou de prédire l'effet d'une redirection dans
+    une commande du shell.
+  declencheurs:
+  - Écrire un programme qui lit sur l'entrée standard et affiche …
+  - Que produit la commande suivante avec la redirection > ?
+  - Où est envoyé le message d'erreur de ce programme ?
+  - Rediriger la sortie d'erreur vers un fichier
+  exclusions:
+  - motif: Lecture ou écriture dans un fichier nommé ouvert par le programme
+    voir: null
+  - motif: Enchaînement de deux programmes par un tube
+    voir: ressources.enchainer_programmes_par_tube
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - mixte
+  - indetermine
+  statut: actif
+- id: ressources.enchainer_programmes_par_tube
+  slug: enchainer_programmes_par_tube
+  libelle: Enchaîner des programmes par un tube (pipe)
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 5.2:469-473
+    verdict: eclate
+  definition_operatoire: La question demande de composer plusieurs programmes en connectant la sortie
+    de l'un à l'entrée de l'autre par un tube, ou d'expliquer le comportement d'un tel enchaînement.
+  declencheurs:
+  - Écrire la commande enchaînant ces deux programmes par un tube
+  - Que produit la ligne de commande prog1 | prog2 ?
+  - Expliquer le rôle du tube dans cet enchaînement
+  - Proposer un pipeline calculant …
+  exclusions:
+  - motif: Simple redirection vers ou depuis un fichier
+    voir: ressources.utiliser_flux_standard_redirections
+  - motif: Synchronisation entre processus concurrents en général
+    voir: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - mixte
+  - indetermine
+  statut: actif
+- id: ressources.creer_attendre_fils_execution
+  slug: creer_attendre_fils_execution
+  libelle: Créer des fils d'exécution et attendre leur terminaison
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 5.3:485-490
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de compléter un programme qui lance un ou plusieurs
+    fils d'exécution puis attend leur fin (pseudo-code, pthread en C ou Thread en OCaml), ou de dire ce
+    que produit un tel programme.
+  declencheurs:
+  - Écrire un programme qui crée n fils d'exécution exécutant la fonction f puis attend leur terminaison
+  - Compléter ce code pour que le programme principal attende la fin de tous les fils
+  - Quel est l'effet de cet appel de création de thread suivi de l'attente de terminaison ?
+  - Paralléliser ce calcul en le répartissant sur deux fils d'exécution
+  exclusions:
+  - motif: Faire coopérer les fils sans conflit d'accès à une variable partagée relève des primitives
+      de synchronisation
+    voir: ressources.synchroniser_mutex_semaphores
+  - motif: Exhiber un entrelacement produisant un résultat erroné relève de l'analyse du non-déterminisme
+    voir: ressources.analyser_non_determinisme_entrelacements
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: ressources.analyser_non_determinisme_entrelacements
+  slug: analyser_non_determinisme_entrelacements
+  libelle: Analyser le non-déterminisme d'une exécution concurrente en exhibant un entrelacement
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.3:485-490
+    verdict: eclate
+  definition_operatoire: La question fournit un programme à plusieurs fils partageant des données et demande
+    d'énumérer les résultats possibles, d'exhiber un entrelacement conduisant à un résultat erroné, ou
+    de justifier qu'une opération n'est pas atomique.
+  declencheurs:
+  - Quelles valeurs finales de la variable partagée sont possibles ?
+  - Exhiber un entrelacement d'instructions conduisant à un résultat incorrect
+  - Montrer que l'incrémentation x := x+1 n'est pas atomique
+  - Ce programme est-il déterministe ? Justifier
+  exclusions:
+  - motif: Corriger le problème en protégeant la section critique relève des primitives de synchronisation
+    voir: ressources.synchroniser_mutex_semaphores
+  - motif: Un blocage définitif dû à l'ordre d'acquisition de verrous relève de l'interblocage
+    voir: ressources.diagnostiquer_interblocage_equite
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: ressources.assurer_exclusion_mutuelle_peterson
+  slug: assurer_exclusion_mutuelle_peterson
+  libelle: Assurer l'exclusion mutuelle de deux fils par l'algorithme de Peterson
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.3:491-495
+    verdict: eclate
+  definition_operatoire: 'La question porte sur l''algorithme de Peterson à deux fils : le compléter,
+    dérouler un entrelacement, ou justifier qu''il garantit l''exclusion mutuelle et l''absence de famine.'
+  declencheurs:
+  - Rappeler et compléter l'algorithme de Peterson pour deux fils
+  - Montrer que l'algorithme de Peterson garantit l'exclusion mutuelle
+  - Que se passe-t-il si l'on supprime la variable tour dans l'algorithme de Peterson ?
+  - Cet algorithme de Peterson reste-t-il correct pour trois fils ?
+  exclusions:
+  - motif: Généralisation à un nombre quelconque de fils par tickets
+    voir: ressources.assurer_exclusion_mutuelle_lamport
+  - motif: Utilisation d'un verrou fourni par la bibliothèque plutôt qu'un protocole écrit à la main
+    voir: ressources.synchroniser_mutex_semaphores
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: ressources.assurer_exclusion_mutuelle_lamport
+  slug: assurer_exclusion_mutuelle_lamport
+  libelle: Assurer l'exclusion mutuelle de plusieurs fils par l'algorithme de la boulangerie de Lamport
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 5.3:491-495
+    verdict: eclate
+  definition_operatoire: 'La question porte sur l''algorithme de la boulangerie de Lamport pour n fils
+    : écrire ou compléter la prise de ticket et l''attente, dérouler un scénario, ou justifier exclusion
+    mutuelle et équité.'
+  declencheurs:
+  - Écrire l'algorithme de la boulangerie de Lamport pour n fils
+  - Montrer que deux fils ne peuvent pas entrer simultanément en section critique dans l'algorithme de
+    la boulangerie
+  - Pourquoi la comparaison des tickets utilise-t-elle l'ordre lexicographique (numéro, identifiant) ?
+  - Cet algorithme garantit-il l'absence de famine ?
+  exclusions:
+  - motif: Cas restreint à deux fils avec variables drapeau et tour
+    voir: ressources.assurer_exclusion_mutuelle_peterson
+  - motif: Emploi de primitives de la bibliothèque au lieu d'un protocole à variables partagées
+    voir: ressources.synchroniser_mutex_semaphores
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: ressources.synchroniser_mutex_semaphores
+  slug: synchroniser_mutex_semaphores
+  libelle: Synchroniser des fils d'exécution à l'aide de mutex et de sémaphores
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 5.3:491-495
+    verdict: eclate
+  definition_operatoire: La question demande de placer ou d'utiliser des verrous ou des sémaphores pour
+    protéger une section critique ou ordonner des opérations, ou d'expliquer l'effet des primitives de
+    prise et de libération sur une exécution donnée.
+  declencheurs:
+  - Protéger l'accès à cette variable partagée à l'aide d'un mutex
+  - Utiliser un sémaphore pour limiter à k le nombre de fils accédant à la ressource
+  - Où faut-il placer les appels de verrouillage et de déverrouillage dans ce code ?
+  - Expliquer la différence entre un mutex et un sémaphore compteur sur cet exemple
+  exclusions:
+  - motif: Protocoles d'exclusion mutuelle construits uniquement avec des variables partagées
+    voir: ressources.assurer_exclusion_mutuelle_peterson
+  - motif: Schémas de coopération entre fils (rendez-vous, producteur-consommateur) demandés comme tels
+    voir: ressources.mettre_en_oeuvre_schemas_synchronisation
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: ressources.mettre_en_oeuvre_schemas_synchronisation
+  slug: mettre_en_oeuvre_schemas_synchronisation
+  libelle: Mettre en œuvre un schéma de synchronisation classique (rendez-vous, producteur-consommateur)
+  semestre: null
+  origine:
+    genre: mise_en_oeuvre
+    cellule: mise_en_oeuvre
+    source: 5.3:499-500
+    verdict: eclate
+  definition_operatoire: La question demande de programmer ou de compléter un schéma de coopération entre
+    fils — rendez-vous, tampon partagé producteur-consommateur — et de justifier que les contraintes d'ordre
+    et de capacité sont respectées.
+  declencheurs:
+  - Écrire à l'aide de sémaphores un rendez-vous entre deux fils
+  - Programmer un tampon borné partagé entre producteurs et consommateurs
+  - Quelles conditions garantissent qu'un consommateur ne lit pas un tampon vide ?
+  - Compléter ce code producteur-consommateur pour éviter tout accès concurrent au tampon
+  exclusions:
+  - motif: Emploi isolé d'un mutex ou d'un sémaphore pour protéger une section critique, sans schéma de
+      coopération
+    voir: ressources.synchroniser_mutex_semaphores
+  - motif: Analyse d'un blocage circulaire ou d'une famine dans un scénario donné
+    voir: ressources.diagnostiquer_interblocage_equite
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: ressources.diagnostiquer_interblocage_equite
+  slug: diagnostiquer_interblocage_equite
+  libelle: Diagnostiquer un interblocage ou un défaut d'équité et proposer une correction
+  semestre: null
+  origine:
+    genre: mise_en_oeuvre
+    cellule: mise_en_oeuvre
+    source: 5.3:499-500
+    verdict: eclate
+  definition_operatoire: La question fournit un scénario concurrent (typiquement le dîner des philosophes
+    ou une acquisition croisée de verrous) et demande d'exhiber un interblocage ou une famine, d'en identifier
+    la cause, ou de modifier le protocole pour l'éviter.
+  declencheurs:
+  - Montrer que ce protocole peut conduire à un interblocage
+  - Exhiber un scénario où un philosophe ne mange jamais
+  - Proposer une modification garantissant l'absence d'interblocage
+  - Cette solution est-elle équitable entre les fils ? Justifier
+  exclusions:
+  - motif: Simple mise en évidence de résultats variables sans blocage
+    voir: ressources.analyser_non_determinisme_entrelacements
+  - motif: Preuve d'absence de famine propre à un algorithme nommé du programme
+    voir: ressources.assurer_exclusion_mutuelle_lamport
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif

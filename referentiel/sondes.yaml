@@ -1,0 +1,126 @@
+# Sondes de confrontation — le corpus contre le référentiel.
+#
+# Une sonde est une question posée au corpus, pas une notion. Elle ramène des
+# passages ; c'est la RÈGLE DES DEUX FICHIERS DISTINCTS qui tranche, et c'est un
+# humain qui rédige la notion. Une sonde qui attesterait dix fois dans un seul
+# sujet ne prouve rien : elle décrit ce sujet-là.
+#
+# La recherche porte sur QUATRE zones — préambule d'exercice, énoncé de
+# question, solution rattachée, corrigé non attribué — parce que la technique
+# de preuve attendue est le plus souvent nommée dans le corrigé, jamais dans la
+# question.
+#
+# `anti` retire un faux positif dont le motif ne peut pas se débarrasser seul.
+# Le cas fondateur : `dénombrable` (cardinalité) n'est pas `dénombrer`
+# (compter). La sonde initiale comptait 4 faux positifs sur 6 et aurait admis
+# la notion à tort.
+
+version: "1.0.0"
+date: "2026-08-12"
+
+regle:
+  fichiers_distincts_minimum: 2
+  zones: [preambule, question, solution, corrige_non_attribue]
+  contexte_caracteres: 80
+
+sondes:
+  # ─── admises et créées (6 fichiers, août 2026) ───────────────────────────
+  - nom: recurrence_numerique
+    notion: preuve.demontrer_par_recurrence_numerique
+    statut: creee
+    motif: "par r[ée]currence|r[ée]currence sur|r[ée]currence forte"
+
+  - nom: absurde
+    notion: preuve.raisonner_par_absurde
+    statut: creee
+    motif: "par l.absurde"
+
+  - nom: contre_exemple
+    notion: preuve.refuter_par_contre_exemple
+    statut: creee
+    motif: "contre-?exemple"
+
+  - nom: tiroirs
+    notion: preuve.conclure_par_principe_des_tiroirs
+    statut: creee
+    motif: "tiroirs|pigeonhole"
+
+  - nom: double_implication
+    notion: preuve.prouver_equivalence_par_double_implication
+    statut: creee
+    motif: "si et seulement si|double implication|r[ée]ciproquement"
+
+  - nom: disjonction_cas
+    notion: preuve.structurer_preuve_par_disjonction_de_cas
+    statut: creee
+    motif: "disjonction de cas|distinguer? (deux|trois|plusieurs|les) cas|on distingue (deux|trois|plusieurs|les) cas"
+
+  - nom: denombrement
+    notion: preuve.denombrer_objets_d_une_famille
+    statut: creee
+    motif: "\\bd[ée]nombr(er|ement|ons)\\b|combien (y a-t-il|de)\\b"
+    anti: "d[ée]nombrable"
+    commentaire: >
+      `dénombrable` désigne la cardinalité, pas l'action de compter. Sans
+      l'anti-motif, 4 attestations sur 6 étaient fausses.
+
+  - nom: lecture_code
+    notion: correction.determiner_specification_code_fourni
+    statut: creee
+    motif: "que (fait|calcule|renvoie|retourne)|d[ée]crire (bri[èe]vement )?(ce que|l.effet|le r[ôo]le)|interpr[ée]ter (la|le|ce)|quel est le r[ôo]le|expliquer (bri[èe]vement )?(ce que|le fonctionnement)"
+    commentaire: >
+      Motif élargi après échec du motif étroit. 2 attestations seulement, dont
+      une sur un circuit et non sur du code — placement laissé à l'arbitrage.
+
+  - nom: complexite_espace
+    notion: complexite_algo.evaluer_complexite_en_espace
+    statut: creee
+    motif: "complexit[ée] (en )?(espace|spatiale|m[ée]moire)|espace m[ée]moire|occupation m[ée]moire|co[ûu]t en m[ée]moire|en m[ée]moire"
+
+  - nom: borne_inferieure
+    notion: complexite_pb.etablir_borne_inferieure
+    statut: creee
+    motif: "\\\\Omega|Ω\\s*\\(|tout algorithme.{0,90}(n[ée]cessite|au moins|ne peut)|ne peut pas faire mieux|optimal(e|it[ée]) de (la|cette) borne|born[ée] inf[ée]rieurement"
+    commentaire: >
+      Motif étroit (« borne inférieure|minorer ») insuffisant ; élargi à la
+      notation Ω et aux tournures d'optimalité. Section d'accueil arbitrée
+      entre complexite_algo et complexite_pb.
+
+  # ─── attestées une seule fois ou pas du tout : NON créées ────────────────
+  # Conservées telles quelles : sur 33 sujets de plus, il suffit d'une seconde
+  # attestation dans un fichier distinct pour qu'elles basculent. C'est le seul
+  # intérêt de garder une sonde qui a échoué.
+  - nom: encadrement
+    notion: preuve.etablir_par_encadrement_double
+    statut: candidate
+    motif: "encadr(er|ement|ons)|double in[ée]galit[ée]"
+    commentaire: "1 seul fichier sur 6 (LCR) — une seconde attestation suffit."
+
+  - nom: famille_infinie
+    notion: preuve.construire_famille_infinie_de_contre_exemples
+    statut: candidate
+    motif: "famille infinie|infinit[ée] d.(instances|exemples)|suite infinie d.(instances|exemples)"
+    commentaire: "0 attestation sur 6 fichiers."
+
+  - nom: echange
+    notion: preuve.justifier_optimalite_par_argument_d_echange
+    statut: candidate
+    motif: "argument d.[ée]change|par [ée]change|en [ée]changeant"
+    commentaire: "0 attestation sur 6 fichiers."
+
+  # ─── sondes ouvertes : aucune notion proposée, on regarde ────────────────
+  - nom: accumulateur
+    notion: null
+    statut: ouverte
+    motif: "accumulateur|r[ée]cursi[fv]e? terminale|en temps constant amorti|param[èe]tre suppl[ée]mentaire"
+
+  - nom: preconditions
+    notion: null
+    statut: ouverte
+    motif: "pr[ée]condition|invariant de (la )?structure|est pr[ée]serv|pr[ée]serve l.invariant"
+
+  - nom: induction_structurelle
+    notion: preuve.prouver_par_induction_structurelle
+    statut: au_programme
+    motif: "induction structurelle|induction sur (la structure|le terme|l.arbre)"
+    commentaire: "Notion venue du programme officiel ; la sonde sert au contrôle."

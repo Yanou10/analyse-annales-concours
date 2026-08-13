@@ -1,0 +1,199 @@
+# ---------------------------------------------------------------------------
+# PROFIL DE MATIÈRE — tout ce qui est spécifique à l'informatique MPI vit ici.
+# Le code de `etage0/` ne contient aucune référence à l'informatique : changer
+# de matière = écrire un autre fichier de profil et pointer ETAGE0_PROFIL dessus.
+# ---------------------------------------------------------------------------
+matiere: informatique
+libelle: "Programme d'informatique MPI, première et deuxième années"
+version_prompt: "p1"          # incrémenter invalide le journal de reprise
+
+# --- Axe langage : alimente `langages_plausibles`, jamais une valeur par défaut
+axe_langage:
+  valeurs: [theorique, pseudocode, ocaml, c, sql, mixte, indetermine]
+
+# --- Critère d'admission. C'est le cœur du préfixe constant (donc caché).
+critere_admission: |
+  Une entrée du programme ne devient une NOTION du référentiel que si elle passe
+  ce test :
+
+      « en apprenant que cette notion pèse X % des questions posées au concours,
+        le candidat sait quoi travailler ce soir »
+
+    -> algorithme, construction, technique de preuve, théorème appliqué : ADMIS
+    -> objet, terme, définition, champ lexical                          : REFUSÉ
+    -> entrée regroupant plusieurs notions distinctes                   : ÉCLATÉ
+
+  NOMMAGE PAR L'ACTION, jamais par l'objet. Verbe en tête.
+      « Rechercher les composantes fortement connexes par Kosaraju »   correct
+      « Composantes fortement connexes »                               incorrect
+
+  RÈGLES QUI DÉCIDENT LES CAS LIMITES :
+
+  1. La colonne « Commentaires » est souvent plus riche que la colonne
+     « Notions ». Une ligne dont la colonne Notions n'est qu'une liste de termes
+     peut malgré tout produire une notion admise, tirée de son commentaire.
+     Traite les deux colonnes comme une seule unité de décision.
+
+  2. Une entrée qui énumère plusieurs algorithmes, techniques ou régimes est
+     ÉCLATÉE en autant de notions qu'il y a d'actions distinctes que l'on
+     réviserait séparément. Deux algorithmes qui résolvent le même problème mais
+     reposent sur des techniques différentes sont deux notions.
+
+  3. Un terme chapeau (« Notion de … », « Structure de … ») introduisant les
+     entrées qui suivent est REFUSÉ : aucune question ne porte sur lui.
+
+  4. Une définition qui est la conjonction de deux notions déjà admises est
+     REFUSÉE (les deux notions la couvrent).
+
+  5. Une propriété est refusée ; la TECHNIQUE qui l'établit est admise.
+     « Terminaison » refusé ; « Prouver la terminaison par un variant » admis.
+
+  6. Une mention « hors programme », « n'est pas exigible » ou « est admis »
+     dans un commentaire ne supprime PAS la notion de la ligne. Elle borne ce
+     que le cours doit enseigner, pas ce que le concours peut demander en le
+     rappelant dans l'énoncé.
+
+  7. Deux notions ne doivent jamais se recouvrir. Si une action proposée est
+     déjà couverte par une autre notion de la même unité, ne la crée pas :
+     inscris-la en critère d'exclusion de la notion qui la couvre.
+
+# --- Hiérarchie cible (niveau 1). Le modèle range chaque notion dans l'une
+# d'elles : le référentiel est indexé sur la façon dont on révise, pas sur la
+# numérotation du programme (qui changera). `perimetre` est ce que lira le
+# pré-filtrage de l'étage 3 — l'écrire pour la machine, pas pour un lecteur.
+sections_cibles:
+  - id: preuve
+    libelle: "Techniques de preuve et de raisonnement"
+    perimetre: >
+      La question demande d'ÉTABLIR un résultat et l'objet de révision est la
+      technique de démonstration, pas le domaine sur lequel elle porte.
+      Majoritairement hors programme : le programme ne nomme que l'induction
+      structurelle, la récurrence, le variant, l'invariant et la réduction.
+  - id: correction
+    libelle: "Correction et terminaison d'un algorithme"
+    perimetre: >
+      L'algorithme est fourni par l'énoncé et on demande d'en établir une
+      garantie : arrêt, résultat conforme, invariant de structure, jeu de tests.
+  - id: complexite_algo
+    libelle: "Analyse de complexité d'un algorithme"
+    perimetre: >
+      Évaluer ou justifier le coût d'un algorithme. Ne pas confondre avec la
+      complexité d'un PROBLÈME, qui relève de complexite_pb.
+  - id: recursion
+    libelle: "Récursivité et définitions inductives, mise en œuvre"
+    perimetre: >
+      Écrire une fonction récursive, concevoir un type inductif, ou analyser le
+      coût machine de la récursion. Les PREUVES par induction vont dans preuve.
+  - id: modelisation
+    libelle: "Modélisation et spécification d'un problème"
+    perimetre: >
+      Traduire un énoncé en objet formel : graphe, formule, automate, système
+      d'équations, problème de décision.
+  - id: sd_sequentielles
+    libelle: "Structures séquentielles et associatives"
+    perimetre: "Listes, piles, files, tableaux associatifs, tables de hachage, sérialisation."
+  - id: sd_hierarchiques
+    libelle: "Arbres et structures hiérarchiques"
+    perimetre: "Arbres binaires, de recherche, équilibrés, tas, files de priorité, unir & trouver."
+  - id: graphes_repr
+    libelle: "Graphes : représentation et parcours"
+    perimetre: "Représenter un graphe, le parcourir, exploiter un parcours."
+  - id: graphes_algo
+    libelle: "Graphes : algorithmes pondérés et structurels"
+    perimetre: "Plus courts chemins, arbres couvrants, couplages, composantes, tri topologique."
+  - id: strategies
+    libelle: "Stratégies algorithmiques"
+    perimetre: >
+      Choisir et mettre en œuvre une stratégie : exploration exhaustive, glouton,
+      diviser pour régner, programmation dynamique, approximation, probabiliste.
+  - id: textes
+    libelle: "Algorithmique des textes"
+    perimetre: "Recherche de motif, compression, codage."
+  - id: logique
+    libelle: "Logique propositionnelle et déduction"
+    perimetre: "Formules, valuations, formes normales, SAT, règles d'inférence, arbres de preuve."
+  - id: langages
+    libelle: "Langages formels et automates"
+    perimetre: "Expressions régulières, automates, grammaires, analyse syntaxique."
+  - id: complexite_pb
+    libelle: "Décidabilité et classes de complexité"
+    perimetre: "Classer un PROBLÈME : P, NP, réductions, NP-complétude, indécidabilité."
+  - id: ressources
+    libelle: "Ressources machine"
+    perimetre: "Mémoire d'un programme, fichiers et entrées-sorties, concurrence et synchronisation."
+  - id: bdd
+    libelle: "Bases de données"
+    perimetre: "Modélisation entité-association et interrogation en SQL."
+  - id: idiomes
+    libelle: "Idiomes de programmation"
+    perimetre: >
+      Techniques de langage qui se révisent pour elles-mêmes (filtrage par motif,
+      références, linéarisation de tableaux, retours multiples par pointeur).
+      Le reste des annexes de langage alimente l'axe langage, pas le référentiel.
+
+# --- Exclusions appliquées avant tout appel LLM (déterministes, journalisées)
+exclusions_deterministes:
+  titres_sections:
+    - "introduction au programme"
+    - "table des matières"
+    - "filière scientifique"          # page de garde
+    - "classes préparatoires"
+  prefixes_numerotation:
+    - "1.2"                       # Discipline de programmation : couverte par 1.1
+  genres_ecartes: []              # rien : « Mise en œuvre » et annexes sont BALAYÉS,
+                                  # pas exclus a priori (cf. note ci-dessous)
+  note: >
+    Les paragraphes « Mise en œuvre » et les annexes de langage ne sont PAS
+    exclus en bloc : ils sont soumis au critère d'admission comme le reste, et
+    le rendement attendu est faible mais non nul. Les exclure a priori coûterait
+    des notions réellement posées en question.
+
+# --- Genres d'unités et la façon dont ils sont présentés au modèle
+genres:
+  table:          "ligne de tableau (colonnes Notions / Commentaires)"
+  mise_en_oeuvre: "paragraphe « Mise en œuvre » — consignes au professeur, rendement faible"
+  annexe:         "élément d'annexe de langage — liste limitative, rendement faible"
+  prose:          "paragraphe hors tableau"
+
+# --- Détection des mentions restrictives -> exclusions.json
+mentions_restrictives:
+  motifs:
+    - "hors programme"
+    - "n'est pas au programme"
+    - "ne sont pas au programme"
+    - "n'est pas exigible"
+    - "ne sont pas exigibles"
+    - "pas des exigibles"
+    - "n'est pas un objectif"
+    - "est admis"
+    - "est admise"
+    - "sont admis"
+  # Trois statuts de sortie, pas deux. Le second ne peut PAS venir du programme :
+  # il s'établit pendant la confrontation au corpus.
+  statuts_question:
+    hors_programme: >
+      le programme déclare explicitement l'objet hors programme, non exigible ou
+      non attendu. Traçable jusqu'à une entrée d'exclusions.json.
+    absent_du_programme: >
+      l'objet ne figure tout simplement pas au programme — il n'y est ni admis ni
+      exclu. Ne peut être établi que depuis le corpus : 2024_InfoC parties IV-VI
+      (complexité paramétrée, noyau, optimisation linéaire) et 2024_InfoA
+      partie III (géométrie algorithmique) en relèvent.
+    ok: >
+      la question relève d'au moins une notion du référentiel.
+  portees:
+    objet_exclu: >
+      un objet nommé est retiré du programme. SEULE portée qui autorise un
+      statut hors_referentiel motivé à l'étage 3.
+    resultat_admis: >
+      la notion est au programme, seule une démonstration est dispensée.
+      Ne justifie JAMAIS un hors_referentiel.
+    limite_de_profondeur: >
+      le programme borne la profondeur d'étude sans retirer la notion.
+      Ne justifie JAMAIS un hors_referentiel.
+
+# --- Cibles de dimensionnement (contrôlées par la validation, pas par le LLM)
+cibles:
+  notions_min: 80
+  notions_max: 120
+  notions_par_section_max: 14

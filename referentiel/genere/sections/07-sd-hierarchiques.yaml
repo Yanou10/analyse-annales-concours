@@ -1,0 +1,369 @@
+section:
+  id: sd_hierarchiques
+  libelle: Arbres et structures hiérarchiques
+  ordre: 7
+  perimetre: Arbres binaires, de recherche, équilibrés, tas, files de priorité, unir & trouver.
+notions:
+- id: sd_hierarchiques.definir_type_inductif_arbre_binaire
+  slug: definir_type_inductif_arbre_binaire
+  libelle: Définir inductivement un type arbre binaire et calculer ses mesures
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:251-255
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire la définition inductive d'un type arbre binaire
+    (éventuellement étiqueté) ou de programmer par récursion sur cette définition une mesure telle que
+    hauteur, taille, nombre de feuilles, profondeur d'un nœud, avec la convention hauteur de l'arbre vide
+    égale à −1.
+  declencheurs:
+  - Donner une définition inductive du type des arbres binaires
+  - Écrire une fonction qui calcule la hauteur d'un arbre binaire
+  - Écrire une fonction comptant les feuilles / nœuds internes d'un arbre
+  - Définir en OCaml un type pour des arbres binaires étiquetés
+  exclusions:
+  - motif: Prouver par induction structurelle une propriété reliant hauteur et taille
+    voir: null
+    voir_type: null
+  - motif: Parcourir l'arbre dans un ordre donné pour en lister les étiquettes
+    voir: sd_hierarchiques.parcourir_arbre_binaire_ordres
+    voir_type: notion
+  - motif: Représenter l'arbre dans un tableau plutôt que par un type inductif
+    voir: sd_hierarchiques.representer_arbre_complet_dans_tableau
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q2
+  - source: 2024_InfoA
+    question: Q4
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  statut: actif
+- id: sd_hierarchiques.representer_arbre_complet_dans_tableau
+  slug: representer_arbre_complet_dans_tableau
+  libelle: Représenter un arbre complet dans un tableau
+  semestre: S2
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.3:251-255
+    verdict: eclate
+  definition_operatoire: La question demande de coder un arbre binaire complet (ou quasi complet) par
+    un tableau et de calculer les indices du père et des fils, ou inversement de reconstituer l'arbre
+    à partir du tableau.
+  declencheurs:
+  - Donner l'indice du fils gauche du nœud d'indice i
+  - Représenter cet arbre complet sous forme de tableau
+  - Écrire la fonction qui renvoie l'indice du père d'un nœud
+  exclusions:
+  - motif: Représentation par un type inductif ou par pointeurs
+    voir: sd_hierarchiques.definir_type_inductif_arbre_binaire
+    voir_type: notion
+  - motif: Maintien de la propriété de tas dans ce tableau
+    voir: sd_hierarchiques.gerer_file_priorite_par_tas
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - c
+  - pseudocode
+  - ocaml
+  statut: actif
+- id: sd_hierarchiques.convertir_arbre_arite_quelconque_en_binaire
+  slug: convertir_arbre_arite_quelconque_en_binaire
+  libelle: Convertir un arbre d'arité quelconque en arbre binaire
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:256-259
+    verdict: admis_reformule
+  definition_operatoire: La question demande d'appliquer ou de programmer la transformation « premier
+    fils / frère suivant » entre un arbre général et un arbre binaire, ou d'exploiter cette correspondance
+    pour transposer un traitement d'un modèle à l'autre.
+  declencheurs:
+  - Donner l'arbre binaire associé à cet arbre d'arité quelconque
+  - Définir un type pour les arbres d'arité quelconque puis la conversion en arbre binaire
+  - Montrer comment représenter un arbre général par un arbre binaire
+  - Adapter cet algorithme sur arbres binaires aux arbres d'arité quelconque
+  exclusions:
+  - motif: Simple définition inductive d'un arbre binaire sans conversion
+    voir: sd_hierarchiques.definir_type_inductif_arbre_binaire
+    voir_type: notion
+  - motif: Modéliser un énoncé (expression arithmétique, décision) par un arbre
+    voir: null
+    voir_type: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - pseudocode
+  - c
+  statut: actif
+- id: sd_hierarchiques.parcourir_arbre_binaire_ordres
+  slug: parcourir_arbre_binaire_ordres
+  libelle: Parcourir un arbre binaire en ordre préfixe, infixe ou postfixe
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:260-261
+    verdict: admis_reformule
+  definition_operatoire: La question demande de produire la suite des étiquettes d'un arbre selon l'ordre
+    préfixe, infixe, postfixe ou en largeur, d'écrire la fonction de parcours correspondante, ou de reconstruire
+    un arbre à partir de ses parcours.
+  declencheurs:
+  - Donner le parcours infixe de cet arbre
+  - Écrire une fonction qui affiche les étiquettes en ordre postfixe
+  - Reconstruire l'arbre à partir de ses parcours préfixe et infixe
+  - Écrire un parcours en largeur d'un arbre binaire
+  exclusions:
+  - motif: Parcours d'un graphe en profondeur ou en largeur
+    voir: null
+    voir_type: null
+  - motif: Calcul d'une mesure de l'arbre par récursion sans production d'un ordre
+    voir: sd_hierarchiques.definir_type_inductif_arbre_binaire
+    voir_type: notion
+  - motif: Parcours infixe utilisé comme preuve du tri d'un ABR
+    voir: sd_hierarchiques.implementer_tableau_associatif_par_abr
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  statut: actif
+- id: sd_hierarchiques.implementer_tableau_associatif_par_abr
+  slug: implementer_tableau_associatif_par_abr
+  libelle: Implémenter un tableau associatif par un arbre binaire de recherche
+  semestre: null
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:262-263
+    verdict: admis
+  definition_operatoire: La question demande d'écrire ou d'analyser les opérations de recherche, d'insertion
+    ou de suppression d'une clé dans un arbre binaire de recherche, ou de justifier la correction de ces
+    opérations à l'aide de l'ordre total sur les clés.
+  declencheurs:
+  - Écrire une fonction de recherche d'une clé dans un arbre binaire de recherche
+  - Insérer les clés suivantes dans un ABR initialement vide
+  - Écrire la suppression d'une clé dans un ABR
+  - Quelle est la complexité de la recherche dans un ABR en fonction de sa hauteur ?
+  exclusions:
+  - motif: Implémentation d'un tableau associatif par table de hachage
+    voir: null
+    voir_type: null
+  - motif: Équilibrage de l'arbre pour garantir une hauteur logarithmique
+    voir: sd_hierarchiques.maintenir_equilibre_arbre_bicolore
+    voir_type: notion
+  - motif: Ordre infixe considéré comme simple parcours
+    voir: sd_hierarchiques.parcourir_arbre_binaire_ordres
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q5
+  - source: 2024_InfoA
+    question: Q15
+  - source: 2024_InfoA
+    question: Q17
+  exemples_negatifs: []
+  langages_plausibles:
+  - ocaml
+  - c
+  - pseudocode
+  statut: actif
+- id: sd_hierarchiques.maintenir_equilibre_arbre_bicolore
+  slug: maintenir_equilibre_arbre_bicolore
+  libelle: Maintenir l'équilibre d'un arbre bicolore
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:264-264
+    verdict: admis_reformule
+  definition_operatoire: La question demande de vérifier les invariants de coloration d'un arbre bicolore,
+    d'en déduire une borne sur la hauteur, ou de rétablir ces invariants après une insertion ou une suppression
+    (rotations, recoloration).
+  declencheurs:
+  - Cet arbre est-il un arbre bicolore ? Justifier
+  - Montrer que la hauteur d'un arbre bicolore à n nœuds est O(log n)
+  - Insérer cette clé dans l'arbre bicolore et rétablir les invariants
+  - Effectuer les rotations nécessaires après insertion
+  exclusions:
+  - motif: Opérations d'ABR sans contrainte d'équilibrage
+    voir: sd_hierarchiques.implementer_tableau_associatif_par_abr
+    voir_type: notion
+  - motif: Propriété de tas, qui contraint les étiquettes et non les couleurs
+    voir: sd_hierarchiques.gerer_file_priorite_par_tas
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - ocaml
+  - c
+  - theorique
+  statut: actif
+- id: sd_hierarchiques.gerer_file_priorite_par_tas
+  slug: gerer_file_priorite_par_tas
+  libelle: Gérer une file de priorité par un arbre binaire ayant la propriété de tas
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:265-267
+    verdict: eclate
+  definition_operatoire: La question demande de vérifier la propriété de tas, d'insérer un élément ou
+    d'extraire le minimum/maximum en rétablissant cette propriété par percolation, ou d'évaluer le coût
+    de ces opérations.
+  declencheurs:
+  - Ce tableau représente-t-il un tas ?
+  - Insérer cet élément dans le tas et redonner le tableau obtenu
+  - Écrire la fonction d'extraction du maximum d'un tas
+  - Quelle est la complexité de l'insertion dans une file de priorité par tas ?
+  exclusions:
+  - motif: Tri complet d'un tableau au moyen d'un tas
+    voir: sd_hierarchiques.trier_par_tas
+    voir_type: notion
+  - motif: Correspondance générale arbre complet / tableau, indépendamment de la propriété de tas
+    voir: sd_hierarchiques.representer_arbre_complet_dans_tableau
+    voir_type: notion
+  - motif: Ordre sur les clés d'un arbre binaire de recherche
+    voir: sd_hierarchiques.implementer_tableau_associatif_par_abr
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: sd_hierarchiques.trier_par_tas
+  slug: trier_par_tas
+  libelle: Trier un tableau par tas
+  semestre: S2
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.3:265-267
+    verdict: eclate
+  definition_operatoire: 'La question demande de dérouler, écrire ou analyser le tri par tas : construction
+    du tas puis extractions successives, et justification de sa complexité en O(n log n).'
+  declencheurs:
+  - Dérouler le tri par tas sur ce tableau
+  - Écrire l'algorithme de tri par tas
+  - Justifier la complexité du tri par tas
+  - Comparer le tri par tas au tri fusion
+  exclusions:
+  - motif: Opérations isolées d'insertion ou d'extraction dans une file de priorité
+    voir: sd_hierarchiques.gerer_file_priorite_par_tas
+    voir_type: notion
+  - motif: Tri par diviser pour régner (fusion, rapide)
+    voir: null
+    voir_type: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: sd_hierarchiques.implementer_unir_trouver_naif
+  slug: implementer_unir_trouver_naif
+  libelle: Implémenter unir & trouver de façon naïve
+  semestre: S3-4
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 3.3:268-272
+    verdict: eclate
+  definition_operatoire: La question demande de représenter des classes d'équivalence par une structure
+    simple (tableau de représentants, listes) et d'en déduire le coût respectif des opérations unir et
+    trouver selon laquelle des deux est privilégiée.
+  declencheurs:
+  - Proposer une implémentation de unir & trouver où trouver est en temps constant
+  - Donner la complexité de unir dans cette implémentation naïve
+  - Représenter les classes d'équivalence par un tableau de représentants
+  exclusions:
+  - motif: Implémentation par forêt d'arbres avec union par rang et compression de chemin
+    voir: sd_hierarchiques.implementer_unir_trouver_par_arbres
+    voir_type: notion
+  - motif: Utilisation de unir & trouver dans un algorithme d'arbre couvrant minimal
+    voir: null
+    voir_type: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: sd_hierarchiques.implementer_unir_trouver_par_arbres
+  slug: implementer_unir_trouver_par_arbres
+  libelle: Implémenter unir & trouver par des arbres
+  semestre: S3-4
+  origine:
+    genre: table
+    cellule: notions
+    source: 3.3:268-272
+    verdict: eclate
+  definition_operatoire: La question demande d'écrire ou de dérouler les opérations unir et trouver sur
+    une forêt d'arbres de représentants, avec union par rang ou par taille et compression de chemin, et
+    d'en exploiter l'efficacité (analyse admise).
+  declencheurs:
+  - Écrire les fonctions trouver et unir avec compression de chemin
+  - Dérouler la suite d'opérations unir sur cette forêt
+  - Dessiner la forêt obtenue après ces unions par rang
+  - Utiliser une structure unir & trouver pour tester si deux éléments sont dans la même classe
+  exclusions:
+  - motif: Implémentations naïves privilégiant une seule des deux opérations
+    voir: sd_hierarchiques.implementer_unir_trouver_naif
+    voir_type: notion
+  - motif: Arbres binaires de recherche ou tas, qui ne représentent pas des classes d'équivalence
+    voir: sd_hierarchiques.implementer_tableau_associatif_par_abr
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - c
+  - ocaml
+  statut: actif
+- id: sd_hierarchiques.organiser_points_arbre_k_dimensionnel
+  slug: organiser_points_arbre_k_dimensionnel
+  libelle: Organiser des points dans un arbre k-dimensionnel pour la recherche de voisins
+  semestre: null
+  origine:
+    genre: table
+    cellule: commentaires
+    source: 4.6:412-416
+    verdict: eclate
+  definition_operatoire: La question demande de construire un arbre k-dimensionnel sur un nuage de points,
+    ou d'y effectuer une recherche (voisin le plus proche, points d'une région) en exploitant les coupes
+    successives selon les dimensions.
+  declencheurs:
+  - Construire l'arbre k-dimensionnel associé à ces points
+  - Décrire le parcours de recherche du plus proche voisin dans un arbre k-d
+  - Justifier l'élagage d'une branche lors de la recherche
+  - Donner la complexité de la construction d'un arbre k-dimensionnel
+  exclusions:
+  - motif: Prédiction par vote des voisins sans structure d'accélération
+    voir: strategies.classifier_k_plus_proches_voisins
+    voir_type: notion
+  - motif: Arbre binaire de recherche en dimension 1
+    voir: null
+    voir_type: null
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - pseudocode
+  - ocaml
+  - c
+  - theorique
+  statut: actif

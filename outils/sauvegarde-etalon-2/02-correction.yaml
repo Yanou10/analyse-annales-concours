@@ -1,0 +1,139 @@
+section:
+  id: correction
+  libelle: "Correction et terminaison d'un algorithme"
+  ordre: 2
+  perimetre: >
+    La question porte sur la VALIDITÉ d'un algorithme ou d'un programme donné :
+    s'arrête-t-il, renvoie-t-il ce qu'il annonce, ses préconditions sont-elles
+    préservées, comment le tester. Retenir cette section quand l'algorithme est
+    fourni par l'énoncé et qu'on demande d'en établir une garantie — et non quand
+    on demande de le concevoir.
+  note_origine: >
+    §1.1 du programme (spe777:111-113) et §1.3 Validation, test. Le §1.2
+    Discipline de programmation est exclu du référentiel : sa seule ligne
+    admissible — annotation par précondition/postcondition/invariant — est déjà
+    couverte ici par `correction.prouver_correction_partielle_par_invariant`. Exclusion par non-redondance, pas
+    par non-évaluabilité.
+
+notions:
+
+  - id: correction.prouver_terminaison_par_variant
+    libelle: "Prouver la terminaison par exhibition d'un variant"
+    semestre: S1
+    origine: {programme: ["spe777:111-113"]}
+    definition_operatoire: >
+      La question demande de montrer qu'une boucle ou une récursion s'arrête.
+      L'attendu est une quantité entière positive strictement décroissante à
+      chaque tour, ou un ordre bien fondé sur les appels.
+    declencheurs:
+      - "Montrer que … termine"
+      - "Justifier que l'algorithme s'arrête / que la récursion est bien fondée"
+      - "Montrer que la boucle effectue un nombre fini d'itérations"
+    exclusions:
+      - {motif: "le résultat renvoyé est correct, indépendamment de l'arrêt", voir: correction.prouver_correction_partielle_par_invariant}
+      - {motif: "compter les itérations pour en déduire un coût", voir: complexite_algo.analyser_complexite_pire_cas}
+    exemples_positifs:
+      - source: "2024_InfoA#L118"
+        extrait: "Montrer que tout appel à join, avec deux arguments l et r qui sont des AVL, termine et ne peut pas « planter »"
+    langages_plausibles: [theorique, mixte]
+    statut: actif
+
+  - id: correction.prouver_correction_partielle_par_invariant
+    libelle: "Prouver la correction partielle par un invariant"
+    semestre: S1
+    origine: {programme: ["spe777:111-113", "spe777:128-130"]}
+    definition_operatoire: >
+      La question demande d'établir que l'algorithme renvoie le résultat annoncé
+      LORSQU'il s'arrête. L'attendu est une propriété préservée par chaque
+      itération ou chaque appel, dont la conclusion se déduit à la sortie.
+    declencheurs:
+      - "Montrer que la fonction … renvoie bien …"
+      - "Montrer que l'ensemble S calculé par … est bien un ensemble couvrant"
+      - "Justifier la correction de l'algorithme"
+    exclusions:
+      - {motif: "il s'agit seulement de montrer l'arrêt", voir: correction.prouver_terminaison_par_variant}
+      - {motif: "on demande d'expliquer ce que fait la fonction, sans le prouver", voir: correction.lecture_de_code}
+    exemples_positifs:
+      - source: "2024_InfoC#L107"
+        extrait: "Montrer que l'ensemble S calculé par Heuristique est bien un ensemble couvrant."
+      - source: "2024_InfoA#L127"
+        extrait: "Montrer que la fonction join, appliquée à deux AVL l et r, renvoie bien un arbre AVL dont la hauteur est au plus 1 + max(h(l), h(r))."
+      - source: "2024_InfoC#L169"
+        extrait: "Justifier la correction et la complexité de l'algorithme."
+    langages_plausibles: [theorique, mixte]
+    statut: actif
+
+  - id: correction.preconditions_preservees
+    libelle: "Établir qu'une précondition ou un invariant de structure est préservé"
+    semestre: S1
+    origine: {programme: ["spe777:111-113"], hors_programme_recurrent: true}
+    definition_operatoire: >
+      La question porte sur une propriété structurelle que le code doit maintenir
+      d'un appel à l'autre (hauteur stockée cohérente, équilibre AVL, terme
+      hash-consé) ou sur l'inatteignabilité d'un cas d'erreur. Distincte de
+      `correction.prouver_correction_partielle_par_invariant` : ce n'est pas le résultat qui est en cause, c'est
+      la bonne formation de la structure manipulée.
+    declencheurs:
+      - "montrer que … ne peut pas « planter »"
+      - "montrer que la fonction renvoie bien un arbre AVL / une structure valide"
+      - "en garantissant que le terme calculé l'est aussi"
+    exclusions:
+      - {motif: "propriété du résultat renvoyé, pas de la structure", voir: correction.prouver_correction_partielle_par_invariant}
+    exemples_positifs:
+      - source: "2024_InfoA#L118"
+        extrait: "au sens où la ligne 3 de rotate_left, la ligne 3 de rotate_right et la ligne 12 de join_right ne sont jamais atteintes"
+      - source: "2024_InfoA#L137"
+        extrait: "Montrer que la fonction split, lorsqu'elle est appliquée à un AVL t et un élément y, renvoie deux arbres AVL dont la hauteur n'excède pas celle de t."
+      - source: "2024_TPAlgo-MPI-rapport#L1958"
+        extrait: "Réécrire la fonction rewriteN en supposant que le terme de départ est hash-consé, et en garantissant que le terme calculé l'est aussi."
+    langages_plausibles: [theorique, ocaml, mixte]
+    statut: actif
+
+  - id: correction.lecture_de_code
+    libelle: "Déterminer la spécification d'un fragment de code fourni"
+    semestre: S1
+    origine: {hors_programme_recurrent: true}
+    definition_operatoire: >
+      L'énoncé donne du code ou un algorithme sans dire ce qu'il fait, et demande
+      de l'expliciter — sa valeur de retour, son effet, son type. L'objet de
+      révision est la lecture de code, pas sa preuve.
+    declencheurs:
+      - "Expliquer ce que fait la fonction …"
+      - "Que calcule le circuit / le programme ci-dessus ?"
+      - "Illustrer les étapes de … sur l'exemple suivant"
+    exclusions:
+      - {motif: "il faut PROUVER une propriété du code", voir: correction.prouver_correction_partielle_par_invariant}
+      - {motif: "il faut inférer le type sans expliciter le comportement", voir: idiomes.inference_type}
+    exemples_positifs:
+      - source: "2024_InfoA#L133"
+        extrait: "Expliquer ce que fait la fonction split appliquée à un AVL t et un élément y."
+      - source: "2024_InfoA#L135"
+        extrait: "Illustrer les étapes de l'insertion de l'élément c dans un AVL contenant les éléments a, b et d, avec a < b < c < d."
+      - source: "2024_Info-rapport#L901"
+        extrait: "Question 1. Que calcule le circuit ci-dessus?"
+    langages_plausibles: [theorique, ocaml, c]
+    statut: actif
+
+  - id: correction.construire_jeu_tests_couverture
+    libelle: "Construire un jeu de tests satisfaisant un critère de couverture"
+    semestre: S1
+    origine: {programme: ["spe777:150-160"]}
+    definition_operatoire: >
+      La question demande de produire des entrées de test avec les sorties
+      attendues, éventuellement sous contrainte de couverture des sommets, des
+      arcs ou des chemins du graphe de flot de contrôle, ou de test exhaustif
+      d'une condition composée.
+    declencheurs:
+      - "Proposer un jeu de tests pour …"
+      - "Donner des entrées couvrant toutes les branches / tous les chemins faisables"
+      - "Tester les cas limites de …"
+    exclusions:
+      - {motif: "dérouler l'algorithme sur un exemple fourni par l'énoncé — axe `type_tache: calculer_exemple`", voir: null}
+    exemples_positifs: []
+    langages_plausibles: [theorique, pseudocode]
+    statut: actif
+    note: >
+      Non attestée dans l'échantillon. Attendue faible sur un corpus 100 % ENS :
+      la validation par tests relève des épreuves pratiques et de TP, pas de
+      l'oral d'informatique fondamentale. Conserver — « jamais tombé » est une
+      information de révision.

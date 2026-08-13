@@ -1,0 +1,53 @@
+{
+  "_note": "Techniques de preuve relevées dans le corpus mais NON créées, avec leur attestation exacte. Sert à ne pas refaire la lecture sur les 39 sujets : il suffira de chercher une SECONDE attestation dans un fichier distinct pour qu'une candidate soit admise.",
+  "_corpus_lu": {
+    "fichiers_distincts": 6,
+    "exercices": 76,
+    "questions": 507,
+    "exclu": "2024_InfoF, identique octet pour octet à 2024_InfoC",
+    "extraction": "étage 1 réparé — ratios de conservation 0,965 à 0,989, solutions rattachées",
+    "reserve": "2022_InfoLCR-rapport et 2022_InfoU-exercices pèsent 277 questions sur 507."
+  },
+  "candidats": [
+    {
+      "slug_propose": "etablir_par_encadrement_double",
+      "libelle_propose": "Établir une égalité ou une borne par encadrement des deux côtés",
+      "section_cible": "preuve",
+      "statut": "refusée — réinstruite sur l'extraction réparée, toujours 1 seul fichier",
+      "fichiers_distincts": 1,
+      "attestations": [
+        {
+          "fichier": "2022_InfoLCR-rapport",
+          "question": "Q3",
+          "sujet": "Logique Temporelle Linéaire",
+          "extrait": "Encadrer la complexité C(n) en nombre de comparaisons de ce problème, c'est-à-dire trouver deux fonctions f et g suffisamment proches",
+          "source": "json"
+        }
+      ],
+      "remarque": "Attestation franche mais unique. À noter : elle encadre une complexité, ce qui la rapproche autant de complexite_algo que de preuve. Trancher la section au moment de la création."
+    },
+    {
+      "slug_propose": "construire_famille_infinie_de_contre_exemples",
+      "libelle_propose": "Construire une famille infinie d'instances pour réfuter une borne",
+      "section_cible": "preuve",
+      "statut": "refusée — réinstruite sur l'extraction réparée, toujours 0 attestation",
+      "fichiers_distincts": 0,
+      "attestations": [],
+      "remarque": "Zéro occurrence sur 456 questions, y compris à la sonde élargie. La notion vient de l'étalon écrit à la main, pas du corpus."
+    },
+    {
+      "slug_propose": "justifier_optimalite_par_argument_d_echange",
+      "libelle_propose": "Justifier une solution optimale par un argument d'échange",
+      "section_cible": "preuve",
+      "statut": "refusée — réinstruite sur l'extraction réparée, toujours 0 attestation",
+      "fichiers_distincts": 0,
+      "attestations": [],
+      "remarque": "Zéro occurrence. Le corpus demande le glouton (2024_TPAlgo Q4, 2024_InfoC II) mais jamais la preuve de son optimalité par échange. Cohérent : c'est une technique de cours, pas une consigne d'épreuve."
+    }
+  ],
+  "_promues": {
+    "note": "Admises à la réinstruction du 2026-08-11 sur l'extraction réparée.",
+    "preuve.structurer_preuve_par_disjonction_de_cas": "2 fichiers — les 2 attestations manquantes étaient dans des corrigés d'InfoU-ex que l'ancienne extraction perdait.",
+    "preuve.denombrer_objets_d_une_famille": "2 fichiers — la 2e attestation (2024_InfoA Q1 et Q3, « Combien y a-t-il d'arbres AVL… ») avait été manquée par une SONDE trop étroite (« combien de »), pas seulement par l'extraction. Le refus initial m'était en partie imputable."
+  }
+}

@@ -1,0 +1,332 @@
+section:
+  id: preuve
+  libelle: Techniques de preuve et de raisonnement
+  ordre: 1
+  perimetre: 'La question demande d''ÉTABLIR un résultat et l''objet de révision est la technique de démonstration,
+    pas le domaine sur lequel elle porte. Majoritairement hors programme : le programme ne nomme que l''induction
+    structurelle, la récurrence, le variant, l''invariant et la réduction.'
+notions:
+- id: preuve.justifier_ordre_bien_fonde
+  slug: justifier_ordre_bien_fonde
+  libelle: Justifier qu'un ordre est bien fondé et l'utiliser pour ordonner des éléments
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 2:168-179
+    verdict: eclate
+  definition_operatoire: La question demande de construire un ordre (produit, lexicographique) sur un
+    ensemble, d'identifier prédécesseurs, successeurs immédiats ou éléments minimaux, ou de justifier
+    l'absence de suite infinie décroissante, éventuellement via l'accessibilité dans un graphe orienté
+    acyclique.
+  declencheurs:
+  - Montrer que cet ordre est bien fondé
+  - Comparer ces couples pour l'ordre lexicographique
+  - Donner les éléments minimaux de cet ensemble ordonné
+  - Justifier qu'il n'existe pas de suite infinie strictement décroissante
+  exclusions:
+  - motif: Exhiber un variant entier décroissant pour prouver l'arrêt d'une boucle
+    voir: null
+    voir_type: null
+  - motif: Raisonner par induction sur une structure de données
+    voir: preuve.prouver_par_induction_structurelle
+    voir_type: notion
+  exemples_positifs: []
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.prouver_par_induction_structurelle
+  slug: prouver_par_induction_structurelle
+  libelle: Démontrer une propriété par induction structurelle
+  semestre: S2
+  origine:
+    genre: table
+    cellule: notions
+    source: 2:180-184
+    verdict: eclate
+  definition_operatoire: La question demande d'établir qu'une propriété vaut pour tous les éléments d'un
+    ensemble inductif (arbres, formules, listes) en traitant les cas de base et en supposant la propriété
+    sur les sous-structures, y compris comme généralisation d'une récurrence.
+  declencheurs:
+  - Montrer par induction structurelle que …
+  - Prouver par récurrence sur la hauteur de l'arbre que …
+  - Démontrer, pour toute formule, que …
+  - Justifier la correction de cette fonction récursive par induction
+  exclusions:
+  - motif: Donner la définition inductive ou le type de données sans démonstration
+    voir: recursion.definir_ensemble_inductif_et_type
+    voir_type: notion
+  - motif: Prouver l'arrêt par un ordre bien fondé sur les paramètres
+    voir: preuve.justifier_ordre_bien_fonde
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q2
+  - source: 2024_InfoA
+    question: Q4
+  exemples_negatifs:
+  - source: 2024_InfoA
+    question: Q4
+    motif: 'l''indication impose de raisonner sur N_h, nombre minimal de nœuds d''un AVL de hauteur h
+      : récurrence sur un entier, pas induction sur les constructeurs.'
+  - source: 2024_InfoC
+    question: IV.2
+    motif: '« Montrer l''équivalence τ(G)⩽k ⟺ … » : double implication, aucune structure inductive.'
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.demontrer_par_recurrence_numerique
+  slug: demontrer_par_recurrence_numerique
+  libelle: Démontrer une propriété par récurrence sur un paramètre entier
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_Info-rapport,2022_InfoU-exercices,2024_TPAlgo-MPI-rapport
+    verdict: atteste_corpus
+  definition_operatoire: La question demande d'établir une propriété indexée par un entier — taille, rang
+    d'itération, nombre d'étapes — en traitant le cas de base puis l'hérédité. Retenir quand le paramètre
+    de récurrence est un entier et non une structure.
+  declencheurs:
+  - Montrer par récurrence sur n que …
+  - On prouve par récurrence sur r que …
+  - 'Indication : on peut faire une récurrence sur le nombre de …'
+  exclusions:
+  - motif: La récurrence porte sur une structure de données et non sur un entier
+    voir: preuve.prouver_par_induction_structurelle
+    voir_type: notion
+  - motif: Il s'agit de résoudre une récurrence de coût, pas d'établir une propriété
+    voir: complexite_algo.resoudre_recurrence_de_cout
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_Info-rapport
+    question: Q1
+  - source: 2024_Info-rapport
+    question: Q5
+  - source: 2024_Info-rapport
+    question: Q6
+  - source: 2022_InfoU-exercices
+    question: Q3
+  - source: 2024_TPAlgo-MPI-rapport
+    question: Q2
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.raisonner_par_absurde
+  slug: raisonner_par_absurde
+  libelle: Raisonner par l'absurde pour établir une impossibilité
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_Info-rapport,2022_InfoU-exercices
+    verdict: atteste_corpus
+  definition_operatoire: La question demande de montrer qu'un objet ne peut pas exister ou qu'une borne
+    ne peut pas être atteinte, en supposant le contraire et en dérivant une contradiction. Typique des
+    résultats d'impossibilité.
+  declencheurs:
+  - Est-il possible de … ? Non, et prouvons-le par l'absurde
+  - Montrer qu'il n'existe pas de …
+  - On raisonne par l'absurde
+  exclusions:
+  - motif: Un seul contre-exemple explicite suffit à conclure
+    voir: preuve.refuter_par_contre_exemple
+    voir_type: notion
+  - motif: La contradiction vient d'un comptage de cases et d'objets
+    voir: preuve.conclure_par_principe_des_tiroirs
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_Info-rapport
+    question: Q4
+  - source: 2024_Info-rapport
+    question: Q7
+  - source: 2022_InfoU-exercices
+    question: Q3
+  - source: 2022_InfoU-exercices
+    question: Q4
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.refuter_par_contre_exemple
+  slug: refuter_par_contre_exemple
+  libelle: Réfuter un énoncé en exhibant un contre-exemple
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_Info-rapport,2024_TPAlgo-MPI-rapport
+    verdict: atteste_corpus
+  definition_operatoire: La question propose une propriété plausible — souvent l'optimalité d'un algorithme
+    naïf — et demande de la réfuter en construisant une instance explicite où elle échoue.
+  declencheurs:
+  - Si oui, justifier ; si non, donner un contre-exemple
+  - Trouver des contre-exemples simples pour n = 2 et n = 3
+  - L'algorithme calcule-t-il toujours une solution, si elle existe ?
+  exclusions:
+  - motif: L'impossibilité est générale et ne s'exhibe pas sur une instance
+    voir: preuve.raisonner_par_absurde
+    voir_type: notion
+  - motif: Il s'agit de construire un jeu de tests couvrant, pas de réfuter
+    voir: correction.construire_jeu_tests_couverture
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_Info-rapport
+    question: Q3
+  - source: 2024_TPAlgo-MPI-rapport
+    question: Q4
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.conclure_par_principe_des_tiroirs
+  slug: conclure_par_principe_des_tiroirs
+  libelle: Conclure par le principe des tiroirs ou un argument de comptage
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_Info-rapport,2022_InfoU-exercices
+    verdict: atteste_corpus
+  definition_operatoire: La question demande d'établir qu'une collision, une répétition ou un dépassement
+    est inévitable, en comparant un nombre d'objets à un nombre de places. Le cœur de la réponse est une
+    inégalité de cardinaux.
+  declencheurs:
+  - Par le principe des tiroirs, au moins une case reçoit deux objets
+  - Montrer qu'il existe nécessairement deux … de même …
+  - Il n'y a que k paires possibles pour n éléments
+  exclusions:
+  - motif: La contradiction ne repose pas sur un comptage de places
+    voir: preuve.raisonner_par_absurde
+    voir_type: notion
+  - motif: La question demande de compter exactement, pas de conclure à une collision
+    voir: null
+    voir_type: null
+  exemples_positifs:
+  - source: 2024_Info-rapport
+    question: Q7
+  - source: 2022_InfoU-exercices
+    question: Q2
+  - source: 2022_InfoU-exercices
+    question: Q6
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.prouver_equivalence_par_double_implication
+  slug: prouver_equivalence_par_double_implication
+  libelle: Prouver une équivalence en traitant les deux implications
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_Info-rapport,2022_InfoU-exercices,2024_InfoA,2024_InfoC,2022_InfoLCR-rapport,2024_TPAlgo-MPI-rapport
+    verdict: atteste_corpus
+  definition_operatoire: L'énoncé pose un « si et seulement si » ou demande explicitement la réciproque,
+    et attend les deux sens séparément — souvent un sens immédiat et un sens qui demande une construction.
+  declencheurs:
+  - Montrer que X si et seulement si Y
+  - Réciproquement, tout … peut-il être obtenu de cette manière ?
+  - Montrer les deux inclusions
+  exclusions:
+  - motif: Un seul sens est demandé, l'autre est admis
+    voir: null
+    voir_type: null
+  - motif: L'équivalence porte sur deux formules logiques et s'établit par les lois usuelles
+    voir: logique.etablir_equivalence_par_lois
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_Info-rapport
+    question: Q2
+  - source: 2024_Info-rapport
+    question: Q7
+  - source: 2022_InfoU-exercices
+    question: Q1
+  - source: 2024_InfoA
+    question: Q3
+  - source: 2024_InfoC
+    question: Q2
+  - source: 2022_InfoLCR-rapport
+    question: Q4
+  - source: 2024_TPAlgo-MPI-rapport
+    question: Q3
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.structurer_preuve_par_disjonction_de_cas
+  slug: structurer_preuve_par_disjonction_de_cas
+  libelle: Structurer une preuve par disjonction de cas exhaustive
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2022_InfoU-exercices,2024_Info-rapport
+    verdict: atteste_corpus
+  definition_operatoire: La question demande de conclure en partitionnant les configurations possibles
+    et en traitant chaque cas séparément, la difficulté étant de garantir que la liste des cas est complète.
+  declencheurs:
+  - 'On distingue deux cas : soit …, soit …'
+  - En considérant une nouvelle disjonction de cas, donner un algorithme plus efficace
+  - Procéder par équivalences en faisant une disjonction de cas sur x
+  exclusions:
+  - motif: Un seul cas suffit à conclure, par contre-exemple
+    voir: preuve.refuter_par_contre_exemple
+    voir_type: notion
+  - motif: Les cas sont les constructeurs d'un type inductif
+    voir: preuve.prouver_par_induction_structurelle
+    voir_type: notion
+  exemples_positifs:
+  - source: 2022_InfoU-exercices
+    question: Q3
+  - source: 2022_InfoU-exercices
+    question: Q7
+  - source: 2024_Info-rapport
+    question: Q3
+  - source: 2024_Info-rapport
+    question: Q4
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
+- id: preuve.denombrer_objets_d_une_famille
+  slug: denombrer_objets_d_une_famille
+  libelle: Dénombrer les objets d'une famille finie
+  semestre: null
+  origine:
+    genre: corpus
+    cellule: confrontation
+    source: corpus:2024_InfoA,2022_InfoLCR-rapport
+    verdict: atteste_corpus
+  definition_operatoire: La question demande un COMPTE exact — combien d'objets d'un type donné satisfont
+    une contrainte — et non l'existence ou la construction de l'un d'eux. La réponse est un nombre ou
+    une formule close.
+  declencheurs:
+  - Combien y a-t-il d'arbres AVL contenant exactement les trois éléments x, y et z ?
+  - Combien de graphes orientés G sont tels que Ḡ = g ?
+  - Combien y a-t-il de chaînes de cardinalité maximale dans P_n ?
+  exclusions:
+  - motif: La question porte sur la CARDINALITÉ au sens de la dénombrabilité d'un ensemble infini
+    voir: null
+    voir_type: null
+  - motif: Le comptage sert à établir une collision inévitable
+    voir: preuve.conclure_par_principe_des_tiroirs
+    voir_type: notion
+  - motif: Le comptage est un coût d'algorithme à évaluer
+    voir: complexite_algo.evaluer_complexite_algorithme
+    voir_type: notion
+  exemples_positifs:
+  - source: 2024_InfoA
+    question: Q1
+  - source: 2024_InfoA
+    question: Q3
+  - source: 2022_InfoLCR-rapport
+    question: Q3
+  - source: 2022_InfoLCR-rapport
+    question: Q1
+  exemples_negatifs: []
+  langages_plausibles:
+  - theorique
+  statut: actif
