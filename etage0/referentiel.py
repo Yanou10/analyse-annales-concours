@@ -30,6 +30,11 @@ RE_INFINITIF = re.compile(r"^[A-ZÉÈÀÇ][\wéèêàçîôûï'-]*(?:er|ir|re|o
 class Anomalie:
     gravite: str  # bloquant | avertissement
     message: str
+    #: Code de règle. Il sert à deux choses : porter la sévérité par la
+    #: table plutôt que par le site d'appel, et nommer la règle dans le
+    #: rapport — « ça a échoué » sans dire sur quelle règle oblige à
+    #: relire le code pour comprendre.
+    code: str = ""
 
 
 @dataclass
@@ -86,13 +91,11 @@ def assembler(
                 vus[slug] += 1
                 if vus[slug] > 1:
                     slug = f"{slug}_{vus[brute['slug']]}"
-                    referentiel.anomalies.append(
-                        Anomalie(
-                            "avertissement",
-                            f"slug dupliqué {brute['slug']!r} renommé en {slug!r} "
-                            f"(source {source}) — candidat à la fusion",
-                        )
-                    )
+                    referentiel.anomalies.append(anomalie(
+                        "slug_duplique",
+                        f"slug dupliqué {brute['slug']!r} renommé en {slug!r} "
+                        f"(source {source}) — candidat à la fusion",
+                    ))
                 referentiel.notions.append(
                     {
                         "id": f"{brute['section_cible']}.{slug}",
@@ -177,6 +180,59 @@ def _resoudre_renvois(
         notion["exclusions"] = resolues
 
 
+FATAL = "bloquant"
+ATTENDU = "avertissement"
+
+#: Sévérité du CONTRÔLE FINAL, par code de règle. La distinction fatal /
+#: réparable existait au niveau des unités, dans le registre de règles ; elle
+#: n'avait jamais été appliquée ici. Une table plutôt qu'une chaîne répétée à
+#: chaque `Anomalie(...)` : la sévérité se lit et se change en un seul endroit.
+#:
+#: Ce qui est FATAL est un défaut d'INTÉGRITÉ — le référentiel serait
+#: inutilisable. Ce qui est ATTENDU est un défaut de GRANULARITÉ, normal sur
+#: une construction brute : les mesurer là revient à juger une chaîne
+#: incomplète selon les critères de la chaîne complète. Le contrôle aurait
+#: toujours raison, et ce serait toujours inutile.
+SEVERITE_CONTROLE: dict[str, str] = {
+    # intégrité
+    "renvoi_non_resolu": FATAL,
+    "renvoi_sans_type": FATAL,
+    "renvoi_mort_notion": FATAL,
+    "voir_type_inconnu": FATAL,
+    "identifiant_double": FATAL,
+    "section_perdue": FATAL,
+    # granularité
+    "renvoi_vers_section": ATTENDU,
+    "renvoi_mort_section": ATTENDU,
+    "section_au_dessus_seuil": ATTENDU,
+    "section_vide": ATTENDU,
+    "notions_au_dessus_cible": ATTENDU,
+    "notions_sous_cible": ATTENDU,
+    "libelle_sans_infinitif": ATTENDU,
+    "slug_duplique": ATTENDU,
+    "unite_rejetee": ATTENDU,
+    "auto_exclusion": ATTENDU,
+}
+
+#: Avertissements normaux à ce stade, avec l'étape qui les résorbe. Les
+#: afficher sans cette mention fait passer pour un défaut l'état attendu du
+#: pipeline.
+RESORBE_PAR: dict[str, str] = {
+    "notions_au_dessus_cible": "`etage0 purger` (retrait des annexes)",
+    "section_au_dessus_seuil": "`etage0 purger` (retrait des annexes)",
+    "section_vide": "`etage0 confronter` (alimentation par le corpus)",
+    "renvoi_vers_section": "l'arbitrage manuel des renvois",
+    "renvoi_mort_section": "l'arbitrage manuel des renvois",
+}
+
+
+def anomalie(code: str, message: str) -> Anomalie:
+    """Fabrique une anomalie dont la sévérité vient de la table, pas du site
+    d'appel. Un code absent est FATAL par défaut : mieux vaut bloquer sur une
+    règle qu'on a oublié de classer que la laisser passer en silence."""
+    return Anomalie(SEVERITE_CONTROLE.get(code, FATAL), message, code)
+
+
 def verifier_renvois(
     notions: list[dict[str, Any]], ids_sections: set[str]
 ) -> list[Anomalie]:
@@ -195,44 +251,47 @@ def verifier_renvois(
             brut = exclusion.get("voir_brut")
             if cible is None:
                 if brut:
-                    anomalies.append(
-                        Anomalie(
-                            "bloquant",
-                            f"{notion['id']} : renvoi non résolu vers {brut!r}",
-                        )
-                    )
+                    anomalies.append(anomalie(
+                        "renvoi_non_resolu",
+                        f"{notion['id']} : renvoi non résolu vers {brut!r}",
+                    ))
                 continue
             if type_cible is None:
-                anomalies.append(
-                    Anomalie(
-                        "bloquant",
-                        f"{notion['id']} : renvoi vers {cible!r} sans `voir_type` — "
-                        "impossible de savoir dans quel espace de noms le vérifier",
-                    )
-                )
+                anomalies.append(anomalie(
+                    "renvoi_sans_type",
+                    f"{notion['id']} : renvoi vers {cible!r} sans `voir_type` — "
+                    "impossible de savoir dans quel espace de noms le vérifier",
+                ))
             elif type_cible == TYPE_NOTION and cible not in ids_notions:
-                anomalies.append(
-                    Anomalie("bloquant", f"{notion['id']} : renvoi mort vers la notion {cible!r}")
-                )
+                anomalies.append(anomalie(
+                    "renvoi_mort_notion",
+                    f"{notion['id']} : renvoi mort vers la notion {cible!r}",
+                ))
             elif type_cible == TYPE_SECTION and cible not in ids_sections:
-                anomalies.append(
-                    Anomalie("bloquant", f"{notion['id']} : renvoi mort vers la section {cible!r}")
-                )
+                # Pointer une section absente du profil est un défaut de
+                # PORTÉE, pas d'intégrité : la section existe au programme,
+                # elle n'est simplement pas une cible du profil.
+                anomalies.append(anomalie(
+                    "renvoi_mort_section",
+                    f"{notion['id']} : renvoi vers la section {cible!r}, absente des "
+                    "sections cibles du profil",
+                ))
             elif type_cible == TYPE_SECTION:
                 anomalies.append(
-                    Anomalie(
-                        "avertissement",
+                    anomalie(
+                        "renvoi_vers_section",
                         f"{notion['id']} : renvoi vers la section {cible!r} et non vers "
                         "une notion — exclusion moins tranchante que prévu",
                     )
                 )
             elif type_cible != TYPE_NOTION:
                 anomalies.append(
-                    Anomalie("bloquant", f"{notion['id']} : `voir_type` inconnu {type_cible!r}")
+                    anomalie("voir_type_inconnu",
+                             f"{notion['id']} : `voir_type` inconnu {type_cible!r}")
                 )
             if cible == notion["id"]:
                 anomalies.append(
-                    Anomalie("avertissement", f"{notion['id']} : s'exclut elle-même")
+                    anomalie("auto_exclusion", f"{notion['id']} : s'exclut elle-même")
                 )
     return anomalies
 
@@ -264,48 +323,45 @@ def valider(referentiel: Referentiel, profil: Profil) -> list[Anomalie] :
     identifiants = Counter(n["id"] for n in referentiel.notions)
     for identifiant, compte in identifiants.items():
         if compte > 1:
-            anomalies.append(Anomalie("bloquant", f"identifiant en double : {identifiant}"))
+            anomalies.append(anomalie("identifiant_double",
+                                      f"identifiant en double : {identifiant}"))
 
     for notion in referentiel.notions:
         if not RE_INFINITIF.match(notion["libelle"]):
-            anomalies.append(
-                Anomalie(
-                    "avertissement",
-                    f"{notion['id']} : libellé « {notion['libelle']} » ne commence "
-                    "pas par un verbe à l'infinitif (nommage par l'objet ?)",
-                )
-            )
+            anomalies.append(anomalie(
+                "libelle_sans_infinitif",
+                f"{notion['id']} : libellé « {notion['libelle']} » ne commence "
+                "pas par un verbe à l'infinitif (nommage par l'objet ?)",
+            ))
 
     par_section = referentiel.par_section()
     plafond = cibles.get("notions_par_section_max")
     if plafond:
         for section_id, notions in par_section.items():
             if len(notions) > plafond:
-                anomalies.append(
-                    Anomalie(
-                        "avertissement",
-                        f"section {section_id} : {len(notions)} notions (> {plafond})",
-                    )
-                )
+                anomalies.append(anomalie(
+                    "section_au_dessus_seuil",
+                    f"section {section_id} : {len(notions)} notions (> {plafond})",
+                ))
     for section in profil.sections_cibles:
         if section["id"] not in par_section:
-            anomalies.append(
-                Anomalie(
-                    "avertissement",
-                    f"section {section['id']} vide — à alimenter par la passe corpus "
-                    "ou à retirer du profil",
-                )
-            )
+            anomalies.append(anomalie(
+                "section_vide",
+                f"section {section['id']} vide — à alimenter par la passe corpus "
+                "ou à retirer du profil",
+            ))
 
     mini, maxi = cibles.get("notions_min"), cibles.get("notions_max")
     if mini and total < mini:
-        anomalies.append(
-            Anomalie("avertissement", f"{total} notions (cible ≥ {mini}) : granularité trop grosse")
-        )
+        anomalies.append(anomalie(
+            "notions_sous_cible",
+            f"{total} notions (cible ≥ {mini}) : granularité trop grosse",
+        ))
     if maxi and total > maxi:
-        anomalies.append(
-            Anomalie("avertissement", f"{total} notions (cible ≤ {maxi}) : granularité trop fine")
-        )
+        anomalies.append(anomalie(
+            "notions_au_dessus_cible",
+            f"{total} notions (cible ≤ {maxi}) : granularité trop fine",
+        ))
     return anomalies
 
 

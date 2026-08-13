@@ -252,12 +252,13 @@ def cmd_construire(config: Config, args: argparse.Namespace) -> int:
 
     for perdue in sections_perdues:
         anomalies.append(
-            ref.Anomalie("bloquant", f"SECTION PERDUE {perdue['section']} — {perdue['cause']}")
+            ref.anomalie("section_perdue",
+                         f"SECTION PERDUE {perdue['section']} — {perdue['cause']}")
         )
     for rejet in unites_rejetees:
         anomalies.append(
-            ref.Anomalie(
-                "avertissement",
+            ref.anomalie(
+                "unite_rejetee",
                 f"UNITÉ REJETÉE {rejet['cible']} ({rejet['regle']}) — {rejet['cause']}",
             )
         )
@@ -271,10 +272,36 @@ def cmd_construire(config: Config, args: argparse.Namespace) -> int:
             f"⛔ {len(sections_perdues)} SECTION(S) ABSENTE(S) DU RÉFÉRENTIEL — "
             "il est incomplet, relancer avant toute exploitation."
         )
-    bloquants = [a for a in anomalies if a.gravite == "bloquant"]
-    for anomalie in anomalies:
-        marque = "✗" if anomalie.gravite == "bloquant" else "·"
-        _ecrire(f"  {marque} {anomalie.message}")
+    # Deux catégories, jamais mélangées. Un défaut d'INTÉGRITÉ empêche de
+    # livrer ; un défaut de GRANULARITÉ est l'état attendu d'une construction
+    # brute, et le confondre avec le premier revient à jeter un artefact valide
+    # payé 3 $ pour un motif qui se résorbe à l'étape suivante.
+    bloquants = [a for a in anomalies if a.gravite == ref.FATAL]
+    attendus = [a for a in anomalies if a.gravite != ref.FATAL]
+
+    if bloquants:
+        _ecrire("")
+        _ecrire(f"⛔ INTÉGRITÉ — {len(bloquants)} défaut(s) bloquant(s), "
+                "le référentiel n'est pas livrable :")
+        for a in bloquants:
+            _ecrire(f"  ✗ [{a.code or 'sans code'}] {a.message}")
+    if attendus:
+        _ecrire("")
+        _ecrire(f"GRANULARITÉ — {len(attendus)} avertissement(s), "
+                "le référentiel est livré :")
+        for a in attendus:
+            resorbe = ref.RESORBE_PAR.get(a.code)
+            suffixe = f"  → normal à ce stade, se résorbe par {resorbe}" if resorbe else ""
+            _ecrire(f"  · [{a.code or 'sans code'}] {a.message}{suffixe}")
+        codes = {a.code for a in attendus} & set(ref.RESORBE_PAR)
+        if codes:
+            _ecrire("")
+            _ecrire(
+                "  Ces avertissements sont ATTENDUS sur une construction brute : "
+                "mesurer la granularité avant la purge des annexes et la "
+                "confrontation au corpus, c'est juger une chaîne incomplète "
+                "selon les critères de la chaîne complète."
+            )
 
     if config.etalon and config.etalon.is_dir():
         mesure = ref.comparer_etalon(referentiel, config.etalon)

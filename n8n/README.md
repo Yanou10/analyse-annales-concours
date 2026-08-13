@@ -111,9 +111,17 @@ curl -X POST https://<ton-domaine>/webhook/programme \
 
 ## Ce que rend le compte rendu
 
-`empreinte`, `notions`, `signature_etiquetage`, `prefixe`, `duree_s`, et
-surtout **`sujets_en_attente`** : le workflow liste `corpus/` par
-`GET /objets?seau=corpus` et dit combien de sujets y dorment déjà.
+`empreinte`, `notions`, `signature_etiquetage`, `prefixe`, `duree_s`,
+`avertissements_granularite`, et surtout **`sujets_en_attente`** : le workflow
+liste `corpus/` par `GET /objets?seau=corpus` et dit combien de sujets y dorment
+déjà.
+
+Le contrôle final de l'étage 0 sépare **intégrité** (bloquant, code retour non
+nul, référentiel non livré) et **granularité** (avertissement, référentiel
+livré). Les seconds — trop de notions, section au-dessus du seuil, renvoi vers
+une section — sont normaux sur une construction brute et se résorbent à la
+purge des annexes puis à la confrontation au corpus. Le compte rendu les remonte
+depuis `stderr` pour qu'ils soient vus, sans faire échouer la branche.
 
 **Il n'enchaîne pas.** Les sujets déposés *avant* la construction n'ont
 déclenché aucun événement exploitable, et l'étiquetage se paie : le référentiel

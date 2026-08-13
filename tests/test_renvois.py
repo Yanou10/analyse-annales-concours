@@ -83,12 +83,47 @@ def test_un_renvoi_vers_une_section_existante_est_un_avertissement():
     assert "section" in anomalie.message
 
 
-def test_un_renvoi_vers_une_section_inexistante_est_bloquant():
+def test_un_renvoi_vers_une_section_hors_profil_est_un_avertissement():
+    """Pointer une section absente du PROFIL est un défaut de portée, pas
+    d'intégrité : la section existe au programme, elle n'est simplement pas une
+    cible. Le classer bloquant faisait échouer une construction brute complète
+    — 44/44 sections, un artefact payé 3 $ — pour un motif que l'arbitrage des
+    renvois résorbe."""
     notions = [
         _notion("preuve.une", [{"motif": "m", "voir": "section_morte", "voir_type": "section"}])
     ]
     (anomalie,) = ref.verifier_renvois(notions, SECTIONS)
-    assert anomalie.gravite == "bloquant"
+    assert anomalie.gravite == ref.ATTENDU
+    assert anomalie.code == "renvoi_mort_section"
+    assert anomalie.code in ref.RESORBE_PAR
+
+
+def test_un_renvoi_mort_vers_une_notion_reste_bloquant():
+    """La contrepartie : une notion citée qui n'existe pas rend le référentiel
+    inutilisable. C'est de l'intégrité, et ça ne se résorbe pas plus tard."""
+    notions = [
+        _notion("preuve.une", [{"motif": "m", "voir": "preuve.fantome", "voir_type": "notion"}])
+    ]
+    (anomalie,) = ref.verifier_renvois(notions, SECTIONS)
+    assert anomalie.gravite == ref.FATAL
+    assert anomalie.code == "renvoi_mort_notion"
+
+
+def test_toute_regle_du_controle_final_a_une_severite_declaree():
+    """Le défaut qu'on corrige ici est d'avoir des sévérités écrites au site
+    d'appel. Une règle sans entrée dans la table est FATALE par défaut — mieux
+    vaut bloquer sur une règle oubliée que la laisser passer en silence — mais
+    elle ne doit pas exister."""
+    assert set(ref.RESORBE_PAR) <= set(ref.SEVERITE_CONTROLE)
+    for code, gravite in ref.SEVERITE_CONTROLE.items():
+        assert gravite in (ref.FATAL, ref.ATTENDU), (code, gravite)
+    # Ce que la table classe attendu ne doit jamais être un défaut d'intégrité.
+    for code in ("renvoi_non_resolu", "renvoi_mort_notion", "renvoi_sans_type",
+                 "identifiant_double", "section_perdue"):
+        assert ref.SEVERITE_CONTROLE[code] == ref.FATAL, code
+    for code in ("notions_au_dessus_cible", "section_au_dessus_seuil",
+                 "renvoi_vers_section", "renvoi_mort_section"):
+        assert ref.SEVERITE_CONTROLE[code] == ref.ATTENDU, code
 
 
 def test_un_renvoi_sans_type_est_bloquant():
