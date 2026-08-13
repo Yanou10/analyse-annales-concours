@@ -68,6 +68,11 @@ def commande(paquet: str, *arguments: str) -> list[str]:
     return [sys.executable, "-m", f"{paquet}.cli", *arguments]
 
 
+def commande_import(*arguments: str) -> list[str]:
+    """`annales-import`, joint par son module pour la même raison."""
+    return [sys.executable, "-m", "service.base", *arguments]
+
+
 def _empreinte_dossier(dossier: Path, motif: str = "*.yaml") -> str | None:
     if not dossier.is_dir():
         return None
@@ -117,6 +122,18 @@ class Etiquetage(BaseModel):
     exercice: str | None = None
     dry_run: bool = False
     modele: str | None = None
+
+
+class Import(BaseModel):
+    # `url` est volontairement ABSENT : `DATABASE_URL` vient de l'environnement
+    # du service et jamais du corps de la requête. Une URL de connexion porte
+    # un mot de passe, et un corps HTTP finit dans les journaux de
+    # l'orchestrateur — même raison que pour la clé Anthropic.
+    passe: str | None = Field(None, description="passe sous sorties/etiquettes/")
+    referentiel: str | None = Field(None, description="empreinte du référentiel")
+    lot: str | None = Field(None, description="défaut : le lot inscrit dans passe.json")
+    verifier_seulement: bool = False
+    creer_schema: bool = False
 
 
 class Mesure(BaseModel):
@@ -622,6 +639,111 @@ def mesurer(corps: Mesure) -> dict[str, Any]:
     tache = executeur.soumettre(Plan(
         endpoint="mesurer", lourde=False, preparer=preparer, reverser=reverser,
         contexte={"sous_commande": sous, "passes": passes, "referentiel": empreinte},
+    ))
+    return {"tache": tache.id, "etat": tache.etat, "lourde": False,
+            "suivi": f"/taches/{tache.id}"}
+
+
+@application.post("/importer")
+def importer(corps: Import) -> dict[str, Any]:
+    """`annales-import` — charge une passe dans Postgres. Idempotent.
+
+    L'import lit des fichiers locaux : le service descend d'abord de MinIO la
+    passe, son corpus et son référentiel, puis lance la commande. Le protocole
+    écrit dans `passes.protocole` vient de `passe.json`, pas de l'image : c'est
+    la configuration sous laquelle la passe a RÉELLEMENT été mesurée, et lui
+    substituer le `config/mesure.yaml` courant ferait mentir la base au premier
+    changement de protocole.
+    """
+    if not os.environ.get("DATABASE_URL"):
+        raise HTTPException(
+            status_code=503,
+            detail="DATABASE_URL absente de l'environnement du service : "
+                   "l'import échouerait après avoir été mis en file.",
+        )
+
+    # Contrôle de schéma : aucune donnée à descendre, aucune passe à nommer.
+    if corps.verifier_seulement:
+        def preparer_controle(espace: Path) -> Execution:
+            options = ["--creer-schema"] if corps.creer_schema else []
+            return Execution(commande=commande_import(*options, "--verifier-seulement"))
+
+        tache = executeur.soumettre(Plan(
+            endpoint="importer", lourde=False,
+            preparer=preparer_controle,
+            reverser=lambda espace: {"mode": "verification",
+                                     "creer_schema": corps.creer_schema},
+            contexte={"mode": "verification"},
+        ))
+        return {"tache": tache.id, "etat": tache.etat, "lourde": False,
+                "mode": "verification", "suivi": f"/taches/{tache.id}"}
+
+    if not corps.passe:
+        raise HTTPException(status_code=400,
+                            detail="`passe` est requis hors mode verifier_seulement")
+    empreinte = _exiger_referentiel(corps.referentiel or "")
+    try:
+        passe = valider_cle(corps.passe)
+    except CheminRefuse as err:
+        raise HTTPException(status_code=400, detail=str(err)) from None
+
+    carte_cle = f"{config.PREFIXE_ETIQUETTES}/{passe}/passe.json"
+    if not stockage.existe(config.SEAU_SORTIES, carte_cle):
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "erreur": "passe_incomplete",
+                "message": f"aucun {config.SEAU_SORTIES}/{carte_cle}",
+                "remede": "POST /etiqueter dépose etiquettes.json ET passe.json ; "
+                          "une passe sans sa carte ne sait plus sous quel "
+                          "protocole elle a été mesurée",
+            },
+        )
+
+    def preparer(espace: Path) -> Execution:
+        carte_locale = stockage.descendre(
+            config.SEAU_SORTIES, carte_cle, espace / "passe.json")
+        carte = json.loads(carte_locale.read_text(encoding="utf-8"))
+        lot = corps.lot or carte.get("lot")
+        if not lot:
+            raise RuntimeError("aucun lot : ni dans la requête, ni dans passe.json")
+
+        referentiel = _descendre_referentiel(empreinte, espace)
+        corpus = espace / "corpus"
+        stockage.descendre_prefixe(
+            config.SEAU_SORTIES, f"{config.PREFIXE_CORPUS}/{valider_cle(lot)}/", corpus)
+        etiquettes = espace / "passe"
+        stockage.descendre_prefixe(
+            config.SEAU_SORTIES, f"{config.PREFIXE_ETIQUETTES}/{passe}/", etiquettes)
+
+        # Le protocole de la passe, réécrit en YAML pour `--protocole`.
+        protocole = espace / "protocole.yaml"
+        protocole.write_text(
+            yaml.safe_dump(carte.get("protocole") or {}, allow_unicode=True,
+                           sort_keys=False),
+            encoding="utf-8",
+        )
+
+        appel = commande_import(
+            "--corpus", str(corpus),
+            "--referentiel", str(referentiel / "sections"),
+            "--etiquettes", str(etiquettes),
+            "--passe", passe,
+            "--protocole", str(protocole),
+        )
+        if carte.get("signature"):
+            appel += ["--signature", str(carte["signature"])]
+        if corps.creer_schema:
+            appel.append("--creer-schema")
+        return Execution(commande=appel)
+
+    def reverser(espace: Path) -> dict[str, Any]:
+        return {"passe": passe, "referentiel": empreinte,
+                "mode": "import", "idempotent": True}
+
+    tache = executeur.soumettre(Plan(
+        endpoint="importer", lourde=False, preparer=preparer, reverser=reverser,
+        contexte={"passe": passe, "referentiel": empreinte},
     ))
     return {"tache": tache.id, "etat": tache.etat, "lourde": False,
             "suivi": f"/taches/{tache.id}"}

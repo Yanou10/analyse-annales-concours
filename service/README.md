@@ -54,6 +54,7 @@ n'est comparable à rien.
 | `POST` | `/confronter` | `etage0 confronter` |
 | `POST` | `/etiqueter` | `etage3 etiqueter` **lourde** |
 | `POST` | `/mesurer` | `etage4 <sous-commande>` |
+| `POST` | `/importer` | `annales-import` |
 | `GET` | `/taches/{id}` · `/taches` | — |
 
 ### Une chaîne complète
@@ -127,19 +128,45 @@ qu'on croit encore vivante.
   objet nommé `../../etc/passwd`.
 - **Journalisation JSON sur stdout**, uvicorn compris : `docker logs … | jq`.
 
-## Import en base
+## Import en base — `POST /importer`
 
-Schéma de référence dans [`schema.sql`](schema.sql). **À lancer en premier :**
+`annales-import` tourne en tâche de fond comme le reste, et se suit par
+`/taches/{id}`.
 
 ```bash
-docker compose exec annales-service annales-import --verifier-seulement
-# écart attendu sur une base existante :
-#   exercices : colonnes absentes rang
-#   ALTER TABLE exercices ADD COLUMN IF NOT EXISTS rang INTEGER;
+# contrôle du schéma seul : ni passe ni référentiel requis, rien n'est écrit
+curl -s -X POST $S/importer -H 'content-type: application/json' \n     -d '{"verifier_seulement": true}'
+
+# première mise en place : applique service/schema.sql puis contrôle
+curl -s -X POST $S/importer -H 'content-type: application/json' \n     -d '{"verifier_seulement": true, "creer_schema": true}'
+
+# import d'une passe
+curl -s -X POST $S/importer -H 'content-type: application/json' \n     -d '{"passe":"p1","referentiel":"<empreinte>"}'
 ```
 
-L'import lit des fichiers locaux : descendre d'abord la passe voulue depuis
-MinIO. Idempotent et rejouable, tout dans une transaction.
+**`DATABASE_URL` vient de l'environnement du service et n'est jamais acceptée
+dans le corps de la requête** — une URL de connexion porte un mot de passe, et
+un corps HTTP finit dans les journaux de l'orchestrateur. C'est la même règle
+que pour la clé Anthropic. Absente, l'endpoint refuse en 503.
+
+Le service descend de MinIO la passe, son corpus et son référentiel, puis lance
+la commande. **Le protocole écrit dans `passes.protocole` vient de
+`passe.json`**, pas de l'image : c'est la configuration sous laquelle la passe a
+réellement été mesurée. Lui substituer le `config/mesure.yaml` courant ferait
+mentir la base au premier changement de protocole.
+
+Une passe sans son `passe.json` est refusée en 409 (`passe_incomplete`) : elle
+ne saurait plus dire sous quel protocole elle a été mesurée.
+
+Schéma de référence dans [`schema.sql`](schema.sql). Sur une base antérieure,
+un écart est attendu et la commande le nomme :
+
+```
+exercices : colonnes absentes rang
+ALTER TABLE exercices ADD COLUMN IF NOT EXISTS rang INTEGER;
+```
+
+Idempotent et rejouable, tout dans une transaction.
 
 ## Construction et déploiement
 

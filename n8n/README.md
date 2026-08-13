@@ -4,7 +4,8 @@ Un sujet `.md` arrive dans le seau MinIO `corpus` → le workflow l'extrait,
 l'étiquette en Batch, en tire la distribution, et s'arrête net si une étape
 échoue.
 
-[`pipeline.json`](pipeline.json) — 26 nœuds, importable tel quel.
+[`pipeline.json`](pipeline.json) — 30 nœuds, importable tel quel.
+**Aucune credential à configurer** : le workflow ne parle qu'au service.
 
 ## Importer
 
@@ -86,6 +87,8 @@ Lancer X → Attendre X (30 s) → Vérifier X (GET /taches/{id})
               └──non─── X irrécupérable ?  ──oui──→ Composer le rapport d'échec
 ```
 
+Quatre étapes suivent ce motif : extraction, étiquetage, mesure, import.
+
 Le webhook **répond immédiatement** (`onReceived`) : MinIO n'attend pas la fin
 d'une campagne de plusieurs heures.
 
@@ -99,6 +102,7 @@ les items.
 | extraction | 20 tours | 10 min |
 | **étiquetage** | **360 tours** | **3 h** |
 | mesure | 20 tours | 10 min |
+| import en base | 20 tours | 10 min |
 
 Trois heures pour l'étiquetage parce qu'un lot Batch met des dizaines de
 minutes : une borne courte tuerait une campagne qui se déroule normalement.
@@ -119,28 +123,28 @@ natif de n8n, et il évite de mettre une credential dans ce fichier-ci. Les deux
 nœuds terminaux « Notifier la réussite » et « Notifier l'absence de
 référentiel » sont là pour y accrocher la même chose côté succès.
 
-## Écriture en base — la limite à connaître
+## Écriture en base
 
-**Il n'existe pas d'endpoint HTTP pour l'import.** `annales-import` est une
-commande, et n8n ne peut pas l'exécuter dans le conteneur du service sans accès
-au socket Docker.
+`POST /importer` lance `annales-import` en tâche de fond, avec le même motif
+d'attente que les autres étapes. **Plus aucune credential dans ce workflow** :
+`DATABASE_URL` vient de l'environnement du service, et n'est jamais acceptée
+dans un corps de requête.
 
-Le nœud « Enregistrer la passe en base » est donc **désactivé à l'import**. Il
-n'écrit qu'une ligne dans `passes` — la seule table dont le workflow ait les
-données — et il exige une credential Postgres, qui ne peut pas voyager dans ce
-JSON. Pour l'activer : ouvrir le nœud, choisir une credential Postgres pointant
-la base `annales`, et le réactiver.
+L'import est idempotent : rejouer le workflow sur le même sujet ne duplique
+rien. `documents.empreinte` est unique, et les étiquettes portent la clé
+`(question_id, notion_id, passe)` — deux passes du même corpus coexistent au
+lieu de s'écraser.
 
-Le chargement complet — `documents`, `exercices`, `questions`, `notions`,
-`etiquettes` — reste à faire à la main :
+Le compte rendu final remonte le rapport de l'import, table par table.
+
+Avant la première exécution, contrôler le schéma :
 
 ```bash
-docker compose exec annales-service annales-import \
-  --corpus /travail/corpus --referentiel /travail/referentiel/genere/sections \
-  --etiquettes /travail/passe --passe <nom-de-la-passe>
+curl -s -X POST http://annales-service:8000/importer      -H 'content-type: application/json' \n     -d '{"verifier_seulement": true}'
 ```
 
-Le compte rendu de fin rappelle cette commande avec le nom de la passe.
+Sur une base antérieure à `exercices.rang`, la commande nomme l'écart et le
+correctif est `ALTER TABLE exercices ADD COLUMN IF NOT EXISTS rang INTEGER;`.
 
 ## Préalable : un référentiel
 

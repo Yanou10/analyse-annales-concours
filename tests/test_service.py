@@ -335,3 +335,79 @@ def test_la_liste_des_taches_est_antichronologique(client):
     dates = [t["cree"] for t in corps["taches"]]
     assert dates == sorted(dates, reverse=True)
     assert essai.get("/taches/inexistante").status_code == 404
+
+
+# --------------------------------------------------------------------------- #
+# POST /importer
+# --------------------------------------------------------------------------- #
+def test_importer_refuse_sans_database_url(client):
+    """503 immédiat plutôt qu'une tâche mise en file qui échouera."""
+    essai, _, _, _ = client
+    ancienne = os.environ.pop("DATABASE_URL", None)
+    try:
+        reponse = essai.post("/importer", json={"verifier_seulement": True})
+        assert reponse.status_code == 503
+        assert "DATABASE_URL" in reponse.json()["detail"]
+    finally:
+        if ancienne:
+            os.environ["DATABASE_URL"] = ancienne
+
+
+def test_importer_n_accepte_jamais_une_url_dans_le_corps(client):
+    """Une URL Postgres porte un mot de passe : elle ne doit pas transiter par
+    HTTP, où elle finirait dans les journaux de l'orchestrateur."""
+    from service.main import Import
+
+    assert "url" not in Import.model_fields
+    assert "mot_de_passe" not in Import.model_fields
+    # Un champ inconnu est ignoré par pydantic, pas transmis à la commande.
+    essai, _, _, _ = client
+    os.environ["DATABASE_URL"] = "postgresql://factice/annales"
+    try:
+        corps = essai.post("/importer", json={
+            "verifier_seulement": True,
+            "url": "postgresql://intrus:secret@ailleurs/base",
+        }).json()
+        for _ in range(60):
+            etat = essai.get(f"/taches/{corps['tache']}").json()
+            if etat["commande"]:
+                break
+            time.sleep(0.2)
+        assert "intrus" not in json.dumps(etat["commande"])
+        assert "--url" not in etat["commande"]
+    finally:
+        del os.environ["DATABASE_URL"]
+
+
+def test_importer_en_verification_ne_descend_rien(client):
+    """Le contrôle de schéma n'a besoin ni de passe, ni de référentiel."""
+    essai, _, _, _ = client
+    os.environ["DATABASE_URL"] = "postgresql://factice/annales"
+    try:
+        corps = essai.post("/importer", json={"verifier_seulement": True}).json()
+        assert corps["mode"] == "verification"
+        for _ in range(60):
+            etat = essai.get(f"/taches/{corps['tache']}").json()
+            if etat["commande"]:
+                break
+            time.sleep(0.2)
+        assert etat["commande"][1:3] == ["-m", "service.base"]
+        assert "--verifier-seulement" in etat["commande"]
+    finally:
+        del os.environ["DATABASE_URL"]
+
+
+def test_importer_exige_une_passe_et_son_referentiel(client):
+    essai, factice, _, _ = client
+    _poser_referentiel(factice)
+    os.environ["DATABASE_URL"] = "postgresql://factice/annales"
+    try:
+        # sans passe
+        r = essai.post("/importer", json={"referentiel": EMPREINTE})
+        assert r.status_code == 400 and "passe" in r.json()["detail"]
+        # passe sans sa carte passe.json
+        r = essai.post("/importer", json={"passe": "fantome", "referentiel": EMPREINTE})
+        assert r.status_code == 409
+        assert r.json()["detail"]["erreur"] == "passe_incomplete"
+    finally:
+        del os.environ["DATABASE_URL"]
