@@ -256,7 +256,7 @@ def cmd_construire(config: Config, args: argparse.Namespace) -> int:
         "jetons_cache_lus": cumul["cache_lus"],
         "sections_perdues": sections_perdues,
     }
-    ref.ecrire(referentiel, config, meta, unites_rejetees, reparations)
+    ref.ecrire(referentiel, config, meta, unites_rejetees, reparations, anomalies)
 
     _ecrire("")
     _ecrire(f"notions produites : {len(referentiel.notions)}")
@@ -306,8 +306,7 @@ def cmd_construire(config: Config, args: argparse.Namespace) -> int:
 
     if bloquants:
         _ecrire("")
-        _ecrire(f"⛔ INTÉGRITÉ — {len(bloquants)} défaut(s) bloquant(s), "
-                "le référentiel n'est pas livrable :")
+        _ecrire(f"⛔ INTÉGRITÉ — {len(bloquants)} défaut(s) :")
         for a in bloquants:
             _ecrire(f"  ✗ [{a.code or 'sans code'}] {a.message}")
     if attendus:
@@ -335,7 +334,27 @@ def cmd_construire(config: Config, args: argparse.Namespace) -> int:
         )
         _rendre_etalon(mesure)
 
-    return 2 if bloquants else 0
+    if bloquants:
+        _ecrire("")
+        if args.strict:
+            _ecrire(
+                f"⛔ --strict : {len(bloquants)} défaut(s) d'intégrité, "
+                "code retour 2, le référentiel n'est pas publié."
+            )
+        else:
+            # Un référentiel construit intégralement — 44 sections sur 44 — ne
+            # doit pas rester non publié pour deux renvois d'une section
+            # d'annexes que la purge retirera. Bloquer là arrête toute la chaîne
+            # aval : l'étiquetage sort aussitôt par « absence de référentiel ».
+            # Le rapport dit exactement la même chose ; seule la conséquence
+            # change.
+            _ecrire(
+                f"{len(bloquants)} défaut(s) d'intégrité — le référentiel est "
+                "PUBLIÉ quand même, et ils sont recensés dans `manifest.yaml` "
+                "sous `anomalies`. Relancer avec --strict pour que ces défauts "
+                "fassent échouer la commande."
+            )
+    return 2 if (bloquants and args.strict) else 0
 
 
 def _rendre_etalon(mesure: dict[str, Any]) -> None:
@@ -818,7 +837,13 @@ def main(argv: list[str] | None = None) -> int:
     p_cons.add_argument("--dry-run", action="store_true", help="affiche les prompts, n'appelle rien")
     p_cons.add_argument("--section", help="en dry-run, limite l'affichage à une section")
     p_cons.add_argument("--rejouer", action="store_true", help="ignore et purge le journal")
-    p_cons.add_argument("--strict", action="store_true", help="sort en erreur à la première anomalie")
+    p_cons.add_argument(
+        "--strict", action="store_true",
+        help="sort en erreur à la première anomalie de section, ET fait échouer "
+             "la commande sur un défaut d'intégrité du contrôle final. Sans lui, "
+             "le contrôle rapporte tout mais le référentiel est publié : bloquer "
+             "la publication d'un référentiel complet arrête toute la chaîne aval.",
+    )
     p_cons.set_defaults(fonction=cmd_construire)
 
     p_inj = sous.add_parser(

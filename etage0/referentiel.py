@@ -374,6 +374,7 @@ def ecrire(
     meta: dict[str, Any],
     unites_rejetees: list[dict[str, str]] | None = None,
     reparations: list[dict[str, str]] | None = None,
+    anomalies: list[Anomalie] | None = None,
 ) -> None:
     profil = config.profil
     racine = config.sortie
@@ -432,6 +433,15 @@ def ecrire(
         "notions_total": len(referentiel.notions),
         "reparations": reparees,
         "unites_rejetees": rejets,
+        # Le contrôle final ne fait plus échouer la commande : ses constats
+        # doivent donc être RECENSÉS, pas seulement affichés. Un défaut
+        # d'intégrité qui ne vit que dans un flux stderr disparaît avec le
+        # terminal, et le référentiel publié ne saurait plus ce qu'on lui
+        # reproche.
+        "anomalies": [
+            {"gravite": a.gravite, "code": a.code, "message": a.message}
+            for a in (anomalies or [])
+        ],
         "migrations": {},
         "changelog": [
             {

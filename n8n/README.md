@@ -116,12 +116,21 @@ curl -X POST https://<ton-domaine>/webhook/programme \
 liste `corpus/` par `GET /objets?seau=corpus` et dit combien de sujets y dorment
 déjà.
 
-Le contrôle final de l'étage 0 sépare **intégrité** (bloquant, code retour non
-nul, référentiel non livré) et **granularité** (avertissement, référentiel
-livré). Les seconds — trop de notions, section au-dessus du seuil, renvoi vers
-une section — sont normaux sur une construction brute et se résorbent à la
-purge des annexes puis à la confrontation au corpus. Le compte rendu les remonte
-depuis `stderr` pour qu'ils soient vus, sans faire échouer la branche.
+Le contrôle final de l'étage 0 **ne bloque plus la publication**. Il rapporte
+tout — défauts d'**intégrité** comme avertissements de **granularité** — mais le
+référentiel est publié dans tous les cas, et les constats sont recensés dans
+`manifest.yaml` sous `anomalies`.
+
+Le compte rendu remonte les deux catégories depuis `stderr`, dans
+`defauts_integrite` et `avertissements_granularite`, et bascule `resultat` en
+« réussi avec réserves » dès qu'un défaut d'intégrité subsiste. Rien n'est
+masqué : seule la conséquence a changé.
+
+Bloquer arrêtait toute la chaîne aval — un référentiel construit intégralement
+restait non publié pour deux renvois d'une section d'annexes, et l'étiquetage
+sortait aussitôt par « absence de référentiel ». Le comportement bloquant reste
+accessible par `etage0 construire --strict`, pour quand la purge des annexes
+sera écrite.
 
 **Il n'enchaîne pas.** Les sujets déposés *avant* la construction n'ont
 déclenché aucun événement exploitable, et l'étiquetage se paie : le référentiel

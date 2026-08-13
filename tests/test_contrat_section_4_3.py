@@ -205,3 +205,114 @@ def test_les_codes_de_regle_sont_uniques():
     rendraient les réparations indistinguables."""
     codes = [r.code for r in contrats.REGLES_NOTION + contrats.REGLES_DECISION]
     assert len(codes) == len(set(codes))
+
+
+# --------------------------------------------------------------------------- #
+# Publication : le contrôle final rapporte, il ne bloque plus
+# --------------------------------------------------------------------------- #
+class _ReponseFactice:
+    """Ce que `appeler_outil` rend, réduit à ce que `cmd_construire` en lit."""
+
+    def __init__(self, charge):
+        self.charge = charge
+        self.jetons_entree = self.jetons_sortie = 0
+        self.jetons_cache_lus = self.jetons_cache_ecrits = 0
+        self.notes = []
+
+    def usage(self):
+        return {"modele": "factice", "entree": 0, "cache_lus": 0,
+                "cache_ecrits": 0, "sortie": 0, "prompt_total": 0}
+
+
+class _FournisseurFactice:
+    nom = "factice"
+
+    def __init__(self, charge):
+        self._charge = charge
+
+    def appeler_outil(self, *_args, **_kwargs):
+        return _ReponseFactice(self._charge)
+
+
+def _construire_avec_defaut(tmp_path, monkeypatch, fabrique_notion, strict):
+    """Une construction complète dont UN renvoi ne résout pas : c'est le cas
+    réel — le modèle invente une cible, la section `idiomes` sera purgée plus
+    tard, et rien de tout cela ne doit empêcher la publication."""
+    import argparse
+
+    from etage0 import cli
+    from etage0.config import Config
+
+    programme = tmp_path / "programme.md"
+    programme.write_text(
+        "# 1 Section unique\n\n"
+        "| Notions | Commentaires |\n| --- | --- |\n"
+        "| Écrire un algorithme glouton | on attend une justification |\n",
+        encoding="utf-8",
+    )
+    sortie = tmp_path / "sortie"
+    monkeypatch.setenv("ETAGE0_PROGRAMME", str(programme))
+    monkeypatch.setenv("ETAGE0_SORTIE", str(sortie))
+    monkeypatch.setenv("ETAGE0_JOURNAL", str(tmp_path / "journal.jsonl"))
+    config = Config.depuis_env()
+
+    # L'identifiant d'unité vient de la segmentation réelle : une valeur
+    # inventée serait rejetée par le contrat, et le test mesurerait alors le
+    # rejet plutôt que la publication.
+    from etage0.segmentation import filtrer, grouper_par_section, segmenter
+
+    rapport = filtrer(
+        segmenter(programme, config.profil.genres_ecartes),
+        config.profil.titres_exclus, config.profil.prefixes_exclus,
+    )
+    assert rapport.unites, "le programme d'essai doit produire au moins une unité"
+    unite = rapport.unites[0]
+
+    notion = fabrique_notion(
+        "ecrire_algorithme_glouton",
+        exclusions=[{"motif": "à ne pas confondre",
+                     "voir_slug": "cible_totalement_inventee_xyz"}],
+    )
+    charge = {"decisions": [{"unite_id": unite.id, "verdict": "admis_reformule",
+                             "raison": "reformulation opératoire",
+                             "notions": [notion]}]}
+
+    def _fournisseur(_config):
+        return _FournisseurFactice(charge)
+
+    monkeypatch.setattr(cli, "construire_fournisseur", _fournisseur)
+
+    args = argparse.Namespace(dry_run=False, section=None, rejouer=False, strict=strict)
+    code = cli.cmd_construire(config, args)
+    return code, sortie
+
+
+def test_un_defaut_d_integrite_ne_bloque_plus_la_publication(
+    tmp_path, monkeypatch, fabrique_notion
+):
+    """Le motif : un référentiel construit intégralement restait non publié pour
+    deux renvois d'une section d'annexes, ce qui arrêtait toute la chaîne aval —
+    l'étiquetage sortait aussitôt par « absence de référentiel »."""
+    import yaml
+
+    code, sortie = _construire_avec_defaut(tmp_path, monkeypatch, fabrique_notion,
+                                           strict=False)
+    assert code == 0
+    assert (sortie / "sections").is_dir(), "le référentiel doit être écrit"
+    assert list((sortie / "sections").glob("*.yaml"))
+
+    # Rien n'est masqué : le défaut est recensé dans le manifeste.
+    manifeste = yaml.safe_load((sortie / "manifest.yaml").read_text(encoding="utf-8"))
+    bloquants = [a for a in manifeste["anomalies"] if a["gravite"] == "bloquant"]
+    assert bloquants, manifeste["anomalies"]
+    assert any(a["code"] == "renvoi_non_resolu" for a in bloquants)
+
+
+def test_strict_retablit_l_echec_sur_defaut_d_integrite(
+    tmp_path, monkeypatch, fabrique_notion
+):
+    """Le comportement bloquant reste accessible pour quand la chaîne sera
+    complète — purge des annexes comprise."""
+    code, _ = _construire_avec_defaut(tmp_path, monkeypatch, fabrique_notion,
+                                      strict=True)
+    assert code == 2

@@ -141,6 +141,11 @@ qu'on croit encore vivante.
   rapports d'annales dépassent 22 sections (26, 36, 51, 53) ; c'est la forme
   qui les sépare, un programme numérote ses sections quand un rapport les
   titre. Mesuré : 64 % pour le programme officiel, 0 à 25 % pour les annales.
+- **Le contrôle final ne bloque plus la publication.** Il rapporte tout et
+  recense ses constats dans `manifest.yaml` sous `anomalies`, mais le
+  référentiel est publié : bloquer arrêtait toute la chaîne aval pour des
+  défauts localisés dans une section d'annexes destinée à la purge.
+  `etage0 construire --strict` rétablit l'échec sur défaut d'intégrité.
 - **Les renvois inventés sont repointés avant le contrôle qualité.** Le modèle
   écrit `prouver_terminaison_variant` là où la notion s'appelle
   `prouver_terminaison_par_variant` : l'appariement de l'étalon repointe
