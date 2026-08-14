@@ -1,6 +1,6 @@
 # Analyse d'annales de concours
 
-Chaîne d'automatisation qui aligne un corpus d'épreuves sur le programme officiel d'une matière, pour répondre à une question simple : quoi réviser en priorité ?
+Pipeline d'alignement d'un corpus d'épreuves sur le programme officiel d'une matière, produisant un ordre de priorité de révision fondé sur la fréquence mesurée des notions.
 
 ---
 
