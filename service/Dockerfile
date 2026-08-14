@@ -8,9 +8,12 @@ ENV PYTHONUNBUFFERED=1 \
     SERVICE_RACINE_CODE=/app \
     SERVICE_TRAVAIL=/travail \
     ETAGE0_RACINE=/app \
-    ETAGE0_PROGRAMME=/app/programme/spe777_annexe_1373646.md
-# ETAGE0_PROGRAMME ne sert plus qu'au calcul de signature de `/sante` :
-# `POST /construire` le remplace par le programme descendu de MinIO.
+    ETAGE0_PROGRAMME=/travail/programme.md
+# Le programme officiel n'est pas dans l'image : c'est une ENTRÉE, déposée
+# dans le seau `programmes`. Cette variable ne sert qu'à satisfaire
+# `Config.depuis_env()` — le calcul de signature de `/sante` ne lit jamais
+# le fichier, et `POST /construire` la remplace par le programme descendu
+# de MinIO. Le chemin n'a donc pas besoin d'exister.
 
 # Le référentiel n'est NI dans l'image NI un préalable : c'est une donnée
 # d'entrée que `POST /construire` produit depuis un programme officiel,
@@ -37,7 +40,6 @@ RUN pip install --no-cache-dir '.[service]'
 # volume — l'image ne contient aucune donnée de travail.
 COPY profils ./profils
 COPY config ./config
-COPY spe777_annexe_1373646.md ./programme/spe777_annexe_1373646.md
 
 # La construction ÉCHOUE tout de suite si le paquet est incomplet. C'est le
 # défaut qui avait été trouvé sur le paquet précédent : `pip install .`

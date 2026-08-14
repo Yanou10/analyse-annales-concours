@@ -54,6 +54,9 @@ campagne-*.log
 #     tout l'historique ;
 #   - corpus, passes et tableau de bord se régénèrent par une commande.
 /[0-9][0-9][0-9][0-9]_*.md
+# Le programme officiel est une ENTRÉE, au même titre que les sujets :
+# il se dépose dans le seau `programmes`, il n'est pas du code.
+/spe777_annexe_*.md
 /[0-9][0-9][0-9][0-9]_*.json
 corpus/
 .etage0/

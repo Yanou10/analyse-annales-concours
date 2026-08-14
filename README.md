@@ -76,6 +76,10 @@ Chaque étape est reprenable : les appels déjà payés sont journalisés dans
 `.etage0/journal.jsonl` et rejoués sans nouvel appel.
 
 ```bash
+# 0. Déposer le programme officiel et les sujets. Ni l'un ni les autres ne sont
+#    versionnés : ce sont des entrées, et les sujets de concours ne sont pas à
+#    rediffuser. `ETAGE0_PROGRAMME` pointe le fichier déposé.
+
 # 1. Segmentation — déterministe, aucun appel réseau.
 #    À relire à l'œil avant de dépenser le premier euro : l'échec de la version
 #    précédente du projet était un bug d'étage déterministe qui a contaminé
@@ -109,7 +113,8 @@ annales-import --corpus corpus --referentiel referentiel/genere/sections \
                --etiquettes passe-39 --passe passe-39
 ```
 
-Le référentiel, le corpus et les passes ne sont pas versionnés : ce sont des
+Le programme officiel, les sujets, le référentiel, le corpus et les passes ne
+sont pas versionnés : les deux premiers sont des entrées, les trois autres des
 données produites. `referentiel/sondes.yaml`, en revanche, s'écrit à la main —
 une sonde est une question posée au corpus, pas une notion.
 

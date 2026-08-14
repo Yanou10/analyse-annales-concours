@@ -106,7 +106,7 @@ est bloqué aussi.** C'est le bon défaut à 3 $ l'appel. Pour passer outre :
 ```bash
 curl -X POST https://<ton-domaine>/webhook/programme \
      -H 'content-type: application/json' \
-     -d '{"cle":"spe777_annexe_1373646.md","forcer":true}'
+     -d '{"cle":"programme-officiel.md","forcer":true}'
 ```
 
 ## Borne

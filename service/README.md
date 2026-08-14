@@ -74,7 +74,7 @@ curl -s $S/sante | jq '{etat, referentiels}'
 
 # 1. construire un référentiel depuis un programme officiel
 curl -s -X POST $S/construire -H 'content-type: application/json' \
-  -d '{"programme":"spe777_annexe_1373646.md"}'
+  -d '{"programme":"programme-officiel.md"}'
 # → l'empreinte apparaît dans le résultat de la tâche
 REF=$(curl -s $S/taches/<id> | jq -r .resultat.empreinte)
 
