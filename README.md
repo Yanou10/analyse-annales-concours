@@ -5,10 +5,6 @@ construit depuis le programme officiel, pour produire un **ordre de priorité de
 révision** : ce qui tombe le plus, ce qui ne tombe jamais, et où le référentiel
 lui-même est à sa limite.
 
-Appliqué ici aux annales d'informatique des ENS (MPI et MP option info,
-2017–2025). La chaîne ne connaît rien de l'informatique : elle prend un
-programme officiel et un corpus, et vaut pour toute matière qui a les deux.
-
 ---
 
 ## La chaîne
@@ -48,11 +44,6 @@ flowchart TB
     orch -.->|"pilote"| chaine
 ```
 
-Le trait pointillé de `confronter` vers le référentiel est la boucle de retour :
-le corpus révèle des notions que le programme ne nomme pas. Dix des 182 notions
-viennent de là, admises seulement si attestées dans **au moins deux fichiers
-distincts**.
-
 ---
 
 ## Installation
@@ -83,7 +74,3 @@ Quatre commandes sont installées : `etage0`, `etage1`, `etage3`, `etage4`, plus
 | [`n8n/`](n8n/) | les deux workflows d'orchestration |
 | [`tests/`](tests/) | 121 tests |
 
-Chaque défaut corrigé a laissé un test qui le rejoue. Les commentaires du code
-disent *pourquoi* une règle existe, avec le cas qui l'a rendue nécessaire — une
-section de programme perdue en silence, 30 % du texte non extrait, un plafond de
-compilation de grammaires qui n'apparaît qu'en mode Batch.
