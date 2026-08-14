@@ -42,20 +42,25 @@ ARN postent donc au même endroit : impossible de router `programmes` vers
 `/programme` et `corpus` vers `/traiter` avec une cible unique. Il en faut
 **deux**, chacune avec son endpoint, et chaque bucket s'abonne à la sienne.
 
+**`mc admin config set` ignore SILENCIEUSEMENT `enable=on`.** La cible est
+créée, l'endpoint enregistré, et aucun événement ne part — sans message
+d'erreur. L'activation doit passer par l'environnement du conteneur MinIO :
+
+```yaml
+# docker-compose.yml, service minio
+environment:
+  MINIO_NOTIFY_WEBHOOK_ENABLE_n8n: "on"
+  MINIO_NOTIFY_WEBHOOK_ENDPOINT_n8n: "https://<ton-domaine>/webhook/traiter"
+  MINIO_NOTIFY_WEBHOOK_ENABLE_n8n_programme: "on"
+  MINIO_NOTIFY_WEBHOOK_ENDPOINT_n8n_programme: "https://<ton-domaine>/webhook/programme"
+```
+
+Redémarrer MinIO, puis abonner les buckets :
+
 ```bash
 mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD"
 
-# --- cible 1 : les sujets -------------------------------------------------- #
-mc admin config set local notify_webhook:n8n \
-    endpoint="https://<ton-domaine>/webhook/traiter" queue_limit="100"
-
-# --- cible 2 : les programmes ---------------------------------------------- #
-mc admin config set local notify_webhook:n8n_programme \
-    endpoint="https://<ton-domaine>/webhook/programme" queue_limit="100"
-
-mc admin service restart local      # une seule fois, après les deux
-
-# --- abonnements ----------------------------------------------------------- #
+# --- abonnements
 mc event add local/corpus     arn:minio:sqs::n8n:webhook           --event put --suffix .md
 mc event add local/programmes arn:minio:sqs::n8n_programme:webhook --event put --suffix .md
 
