@@ -112,7 +112,9 @@ def client(tmp_path_factory):
     seaux = tmp_path_factory.mktemp("seaux")
     os.environ["SERVICE_TRAVAIL"] = str(travail)
     os.environ["SERVICE_RACINE_CODE"] = str(RACINE)
-    os.environ.setdefault("ETAGE0_PROGRAMME", str(RACINE / "spe777_annexe_1373646.md"))
+    # `Config.depuis_env()` n'exige que la variable, pas le fichier : le
+    # calcul de signature ne lit jamais le programme.
+    os.environ.setdefault("ETAGE0_PROGRAMME", str(travail / "programme.md"))
     os.environ.setdefault("ETAGE0_MODELE", "claude-sonnet-5")
     os.environ.setdefault("ETAGE0_REFLEXION", "0")
     for module in [m for m in list(sys.modules) if m.startswith("service")]:
@@ -129,6 +131,30 @@ def client(tmp_path_factory):
 
     with TestClient(service_main.application) as essai:
         yield essai, factice, travail, seaux
+
+
+def _programme_minimal(destination: Path) -> Path:
+    """Un document qui a la FORME d'un programme officiel : 44 sections
+    numérotées hiérarchiquement, avec une unité par section.
+
+    Fabriqué plutôt que copié : le programme officiel est une entrée, il n'est
+    pas versionné, et un test qui saute sur un clone frais ne prouve rien. Ce
+    qu'on vérifie ici est le garde-fou d'entrée, qui compte des sections et
+    mesure leur numérotation — pas le contenu du programme.
+    """
+    lignes: list[str] = []
+    for numero in range(1, 12):
+        lignes.append(f"# {numero} Chapitre {numero}\n\n")
+        for sous in range(1, 5):
+            lignes.append(f"## {numero}.{sous} Section {numero}.{sous}\n\n")
+            lignes.append("| Notions | Commentaires |\n| --- | --- |\n")
+            lignes.append(
+                f"| Écrire un algorithme {numero}.{sous} "
+                "| on attend une justification |\n\n"
+            )
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text("".join(lignes), encoding="utf-8")
+    return destination
 
 
 def _poser_referentiel(factice: StockageFactice, empreinte: str = EMPREINTE) -> None:
@@ -232,13 +258,10 @@ def test_construire_refuse_un_programme_absent(client):
 
 def test_construire_est_lourd_et_exige_la_cle(client):
     essai, factice, _, _ = client
-    programme = RACINE / "spe777_annexe_1373646.md"
-    if not programme.is_file():
-        pytest.skip("programme officiel absent")
     (factice.racine / "programmes").mkdir(parents=True, exist_ok=True)
-    # Un vrai programme : depuis le garde-fou d'entrée, un fichier d'une ligne
-    # est refusé en 422 avant même d'atteindre la file.
-    shutil.copy(programme, factice.racine / "programmes" / "p.md")
+    # Depuis le garde-fou d'entrée, un fichier d'une ligne est refusé en 422
+    # avant même d'atteindre la file : il faut la forme d'un programme.
+    _programme_minimal(factice.racine / "programmes" / "p.md")
     ancienne = os.environ.pop("ANTHROPIC_API_KEY", None)
     try:
         assert essai.post("/construire", json={"programme": "p.md"}).status_code == 503
@@ -477,10 +500,8 @@ def test_un_sujet_d_annales_est_refuse_en_422_avant_tout_appel(client):
 
 def test_un_vrai_programme_passe_le_garde_fou(client):
     essai, factice, _, _ = client
-    programme = RACINE / "spe777_annexe_1373646.md"
-    if not programme.is_file():
-        pytest.skip("programme officiel absent")
-    shutil.copy(programme, factice.racine / "programmes" / "officiel.md")
+    (factice.racine / "programmes").mkdir(parents=True, exist_ok=True)
+    _programme_minimal(factice.racine / "programmes" / "officiel.md")
     os.environ["ANTHROPIC_API_KEY"] = "factice"
     try:
         reponse = essai.post("/construire", json={"programme": "officiel.md",

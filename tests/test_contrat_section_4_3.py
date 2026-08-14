@@ -259,7 +259,7 @@ def _construire_avec_defaut(tmp_path, monkeypatch, fabrique_notion, strict):
     # L'identifiant d'unité vient de la segmentation réelle : une valeur
     # inventée serait rejetée par le contrat, et le test mesurerait alors le
     # rejet plutôt que la publication.
-    from etage0.segmentation import filtrer, grouper_par_section, segmenter
+    from etage0.segmentation import filtrer, segmenter
 
     rapport = filtrer(
         segmenter(programme, config.profil.genres_ecartes),

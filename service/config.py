@@ -54,11 +54,6 @@ PREFIXE_ETIQUETTES = "etiquettes"
 PREFIXE_CONFRONTATIONS = "confrontations"
 PREFIXE_MESURES = "mesures"
 
-#: Une seule tâche lourde à la fois. L'étiquetage appelle l'API et se paie :
-#: deux passes concurrentes sur le même corpus doubleraient la facture sans
-#: rien apporter, le journal ne dédoublonnant qu'APRÈS l'appel.
-COMMANDES_LOURDES = frozenset({"etiqueter"})
-
 DUREE_MAX = int(os.environ.get("SERVICE_DUREE_MAX", 26 * 3600))
 SORTIE_MAX = int(os.environ.get("SERVICE_SORTIE_MAX", 20_000))
 
@@ -90,35 +85,6 @@ def valider_empreinte(empreinte: str) -> str:
             "(attendu : 16 caractères hexadécimaux)"
         )
     return normalisee
-
-
-def resoudre(chemin: str, doit_exister: bool = True) -> Path:
-    """Résout un chemin client sous `TRAVAIL`, ou refuse.
-
-    La vérification porte sur le chemin RÉSOLU, pas sur la chaîne : filtrer
-    `..` par recherche de motif laisse passer les liens symboliques et les
-    chemins absolus, et c'est le genre de contrôle qu'on croit avoir fait.
-    """
-    if not chemin or chemin.strip() != chemin:
-        raise CheminRefuse(f"chemin vide ou mal formé : {chemin!r}")
-    candidat = Path(chemin)
-    absolu = (candidat if candidat.is_absolute() else TRAVAIL / candidat).resolve()
-    try:
-        absolu.relative_to(TRAVAIL)
-    except ValueError:
-        raise CheminRefuse(
-            f"chemin hors du volume de travail : {chemin!r} → {absolu} "
-            f"(autorisé : {TRAVAIL})"
-        ) from None
-    if doit_exister and not absolu.exists():
-        raise CheminRefuse(f"introuvable : {chemin!r}")
-    return absolu
-
-
-def resoudre_plusieurs(chemins: list[str], doit_exister: bool = True) -> list[Path]:
-    if not chemins:
-        raise CheminRefuse("aucun chemin fourni")
-    return [resoudre(c, doit_exister) for c in chemins]
 
 
 def environnement_etages() -> dict[str, str]:
