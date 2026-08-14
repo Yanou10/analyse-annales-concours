@@ -1,9 +1,6 @@
-# Annales — référentiel de notions attribuables
+# Analyse d'annales de concours
 
-Étiqueter les questions de sujets de concours contre un référentiel de notions
-construit depuis le programme officiel, pour produire un **ordre de priorité de
-révision** : ce qui tombe le plus, ce qui ne tombe jamais, et où le référentiel
-lui-même est à sa limite.
+Chaîne d'automatisation qui aligne un corpus d'épreuves sur le programme officiel d'une matière, pour répondre à une question simple : quoi réviser en priorité ?
 
 ---
 
