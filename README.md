@@ -1,73 +1,72 @@
-# Analyse d'annales de concours
+# exam-corpus-pipeline
 
-Pipeline d'alignement d'un corpus d'épreuves sur le programme officiel d'une matière, produisant un ordre de priorité de révision fondé sur la fréquence mesurée des notions.
+Maps a corpus of past exam papers onto an official syllabus and outputs a revision priority ranking based on measured topic frequency.
 
----
+Instead of guessing what to revise, you get an ordering built from what the examiners actually asked, over every paper in the corpus.
 
-## La chaîne
+## What it does
 
-```mermaid
-flowchart TB
-    subgraph orch ["Orchestration — VPS"]
-        direction LR
-        MINIO[("MinIO<br/>programmes · corpus · sorties")]
-        N8N["n8n<br/>2 workflows"]
-        API["Service HTTP<br/>FastAPI · tâches de fond"]
-        PG[("PostgreSQL<br/>annales")]
-        MINIO -->|"s3:ObjectCreated"| N8N
-        N8N -->|"POST /construire /extraire<br/>/etiqueter /mesurer /importer"| API
-        API -->|"descend, exécute, reverse"| MINIO
-        API --> PG
-    end
+The pipeline runs in five stages. Each stage writes its output to object storage, so any stage can be re-run on its own without redoing the ones before it.
 
-    subgraph chaine ["Chaîne de traitement"]
-        direction TB
-        PROG["Programme officiel<br/>(.md)"]
-        REF["Référentiel<br/>182 notions typées"]
-        SUJ["Sujets bruts<br/>(.md)"]
-        COR["Corpus extrait<br/>338 exercices · 2 199 questions"]
-        ETQ["Étiquetage<br/>protocole figé · API Batch"]
-        MES["Mesures<br/>ventilations · tableau de bord"]
+| Stage | Input | Output |
+|---|---|---|
+| 0 — Reference | Official syllabus (`.md`) | Reference of **182 typed concepts**, with a rule registry (severity levels), typed cross-references, and a check of the corpus against the reference |
+| 1 — Extraction | Raw exam papers (`.md`) | **338 exercises, 2,199 questions** — segmented by heading, deduplicated by content hash |
+| 3 — Labelling | Questions + reference | Each question tagged with the concepts it tests, under a frozen and verified prompt protocol, run through the Anthropic Batch API |
+| 4 — Measurement | Labels | Frequency breakdowns and a standalone HTML dashboard |
+| 5 — Storage | Results | PostgreSQL import via the HTTP service |
 
-        PROG -->|"etage0 construire"| REF
-        SUJ -->|"etage1 extraire"| COR
-        REF --> ETQ
-        COR --> ETQ
-        ETQ -->|"etage3"| MES
-        MES -->|"etage4"| BASE["Base de données"]
-        COR -.->|"etage0 confronter"| REF
-    end
+## Why the labels can be trusted
 
-    orch -.->|"pilote"| chaine
+An LLM labelling 2,199 questions will be confidently wrong somewhere. Three things guard against that:
+
+- **Frozen prompt protocol.** The labelling prompt is versioned and fixed, so two runs are comparable and a change in output means a change in input, not in wording.
+- **Scored against a verified sample.** Labels are checked against answers verified by hand, and the score is reported rather than assumed.
+- **Batch API.** Grouping requests roughly halved the cost and the wall-clock time, which is what made a verification pass affordable in the first place.
+
+## Architecture
+
+```
+MinIO  ──(s3:ObjectCreated)──►  n8n  ──HTTP──►  FastAPI service
+  ▲                                                   │
+  │                                          /build /extract
+  └──────────── results, dashboards ◄──────  /label /measure /import
+                                                      │
+                                                      ▼
+                                                 PostgreSQL
 ```
 
----
+Dropping a syllabus or a paper into MinIO triggers the whole chain. The FastAPI service runs the long stages as background tasks with progress tracking, so an HTTP call returns immediately and the caller polls for state.
 
-## Installation
+## Stack
+
+Python · FastAPI · PostgreSQL · MinIO · n8n · Docker · Caddy (HTTPS) · Anthropic Batch API · pytest
+
+## Running it
 
 ```bash
-git clone git@github.com:Yanou10/annales.git && cd annales
-python -m venv .venv && . .venv/bin/activate      # Windows : .venv\Scripts\activate
-pip install '.[service,dev]'
-cp .env.example .env                               # y mettre la clé Anthropic
-pytest -q                                          # 121 tests
+cp .env.example .env        # ANTHROPIC_API_KEY, MinIO and Postgres credentials
+docker compose up -d        # five services behind HTTPS
 ```
 
-Quatre commandes sont installées : `etage0`, `etage1`, `etage3`, `etage4`, plus
-`annales-import`.
+Import the two workflows in `n8n/` and point them at the service.
 
----
+Each stage is also runnable on its own from the CLI, which is how you re-label a corpus after editing the reference without re-extracting anything.
 
+## Tests
 
-## Structure
+```bash
+pytest                      # 121 tests
+```
 
-| dossier | rôle |
-|---|---|
-| [`etage0/`](etage0/) | programme officiel → référentiel ; registre de règles à sévérité, renvois typés, confrontation au corpus |
-| [`etage1/`](etage1/) | sujets bruts → exercices et questions ; segmentation par titres, déduplication par condensat |
-| [`etage3/`](etage3/) | étiquetage contre le référentiel ; protocole vérifié, mode Batch |
-| [`etage4/`](etage4/) | ventilations et tableau de bord HTML autonome |
-| [`service/`](service/) | API HTTP, import PostgreSQL, image Docker |
-| [`n8n/`](n8n/) | les deux workflows d'orchestration |
-| [`tests/`](tests/) | 121 tests |
+The suite covers segmentation, deduplication, the rule registry, and the measurement stage. No network calls: labelling is exercised against recorded fixtures.
 
+## Reliability notes
+
+- Long jobs resume after an interruption instead of restarting from zero.
+- Stage outputs are content-addressed, so re-running a stage on unchanged input is a no-op.
+- Errors surface in the job state rather than being swallowed.
+
+## Licence
+
+MIT
